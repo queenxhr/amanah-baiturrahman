@@ -15,7 +15,43 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \App\RepositoryInterfaces\Wakif\WakifAuthRepositoryInterface::class,
+            \App\Repositories\Wakif\WakifAuthRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Wakif\WakifDashboardRepositoryInterface::class,
+            \App\Repositories\Wakif\WakifDashboardRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Wakif\WakifTransaksiRepositoryInterface::class,
+            \App\Repositories\Wakif\WakifTransaksiRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Wakif\WakifUserRepositoryInterface::class,
+            \App\Repositories\Wakif\WakifUserRepository::class
+        );
+
+        $this->app->bind(
+            \App\RepositoryInterfaces\Nazhir\NazhirAuthRepositoryInterface::class,
+            \App\Repositories\Nazhir\NazhirAuthRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Nazhir\NazhirDashboardRepositoryInterface::class,
+            \App\Repositories\Nazhir\NazhirDashboardRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Nazhir\NazhirTransaksiRepositoryInterface::class,
+            \App\Repositories\Nazhir\NazhirTransaksiRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Nazhir\NazhirProgramRepositoryInterface::class,
+            \App\Repositories\Nazhir\NazhirProgramRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Nazhir\NazhirLaporanRepositoryInterface::class,
+            \App\Repositories\Nazhir\NazhirLaporanRepository::class
+        );
     }
 
     /**

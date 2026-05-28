@@ -18,17 +18,22 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn([
-                'two_factor_secret',
-                'two_factor_recovery_codes',
-                'two_factor_confirmed_at',
-            ]);
+            $cols = [];
+            if (Schema::hasColumn('users', 'two_factor_secret')) {
+                $cols[] = 'two_factor_secret';
+            }
+            if (Schema::hasColumn('users', 'two_factor_recovery_codes')) {
+                $cols[] = 'two_factor_recovery_codes';
+            }
+            if (Schema::hasColumn('users', 'two_factor_confirmed_at')) {
+                $cols[] = 'two_factor_confirmed_at';
+            }
+            if (!empty($cols)) {
+                $table->dropColumn($cols);
+            }
         });
     }
 };
