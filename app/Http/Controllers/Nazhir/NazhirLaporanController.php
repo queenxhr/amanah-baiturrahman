@@ -63,4 +63,10 @@ class NazhirLaporanController extends Controller
         $this->service->updateLaporan($id, $request->all());
         return response()->json(['success' => true, 'message' => 'Laporan berhasil diupdate']);
     }
+
+    public function deleteLaporan($id)
+    {
+        $this->service->deleteLaporan($id);
+        return response()->json(['success' => true, 'message' => 'Laporan berhasil dihapus']);
+    }
 }

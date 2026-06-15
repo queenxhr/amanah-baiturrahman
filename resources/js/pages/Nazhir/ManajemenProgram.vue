@@ -53,6 +53,18 @@ const handleDeleteProgram = async (id: number) => {
     }
 };
 
+const handleDeleteLaporan = async (id: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?')) return;
+    try {
+        await axios.delete(`/api/nazhir/laporan/${id}`);
+        alert('Laporan berhasil dihapus!');
+        fetchPrograms();
+    } catch (e) {
+        console.error('Failed to delete report:', e);
+        alert('Gagal menghapus laporan.');
+    }
+};
+
 const handlePrevPage = () => {
     if (page.value > 1) {
         page.value--;
@@ -220,12 +232,21 @@ watch(sort, () => {
                     
                     <!-- Laporan Button -->
                     <template v-if="p.t05_laporan_penyalurans && p.t05_laporan_penyalurans.length > 0">
-                      <Link 
-                        :href="`/laporan/${p.t05_laporan_penyalurans[0].id_laporan}/edit`"
-                        class="px-2.5 py-1 text-[10px] font-black text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-300 transition duration-150 uppercase"
-                      >
-                        Edit Laporan
-                      </Link>
+                      <div class="flex items-center gap-1.5">
+                        <Link 
+                          :href="`/laporan/${p.t05_laporan_penyalurans[0].id_laporan}/edit`"
+                          class="px-2.5 py-1 text-[10px] font-black text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-300 transition duration-150 uppercase animate-all"
+                        >
+                          Edit Laporan
+                        </Link>
+                        <button 
+                          @click="handleDeleteLaporan(p.t05_laporan_penyalurans[0].id_laporan)"
+                          class="px-2.5 py-1 text-[10px] font-black text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition duration-150 uppercase cursor-pointer"
+                          title="Hapus Laporan"
+                        >
+                          Hapus
+                        </button>
+                      </div>
                     </template>
                     <template v-else>
                       <Link 

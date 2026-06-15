@@ -20,7 +20,7 @@ class WakifAuthService
         $user = $this->repo->findByEmail($data['email']);
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            throw new Exception("Invalid credentials", 401);
+            throw new Exception("Kata sandi salah. Silakan coba lagi", 401);
         }
 
         // Assuming Sanctum is used
@@ -36,11 +36,11 @@ class WakifAuthService
     {
         $user = $this->repo->findByEmail($data['email']);
         if ($user) {
-            throw new Exception("Email already exists", 400);
+            throw new Exception("Email sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.", 400);
         }
 
         $newUser = $this->repo->createWakif($data);
-        
+
         $token = $newUser->createToken('auth_token')->plainTextToken;
 
         return [
@@ -54,9 +54,9 @@ class WakifAuthService
         // Actually we need the user model to check old password, but userId is fine if we query again
         // Or find the user first
         $user = auth()->user(); // from Auth guard
-        
+
         if (!Hash::check($data['old_password'], $user->password)) {
-            throw new Exception("Old password does not match", 400);
+            throw new Exception("Password lama tidak sesuai", 400);
         }
 
         $this->repo->updatePassword($userId, $data['new_password']);

@@ -1,0 +1,99 @@
+@startuml
+!theme plain
+autonumber
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+title Diagram Sekuen: Mengelola Laporan Penyaluran oleh Nazhir
+
+actor "Nazhir (Pengelola)" as nazhir
+participant "Halaman Manajemen Laporan\n(Frontend)" as view
+participant "NazhirLaporanController\n(Controller)" as control
+participant "NazhirLaporanService\n(Service)" as service
+participant "NazhirLaporanRepository\n(Repository)" as repo
+database "Database (Tabel t05_laporan_penyaluran)" as db
+
+== Menambah Laporan Penyaluran Dana ==
+nazhir -> view : Mengklik Tambah Laporan pada Program,\nMengisi Data (Judul, Dana Disalurkan, Penerima Manfaat, Keterangan, Gambar)
+view -> control : POST /api/nazhir/laporan\n(FormData: id_program, judul_laporan, dana_disalurkan, penerima_manfaat, keterangan, file gambar_laporan)
+activate control
+control -> control : Validasi Input Laporan
+alt File gambar_laporan diunggah
+    control -> control : Simpan Gambar ke Storage (public/laporan)
+    control -> control : Set gambar_laporan URL
+end
+control -> service : createLaporan(data)
+activate service
+service -> repo : createLaporan(data)
+activate repo
+repo -> db : Insert Laporan Penyaluran Baru
+activate db
+db --> repo : Objek Laporan (id_laporan)
+deactivate db
+repo --> service : Objek Laporan
+deactivate repo
+service --> control : Objek Laporan
+deactivate service
+control --> view : Response JSON (success: true, message: 'Laporan berhasil dibuat')
+deactivate control
+view --> nazhir : Tampilkan Notifikasi Sukses & Dialihkan ke List
+
+== Memperbarui Laporan Penyaluran ==
+nazhir -> view : Membuka Form Edit Laporan, Mengubah Data Laporan
+view -> control : PUT /api/nazhir/laporan/{id}\n(id_program, judul_laporan, dana_disalurkan, penerima_manfaat, keterangan, gambar_laporan)
+activate control
+control -> control : Validasi Input Laporan
+control -> service : updateLaporan(id, data)
+activate service
+service -> repo : updateLaporan(id, data)
+activate repo
+repo -> db : Update Data di Tabel t05_laporan_penyaluran
+activate db
+db --> repo : True / Objek Terupdate
+deactivate db
+repo --> service : True / Objek Terupdate
+deactivate repo
+service --> control : True / Objek Terupdate
+deactivate service
+control --> view : Response JSON (success: true, message: 'Laporan berhasil diupdate')
+deactivate control
+view --> nazhir : Tampilkan Notifikasi Sukses & Halaman List
+
+== Mengecek Status Laporan Program ==
+view -> control : GET /api/nazhir/laporan/status/{programId}
+activate control
+control -> service : getStatusLaporan(programId)
+activate service
+service -> repo : getStatusLaporan(programId)
+activate repo
+repo -> db : Query Count Laporan dengan id_program
+activate db
+db --> repo : Jumlah laporan (0 atau >=1)
+deactivate db
+repo --> service : Status Ada/Tidak
+deactivate repo
+service --> control : Status Laporan
+deactivate service
+control --> view : Response JSON (success: true, exists: true/false)
+deactivate control
+== Menghapus Laporan Penyaluran ==
+nazhir -> view : Mengklik tombol Hapus Laporan
+view -> control : DELETE /api/nazhir/laporan/{id}
+activate control
+control -> service : deleteLaporan(id)
+activate service
+service -> repo : deleteLaporan(id)
+activate repo
+repo -> db : Hapus Laporan Penyaluran dari Database (t05_laporan_penyaluran)
+activate db
+db --> repo : True
+deactivate db
+repo --> service : True
+deactivate repo
+service --> control : True
+deactivate service
+control --> view : Response JSON (success: true, message: 'Laporan berhasil dihapus')
+deactivate control
+view --> nazhir : Tampilkan Notifikasi Sukses & Refresh List
+
+@enduml

@@ -86,7 +86,7 @@ const submit = async () => {
                             </div>
                         </div>
                         <div class="flex items-center justify-end mt-2">
-                           <a href="#" class="text-[11px] font-semibold text-primary hover:text-green-700">Lupa Password?</a>
+                           <Link href="/forgot-password" class="text-[11px] font-semibold text-primary hover:text-green-700">Lupa Password?</Link>
                         </div>
                     </div>
 

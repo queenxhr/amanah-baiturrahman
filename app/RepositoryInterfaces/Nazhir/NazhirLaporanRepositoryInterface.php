@@ -9,4 +9,5 @@ interface NazhirLaporanRepositoryInterface
     public function getLaporanById($idLaporan);
     public function createLaporan(array $data);
     public function updateLaporan($idLaporan, array $data);
+    public function deleteLaporan($idLaporan);
 }

@@ -23,20 +23,16 @@ const closeSidebarOnMobile = () => {
 const handleLogout = async () => {
     try {
         const token = localStorage.getItem('auth_token');
-        await axios.post('/api/wakif/logout', {}, {
+        await axios.post('/api/nazhir/logout', {}, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
     } catch (e) {
         // ignore
     }
     localStorage.removeItem('auth_token');
-    
-    // Fallback: call Laravel's standard logout if needed, otherwise redirect
-    router.post('/logout', {}, {
-        onSuccess: () => { window.location.href = '/login'; },
-        onError: () => { window.location.href = '/login'; }
-    });
+    window.location.href = '/login';
 };
+
 </script>
 
 <template>

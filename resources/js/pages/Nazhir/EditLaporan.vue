@@ -100,6 +100,18 @@ const handleSubmit = async () => {
     }
 };
 
+const handleDelete = async () => {
+    if (!confirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?')) return;
+    try {
+        await axios.delete(`/api/nazhir/laporan/${props.id}`);
+        alert('Laporan berhasil dihapus!');
+        router.visit('/manajemen-program');
+    } catch (e) {
+        console.error('Failed to delete report:', e);
+        alert('Gagal menghapus laporan.');
+    }
+};
+
 onMounted(() => {
     fetchLaporanDetails();
 });
@@ -191,21 +203,30 @@ onMounted(() => {
         </div>
 
         <!-- Submit Buttons -->
-        <div class="border-t border-gray-100 pt-5 flex justify-end gap-3">
-          <Link 
-            href="/manajemen-program"
-            class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition"
-          >
-            Batal
-          </Link>
+        <div class="border-t border-gray-100 pt-5 flex justify-between gap-3">
           <button 
-            type="submit" 
-            :disabled="isSubmitting"
-            class="px-6 py-2.5 bg-[#143E2C] hover:bg-[#1a4f38] text-white font-bold rounded-xl text-xs shadow-xs hover:shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50"
+            type="button" 
+            @click="handleDelete"
+            class="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-650 font-bold rounded-xl text-xs border border-red-200 transition cursor-pointer"
           >
-            <span v-if="isSubmitting" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
-            Simpan Perubahan
+            Hapus Laporan
           </button>
+          <div class="flex gap-3">
+            <Link 
+              href="/manajemen-program"
+              class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition"
+            >
+              Batal
+            </Link>
+            <button 
+              type="submit" 
+              :disabled="isSubmitting"
+              class="px-6 py-2.5 bg-[#143E2C] hover:bg-[#1a4f38] text-white font-bold rounded-xl text-xs shadow-xs hover:shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <span v-if="isSubmitting" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+              Simpan Perubahan
+            </button>
+          </div>
         </div>
 
       </form>

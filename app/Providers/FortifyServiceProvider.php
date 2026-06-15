@@ -20,7 +20,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \Laravel\Fortify\Http\Requests\SendPasswordResetLinkRequest::class,
+            \App\Http\Requests\Auth\CustomSendPasswordResetLinkRequest::class
+        );
     }
 
     /**
@@ -53,12 +56,12 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', [
+        Fortify::resetPasswordView(fn (Request $request) => Inertia::render('Wakif/Auth/ResetPassword', [
             'email' => $request->email,
             'token' => $request->route('token'),
         ]));
 
-        Fortify::requestPasswordResetLinkView(fn (Request $request) => Inertia::render('auth/ForgotPassword', [
+        Fortify::requestPasswordResetLinkView(fn (Request $request) => Inertia::render('Wakif/Auth/ForgotPassword', [
             'status' => $request->session()->get('status'),
         ]));
 

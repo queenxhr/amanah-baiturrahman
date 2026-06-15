@@ -1,0 +1,82 @@
+@startuml
+!theme plain
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+title Diagram Kelas (Class Diagram) - Website Wakaf Baiturrahman
+
+class Program {
+    - ID_Program : int
+    - Nama_Program : string
+    - Target_Dana : float
+    - Dana_Terkumpul : float
+    - Status_Program : int
+}
+
+class Nazhir {
+    - ID_Nazhir : string
+    --
+    + CreateProgram()
+    + UpdateProgram()
+    + DeleteProgram()
+    + ApproveTransaksi()
+    + CreateLaporan()
+    + DeleteLaporan()
+}
+
+class WakifLogin {
+    - ID_User : string
+    - Nama : string
+    - Email : string
+    - No_HP : string
+    - Jenis_Kelamin : string
+    - Alamat : string
+    - Tanggal_Lahir : string
+    --
+    + UpdateProfile()
+    + UpdatePassword()
+    + CreateTransaksiUser()
+    + GetRiwayatTransaksi()
+}
+
+class WakifGuest {
+    - Nama_Guest : string
+    - No_HP_Guest : string
+    --
+    + CreateTransaksiGuest()
+    + ViewProgram()
+    + ViewLaporan()
+    + Register()
+}
+
+interface Autentikasi <<interface>> {
+    - Email : string
+    - Password : string
+    --
+    + login()
+    + logout()
+    + forgotPassword()
+    + resetPassword()
+}
+
+class Pengunjung {
+    --
+    + LihatProgram()
+    + Registrasi()
+}
+
+' Relasi
+Program *-- Nazhir
+Program *-- WakifGuest
+
+Nazhir --> Autentikasi
+WakifLogin --> Autentikasi
+WakifGuest --> Autentikasi
+
+@enduml

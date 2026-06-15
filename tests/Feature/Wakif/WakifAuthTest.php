@@ -107,4 +107,17 @@ class WakifAuthTest extends TestCase
         $response->assertStatus(200)
                  ->assertJson(['success' => true]);
     }
+
+    public function test_wakif_cannot_register_with_invalid_email_format()
+    {
+        $response = $this->postJson('/api/wakif/signup', [
+            'nama' => 'John Doe',
+            'email' => 'invalid-email-format',
+            'no_hp' => '081234567890',
+            'password' => 'P@ssword123'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('email');
+    }
 }

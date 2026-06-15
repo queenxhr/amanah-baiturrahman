@@ -213,28 +213,5 @@ onMounted(async () => {
             </div>
         </section>
 
-        <!-- Berita Update Terbaru -->
-        <section class="max-w-7xl mx-auto px-12 py-8 mb-12">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">Berita <span class="italic text-gray-600">Update</span> Terbaru</h2>
-            
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 h-[400px]">
-                <div class="col-span-2 row-span-2 overflow-hidden rounded-l-lg bg-gray-200">
-                     <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80" alt="News Main" class="w-full h-full object-cover">
-                </div>
-                <div class="overflow-hidden bg-gray-200">
-                     <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80" alt="News 1" class="w-full h-full object-cover">
-                </div>
-                <div class="overflow-hidden rounded-tr-lg bg-gray-200">
-                     <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80" alt="News 2" class="w-full h-full object-cover">
-                </div>
-                <div class="overflow-hidden bg-gray-200">
-                     <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80" alt="News 3" class="w-full h-full object-cover">
-                </div>
-                <div class="overflow-hidden rounded-br-lg bg-gray-200">
-                     <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80" alt="News 4" class="w-full h-full object-cover">
-                </div>
-            </div>
-        </section>
-
     </WakifLayout>
 </template>

@@ -1,0 +1,85 @@
+@startuml
+!theme plain
+autonumber
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+title Diagram Sekuen: Verifikasi Pembayaran Transaksi oleh Nazhir
+
+actor "Nazhir (Pengelola)" as nazhir
+participant "Halaman Manajemen Transaksi\n(Frontend)" as view
+participant "NazhirTransaksiController\n(Controller)" as control
+participant "NazhirTransaksiService\n(Service)" as service
+participant "NazhirTransaksiRepository\n(Repository)" as repo
+entity "T04Transaksi (Model)" as model
+database "Database (Tabel t04 & t03)" as db
+
+== Proses Meninjau Bukti Pembayaran ==
+nazhir -> view : Membuka Daftar Transaksi & Klik "Lihat Bukti"
+view -> control : GET /api/nazhir/transaksi/{id}/bukti
+activate control
+control -> service : getBuktiPembayaran(id)
+activate service
+service -> repo : getBuktiPembayaran(id)
+activate repo
+repo -> db : Query transaksi & ambil kolom bukti_pembayaran
+activate db
+db --> repo : Data path bukti_pembayaran
+deactivate db
+repo --> service : Bukti Pembayaran
+deactivate repo
+service --> control : Bukti Pembayaran
+deactivate service
+control --> view : Response JSON (success: true, data: bukti_pembayaran)
+deactivate control
+view --> nazhir : Tampilkan Gambar Bukti Transfer di Modal Dialog
+
+== Proses Approval Transaksi (Terima / Tolak) ==
+nazhir -> view : Mengklik tombol "Setujui" (1) atau "Tolak" (2)
+view -> control : PUT /api/nazhir/transaksi/{id}/approve\n(JSON: status_pembayaran)
+activate control
+control -> control : Validasi status_pembayaran (1 atau 2)
+control -> service : approve(id, status_pembayaran)
+activate service
+service -> repo : approve(id, status_pembayaran)
+activate repo
+repo -> db : Update status_pembayaran di t04_transaksi
+activate db
+db --> repo : Objek Transaksi Terupdate
+deactivate db
+
+' Jalur pemicu recalculateProgramFunds lewat event model Eloquent
+repo -> model : Trigger Event Saved() / recalculateProgramFunds()
+activate model
+model -> db : Hitung SUM nominal transaksi sukses\ndi program yang bersangkutan (status=1)
+activate db
+db --> model : Jumlah Total Dana Sukses
+model -> db : Update dana_terkumpul di t03_program_wakaf
+db --> model : Sukses Update
+deactivate db
+model --> repo : Selesai
+deactivate model
+
+repo --> service : True
+deactivate repo
+service --> control : True
+deactivate service
+control --> view : Response JSON (success: true, message: 'Status pembayaran diupdate')
+deactivate control
+view --> nazhir : Tampilkan Notifikasi Sukses, Tabel Refresh, Dana Terkumpul Program Bertambah
+
+== Ekspor Transaksi ke CSV ==
+nazhir -> view : Mengklik Tombol "Ekspor CSV"
+view -> control : GET /api/nazhir/transaksi/export-csv (filter parameter)
+activate control
+control -> service : getAllTransaksiForExport(filters)
+activate service
+service -> repo : (Ambil data dari database)
+service --> control : Collection data transaksi
+deactivate service
+control -> control : Formatting Stream Data CSV
+control --> view : Download Stream File (.csv)
+deactivate control
+view --> nazhir : File CSV Tersimpan di Perangkat
+
+@enduml

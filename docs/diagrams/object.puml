@@ -1,0 +1,82 @@
+@startuml
+!theme plain
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam object {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+title Diagram Objek (Object Diagram) - Website Wakaf Baiturrahman
+
+object PembangunanMenara {
+    ID_Program = 1
+    Nama_Program = "Pembangunan Menara"
+    Target_Dana = 100000000.00
+    Dana_Terkumpul = 25000000.00
+    Status_Program = 1
+}
+
+object Nazhir {
+    ID_Nazhir = "NZR01"
+    --
+    CreateProgram()
+    UpdateProgram()
+    DeleteProgram()
+    ApproveTransaksi()
+    CreateLaporan()
+    DeleteLaporan()
+}
+
+object WakifLogin {
+    ID_User = "WKF10"
+    Nama = "Ahmad Hidayat"
+    Email = "ahmad@example.com"
+    No_HP = "081234567890"
+    Jenis_Kelamin = "L"
+    Alamat = "Jl. Merdeka No. 45"
+    Tanggal_Lahir = "1995-08-12"
+    --
+    UpdateProfile()
+    UpdatePassword()
+    CreateTransaksiUser()
+    GetRiwayatTransaksi()
+}
+
+object WakifGuest {
+    Nama_Guest = "Hamba Allah"
+    No_HP_Guest = "087788889999"
+    --
+    CreateTransaksiGuest()
+    ViewProgram()
+    ViewLaporan()
+    Register()
+}
+
+object Autentikasi {
+    Email = "ahmad@example.com"
+    Password = "hashed_password"
+    --
+    login()
+    logout()
+    forgotPassword()
+    resetPassword()
+}
+
+object Pengunjung {
+    --
+    LihatProgram()
+    Registrasi()
+}
+
+' Relasi
+PembangunanMenara *-- Nazhir
+PembangunanMenara *-- WakifGuest
+
+Nazhir --> Autentikasi
+WakifLogin --> Autentikasi
+WakifGuest --> Autentikasi
+
+@enduml

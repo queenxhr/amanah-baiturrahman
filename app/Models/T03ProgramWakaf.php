@@ -39,7 +39,7 @@ class T03ProgramWakaf extends Model
 		'dana_terkumpul' => 'float',
 		'status_program' => 'int',
 		'edited_at' => 'datetime',
-		'due_date' => 'datetime'
+		'due_date' => 'date:Y-m-d'
 	];
 
 	protected $fillable = [

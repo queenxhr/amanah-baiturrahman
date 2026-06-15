@@ -18,11 +18,9 @@ const handleLogout = async () => {
         // ignore
     }
     localStorage.removeItem('auth_token');
-    router.post('/logout', {}, {
-        onSuccess: () => { window.location.href = '/'; },
-        onError: () => { window.location.href = '/'; }
-    });
+    window.location.href = '/';
 };
+
 </script>
 
 <template>

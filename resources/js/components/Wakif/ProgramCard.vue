@@ -65,11 +65,19 @@ const defaultImage = "/dashboard_foto.png";
                         <p class="text-xs font-bold text-gray-800 truncate w-full text-center">{{ formatRupiah(program.target_dana) }}</p>
                     </div>
                     <div class="flex-1 p-2 flex flex-col items-center justify-center min-w-0">
-                        <div class="flex items-center gap-1 text-[#638734] mb-0.5">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div class="flex items-center gap-1 text-[#638734] mb-0.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             <p class="text-[10px] text-gray-500 font-medium">Hingga</p>
                         </div>
-                        <p class="text-xs font-bold text-gray-800 truncate w-full text-center">{{ program.due_date }}</p>
+                        <p class="text-xs font-bold text-gray-800 truncate w-full text-center">
+                            {{ 
+                            program.due_date && !isNaN(Date.parse(program.due_date.replace(/\.\d+Z$/, 'Z'))) 
+                            ? new Date(program.due_date.replace(/\.\d+Z$/, 'Z')).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) 
+                            : '-' 
+                            }}
+                        </p>
                     </div>
                 </div>
                 

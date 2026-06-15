@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\User;
+use App\Models\T02User as User;
+use Database\Factories\T01RoleFactory;
 
 test('guests are redirected to the login page', function () {
     $response = $this->get(route('dashboard'));
@@ -8,7 +9,8 @@ test('guests are redirected to the login page', function () {
 });
 
 test('authenticated users can visit the dashboard', function () {
-    $user = User::factory()->create();
+    T01RoleFactory::new()->create(['id_role' => 1, 'nama_role' => 'Nazhir']);
+    $user = User::factory()->create(['id_role' => 1]);
     $this->actingAs($user);
 
     $response = $this->get(route('dashboard'));

@@ -34,4 +34,9 @@ class NazhirLaporanRepository implements NazhirLaporanRepositoryInterface
     {
         return T05LaporanPenyaluran::where('id_laporan', $idLaporan)->update($data);
     }
+
+    public function deleteLaporan($idLaporan)
+    {
+        return T05LaporanPenyaluran::where('id_laporan', $idLaporan)->delete();
+    }
 }

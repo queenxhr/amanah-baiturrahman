@@ -1,0 +1,49 @@
+@startuml
+!theme plain
+
+title Diagram Aktivitas: Profil & Riwayat Transaksi (Wakif Login)
+
+start
+
+:Wakif Masuk ke Sistem (Sudah Login);
+
+if (Pilih Halaman / Fitur?) then (Manajemen Profil)
+    :Buka Halaman "Profil Saya";
+    :Tampilkan Data Profil Saat Ini;
+    if (Aksi?) then (Ubah Data Diri)
+        repeat
+            :Ubah Field (Nama, No. HP, Gender, Alamat, Tgl Lahir);
+            :Klik "Simpan Perubahan";
+            :Sistem Memvalidasi Input;
+        backward:Tampilkan Pesan Error Validasi;
+        repeat while (Apakah Input Valid?) is (Tidak) not (Ya)
+        :Sistem Memperbarui Tabel t02_users;
+        :Tampilkan Notifikasi Profil Berhasil Diubah;
+    else (Ubah Password)
+        repeat
+            :Masukkan Password Lama;
+            :Masukkan Password Baru & Konfirmasi;
+            :Klik "Ubah Password";
+            :Sistem Memvalidasi Password Lama & Kesesuaian Konfirmasi;
+        backward:Tampilkan Pesan Password Tidak Cocok / Salah;
+        repeat while (Validasi Password Berhasil?) is (Tidak) not (Ya)
+        :Sistem Memperbarui Kolom Password di Database;
+        :Tampilkan Notifikasi Password Berhasil Diubah;
+    endif
+
+else (Riwayat Transaksi)
+    :Buka Halaman "Riwayat Transaksi";
+    :Sistem Mengambil Data Transaksi User dari DB;
+    :Tampilkan Tabel Histori Transaksi\n(Kode Referensi, Program, Nominal, Tanggal, Status);
+    if (Ingin Cetak Bukti?) then (Ya)
+        :Pilih Transaksi yang Berstatus "Berhasil" / "Menunggu";
+        :Klik "Unduh Kuitansi PDF";
+        :Sistem Mengambil Template Invoice;
+        :Render Data Transaksi ke dalam Dokumen PDF;
+        :Simpan File PDF Kuitansi ke Perangkat Wakif;
+    else (Tidak)
+    endif
+endif
+
+stop
+@enduml

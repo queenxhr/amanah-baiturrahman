@@ -20,7 +20,7 @@ class NazhirAuthService
         $user = $this->repo->findByEmail($data['email']);
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            throw new Exception("Invalid credentials", 401);
+            throw new Exception("Kata sandi salah. Silakan coba lagi", 401);
         }
 
         $token = $user->createToken('nazhir_auth_token')->plainTextToken;

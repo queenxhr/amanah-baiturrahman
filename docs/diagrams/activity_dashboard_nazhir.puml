@@ -1,0 +1,29 @@
+@startuml
+!theme plain
+
+title Diagram Aktivitas: Dashboard & Manajemen User oleh Nazhir
+
+start
+
+:Nazhir Masuk Halaman Admin (Sudah Login);
+
+if (Pilih Menu Admin?) then (Lihat Dashboard Laporan & Perkembangan)
+    :Buka Halaman Dashboard Utama;
+    :Pilih Filter Bulan, Tahun, atau Program Wakaf;
+    :Sistem Melakukan Query Data Keuangan & Statistik;
+    :Tampilkan Total Program, Total Donatur, Dana Terkumpul, & Grafik Tren;
+
+else (Manajemen Pengguna)
+    :Buka Halaman Manajemen User;
+    if (Pilih Aksi Manajemen User?) then (Cari User)
+        :Masukkan Kata Kunci Pencarian (Nama/Email);
+        :Sistem Mengambil Data User Terkait;
+    else (Urutkan User)
+        :Pilih Kriteria Pengurutan (Terbaru/Terlama/Nama);
+        :Sistem Mengurutkan Data User;
+    endif
+    :Tampilkan Daftar User Terdaftar pada Layar;
+endif
+
+stop
+@enduml

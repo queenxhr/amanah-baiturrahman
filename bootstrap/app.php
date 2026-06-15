@@ -22,6 +22,14 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
+            $user = $request->user();
+            if ($user && (int)$user->id_role === 1) {
+                return '/dashboard';
+            }
+            return '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

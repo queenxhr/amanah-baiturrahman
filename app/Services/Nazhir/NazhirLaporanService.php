@@ -42,4 +42,10 @@ class NazhirLaporanService
         $this->repo->updateLaporan($idLaporan, $data);
         return true;
     }
+
+    public function deleteLaporan($idLaporan)
+    {
+        $this->repo->deleteLaporan($idLaporan);
+        return true;
+    }
 }

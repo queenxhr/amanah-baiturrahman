@@ -634,7 +634,6 @@ onMounted(async () => {
                             <input type="checkbox" v-model="otherName" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-primary checked:bg-white checked:translate-x-full transition-transform duration-200" style="top: 2px; left: 2px;"/>
                             <label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" :class="{'bg-[#c5db54]': otherName}"></label>
                         </div>
-                        <span class="text-[11px] font-medium text-gray-800">Wakaf atas nama orang lain</span>
                     </div>
 
                     <div class="flex justify-end">

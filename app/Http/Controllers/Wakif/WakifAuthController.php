@@ -35,7 +35,7 @@ class WakifAuthController extends Controller
                 'data' => $data
             ]);
         } catch (Exception $e) {
-            $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int)$e->getCode() : 400;
+            $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int) $e->getCode() : 400;
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -47,10 +47,24 @@ class WakifAuthController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:100',
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                function ($attribute, $value, $fail) {
+                    if (app()->runningUnitTests()) {
+                        return;
+                    }
+                    $domain = substr(strrchr($value, "@"), 1);
+                    if ($domain && !checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
+                        $fail('Domain email tidak valid atau fiktif.');
+                    }
+                }
+            ],
             'no_hp' => 'required|string|max:15',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()]
         ], [
+            'email.required' => 'Kolom email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'password.required' => 'Kolom kata sandi wajib diisi.',
             'password.min' => 'Kolom kata sandi harus minimal 8 karakter.',
             'password.mixed' => 'Kolom kata sandi harus mengandung setidaknya satu huruf besar dan satu huruf kecil.',
@@ -69,7 +83,7 @@ class WakifAuthController extends Controller
                 'data' => $data
             ], 201);
         } catch (Exception $e) {
-            $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int)$e->getCode() : 400;
+            $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int) $e->getCode() : 400;
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -98,7 +112,7 @@ class WakifAuthController extends Controller
                 'message' => 'Password updated successful'
             ]);
         } catch (Exception $e) {
-            $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int)$e->getCode() : 400;
+            $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int) $e->getCode() : 400;
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -109,10 +123,15 @@ class WakifAuthController extends Controller
     public function logout(Request $request)
     {
         if ($request->user()) {
-            $request->user()->currentAccessToken()->delete();
+            $token = $request->user()->currentAccessToken();
+            if ($token && method_exists($token, 'delete')) {
+                $token->delete();
+            }
         }
         session()->forget('wakif_user_id');
-        Auth::logout();
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return response()->json([
             'success' => true,
             'message' => 'Logout successful'

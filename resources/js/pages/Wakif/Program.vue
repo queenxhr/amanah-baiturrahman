@@ -123,62 +123,63 @@ onMounted(async () => {
             </div>
         </section>
 
-        <!-- Alur Wakaf (placed ABOVE the program list per request) -->
+        <!-- Alur Wakaf -->
         <section class="max-w-7xl mx-auto px-6 lg:px-12 py-12 overflow-hidden">
-            <div class="border border-gray-200 rounded-xl p-6 lg:p-10 bg-white relative overflow-x-auto">
+            <div class="border border-gray-200 rounded-xl p-6 lg:p-10 bg-white relative">
                 <h2 class="text-2xl font-black text-gray-900 text-center mb-12">Alur Wakaf</h2>
                 
-                <div class="flex flex-col md:flex-row items-center md:items-start justify-between relative px-2 md:px-8 space-y-8 md:space-y-0 min-w-[max-content] md:min-w-0">
+                <div class="flex flex-col md:flex-row items-center md:items-start justify-between relative px-2 md:px-0 space-y-8 md:space-y-0 w-full">
                     <!-- Lines connecting dots -->
                     <div class="hidden md:block absolute top-8 left-16 right-16 h-[1px] bg-gray-200 -z-10"></div>
-                    <div class="md:hidden absolute top-0 bottom-0 left-[38px] w-[1px] bg-gray-200 -z-10"></div>
+                    <div class="md:hidden absolute top-0 bottom-0 left-[50%] -translate-x-[50%] w-[1px] bg-gray-200 -z-10"></div>
 
-                    <div class="flex flex-col items-center bg-white px-2">
-                        <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 shadow-md">
-                            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-[#143E2C] mb-2 text-center">Pilih Program</h4>
-                        <p class="text-[17px] font-semibold text-gray-600 text-center w-40 md:w-48 leading-relaxed">Pilih program wakaf yang sesuai niat Anda.</p>
-                    </div>
-
-                    <div class="flex items-center text-primary pt-6"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
                     
-                    <div class="flex flex-col items-center bg-white px-2">
-                        <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 shadow-md">
-                            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div class="flex flex-col items-center bg-white px-1 md:px-2 flex-1">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-green-50 rounded-full flex items-center justify-center mb-3 shadow-md">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-[#143E2C] text-center leading-tight mb-2">Berniat & Nominal</h4>
-                        <p class="text-[17px] font-semibold text-gray-600 text-center w-40 md:w-48 leading-relaxed">Pilih nominal wakaf yang sesuai niat Anda.</p>
+                        <h4 class="text-sm font-bold text-[#143E2C] mb-1 text-center">Pilih Program</h4>
+                        <p class="text-[11px] lg:text-xs font-semibold text-gray-600 text-center leading-relaxed">Pilih program wakaf yang sesuai niat Anda.</p>
                     </div>
 
-                    <div class="flex items-center text-primary pt-6"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
+                    <div class="flex items-center text-primary pt-3 md:pt-6 rotate-90 md:rotate-0"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
                     
-                    <div class="flex flex-col items-center bg-white px-2">
-                        <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 shadow-md">
-                            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                    <div class="flex flex-col items-center bg-white px-1 md:px-2 flex-1">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-green-50 rounded-full flex items-center justify-center mb-3 shadow-md">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-[#143E2C] mb-2 text-center">Bayar</h4>
-                        <p class="text-[17px] font-semibold text-gray-600 text-center w-40 md:w-48 leading-relaxed">Scan QRIS atau transfer untuk pembayaran mudah.</p>
+                        <h4 class="text-sm font-bold text-[#143E2C] text-center leading-tight mb-1">Berniat & Nominal</h4>
+                        <p class="text-[11px] lg:text-xs font-semibold text-gray-600 text-center leading-relaxed">Pilih nominal wakaf yang sesuai niat Anda.</p>
                     </div>
 
-                    <div class="flex items-center text-primary pt-6"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
-
-                    <div class="flex flex-col items-center bg-white px-2">
-                        <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 shadow-md">
-                            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div class="flex items-center text-primary pt-3 md:pt-6 rotate-90 md:rotate-0"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
+                    
+                    <div class="flex flex-col items-center bg-white px-1 md:px-2 flex-1">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-green-50 rounded-full flex items-center justify-center mb-3 shadow-md">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-[#143E2C] mb-2 text-center">Verifikasi</h4>
-                        <p class="text-[17px] font-semibold text-gray-600 text-center w-40 md:w-48 leading-relaxed">Sistem memverifikasi donasi/wakaf Anda.</p>
+                        <h4 class="text-sm font-bold text-[#143E2C] mb-1 text-center">Bayar</h4>
+                        <p class="text-[11px] lg:text-xs font-semibold text-gray-600 text-center leading-relaxed">Scan QRIS atau transfer untuk pembayaran mudah.</p>
                     </div>
 
-                    <div class="flex items-center text-primary pt-6"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
+                    <div class="flex items-center text-primary pt-3 md:pt-6 rotate-90 md:rotate-0"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
 
-                    <div class="flex flex-col items-center bg-white px-2">
-                        <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 shadow-md">
-                            <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                    <div class="flex flex-col items-center bg-white px-1 md:px-2 flex-1">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-green-50 rounded-full flex items-center justify-center mb-3 shadow-md">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
-                        <h4 class="text-xl font-bold text-[#143E2C] mb-2 text-center">Penyaluran</h4>
-                        <p class="text-[17px] font-semibold text-gray-600 text-center w-40 md:w-48 leading-relaxed">Wakaf disalurkan dan dibagikan.</p>
+                        <h4 class="text-sm font-bold text-[#143E2C] mb-1 text-center">Verifikasi</h4>
+                        <p class="text-[11px] lg:text-xs font-semibold text-gray-600 text-center leading-relaxed">Sistem memverifikasi donasi/wakaf Anda.</p>
+                    </div>
+
+                    <div class="flex items-center text-primary pt-3 md:pt-6 rotate-90 md:rotate-0"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></div>
+
+                    <div class="flex flex-col items-center bg-white px-1 md:px-2 flex-1">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-green-50 rounded-full flex items-center justify-center mb-3 shadow-md">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                        </div>
+                        <h4 class="text-sm font-bold text-[#143E2C] mb-1 text-center">Penyaluran</h4>
+                        <p class="text-[11px] lg:text-xs font-semibold text-gray-600 text-center leading-relaxed">Wakaf disalurkan dan dibagikan.</p>
                     </div>
                 </div>
             </div>

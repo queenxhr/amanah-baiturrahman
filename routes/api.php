@@ -54,7 +54,11 @@ use App\Http\Controllers\Nazhir\NazhirProgramController;
 use App\Http\Controllers\Nazhir\NazhirLaporanController;
 use App\Http\Controllers\Nazhir\NazhirUserController;
 
-Route::prefix('nazhir')->group(function () {
+Route::prefix('nazhir')->middleware([
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+])->group(function () {
     Route::post('/login', [NazhirAuthController::class, 'login']);
 
     Route::post('/logout', [NazhirAuthController::class, 'logout']);
@@ -86,6 +90,7 @@ Route::prefix('nazhir')->group(function () {
         Route::get('/laporan/detail/{id}', [NazhirLaporanController::class, 'getLaporanById']);
         Route::post('/laporan', [NazhirLaporanController::class, 'createLaporan']);
         Route::put('/laporan/{id}', [NazhirLaporanController::class, 'updateLaporan']);
+        Route::delete('/laporan/{id}', [NazhirLaporanController::class, 'deleteLaporan']);
     // Route::middleware('auth:sanctum')->group(function () {
         
     // });

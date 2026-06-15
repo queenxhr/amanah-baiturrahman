@@ -43,9 +43,16 @@ class NazhirAuthController extends Controller
     public function logout(Request $request)
     {
         if ($request->user()) {
-            $request->user()->currentAccessToken()->delete();
+            $token = $request->user()->currentAccessToken();
+            if ($token && method_exists($token, 'delete')) {
+                $token->delete();
+            }
         }
-        Auth::logout();
+        Auth::guard('web')->logout();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
         return response()->json([
             'success' => true,
             'message' => 'Logout successful'

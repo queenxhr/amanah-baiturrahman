@@ -1,0 +1,119 @@
+@startuml
+!theme plain
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Arial"
+skinparam packageStyle rectangle
+
+skinparam rectangle {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam usecase {
+    BackgroundColor White
+    BorderColor Black
+}
+
+title Diagram Hubungan Entitas (ERD) - Website Wakaf Baiturrahman
+
+' Entitas (Rectangle)
+rectangle "Peran" as Peran
+rectangle "Pengguna" as Pengguna
+rectangle "Program Wakaf" as Program
+rectangle "Transaksi" as Transaksi
+rectangle "Laporan Penyaluran" as Laporan
+
+' Hubungan (Diamond)
+diamond "Mendapatkan" as Mendapatkan
+diamond "Melakukan" as Melakukan
+diamond "Menerima" as Menerima
+diamond "Dilaporkan" as Dilaporkan
+
+' Atribut Peran
+usecase "<u>id_role</u>" as role_id
+usecase "nama_role" as role_nama
+Peran -- role_id
+Peran -- role_nama
+
+' Atribut Pengguna
+usecase "<u>id_user</u>" as user_id
+usecase "nama" as user_nama
+usecase "email" as user_email
+usecase "password" as user_pw
+usecase "no_hp" as user_hp
+usecase "jenis_kelamin" as user_jk
+usecase "alamat" as user_alamat
+usecase "tanggal_lahir" as user_tgl
+Pengguna -- user_id
+Pengguna -- user_nama
+Pengguna -- user_email
+Pengguna -- user_pw
+Pengguna -- user_hp
+Pengguna -- user_jk
+Pengguna -- user_alamat
+Pengguna -- user_tgl
+
+' Atribut Program Wakaf
+usecase "<u>id_program</u>" as prog_id
+usecase "nama_program" as prog_nama
+usecase "deskripsi" as prog_desc
+usecase "target_dana" as prog_target
+usecase "dana_terkumpul" as prog_terkumpul
+usecase "status_program" as prog_status
+usecase "due_date" as prog_due
+usecase "gambar_thumbnail" as prog_img
+Program -- prog_id
+Program -- prog_nama
+Program -- prog_desc
+Program -- prog_target
+Program -- prog_terkumpul
+Program -- prog_status
+Program -- prog_due
+Program -- prog_img
+
+' Atribut Transaksi
+usecase "<u>id_transaksi</u>" as trans_id
+usecase "nominal" as trans_nominal
+usecase "bukti_pembayaran" as trans_bukti
+usecase "status_pembayaran" as trans_status
+usecase "kode_referensi" as trans_ref
+usecase "pesan_doa" as trans_doa
+usecase "no_hp" as trans_hp
+usecase "hide_nama" as trans_hide
+Transaksi -- trans_id
+Transaksi -- trans_nominal
+Transaksi -- trans_bukti
+Transaksi -- trans_status
+Transaksi -- trans_ref
+Transaksi -- trans_doa
+Transaksi -- trans_hp
+Transaksi -- trans_hide
+
+' Atribut Laporan Penyaluran
+usecase "<u>id_laporan</u>" as lap_id
+usecase "judul_laporan" as lap_judul
+usecase "keterangan" as lap_ket
+usecase "dana_disalurkan" as lap_dana
+usecase "penerima_manfaat" as lap_penerima
+usecase "gambar_laporan" as lap_img
+Laporan -- lap_id
+Laporan -- lap_judul
+Laporan -- lap_ket
+Laporan -- lap_dana
+Laporan -- lap_penerima
+Laporan -- lap_img
+
+' Hubungan Entitas dengan Kardinalitas
+Peran "1" -- Mendapatkan
+Mendapatkan -- "N" Pengguna
+
+Pengguna "1" -- Melakukan
+Melakukan -- "N" Transaksi
+
+Program "1" -- Menerima
+Menerima -- "N" Transaksi
+
+Program "1" -- Dilaporkan
+Dilaporkan -- "N" Laporan
+
+@enduml

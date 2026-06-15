@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+
+title Diagram Aktivitas: Melakukan Transaksi Donasi Wakaf
+
+start
+
+:Pilih Program Wakaf;
+:Klik Tombol "Wakaf Sekarang";
+
+if (Status Pengguna?) then (Wakif Login (Terdaftar))
+    :Sistem Mengambil Data Nama & No. HP dari Profil;
+    :Tampilkan Form Donasi dengan Data Terisi;
+else (Wakif Guest (Tamu))
+    :Tampilkan Form Kosong;
+    :Masukkan Nama Pengguna;
+    :Masukkan No. HP Aktif;
+endif
+
+repeat
+    :Masukkan Nominal Wakaf (Minimal Rp 10.000);
+    :Masukkan Pesan Doa (Opsional);
+    if (Ingin Anonim?) then (Ya)
+        :Ceklis "Sembunyikan Nama" (hide_nama = 1);
+        note right: Di frontend nama akan ditampilkan sebagai "Hamba Allah"
+    else (Tidak)
+        :Biarkan Default (hide_nama = 0);
+    endif
+    :Unggah Foto Bukti Transfer Pembayaran;
+    :Klik Kirim Donasi;
+    :Sistem Memvalidasi Input dan Bukti Pembayaran;
+backward:Tampilkan Pesan Error Validasi;
+repeat while (Apakah Data Valid?) is (Tidak) not (Ya)
+
+:Sistem Menyimpan File Gambar Bukti Pembayaran ke Storage;
+:Sistem Menghasilkan Kode Referensi (Invoice);
+:Sistem Menyimpan Data Transaksi ke Database\n(status_pembayaran = 0 / Menunggu Verifikasi);
+:Tampilkan Invoice Sukses & Detail Instruksi Verifikasi;
+
+stop
+@enduml

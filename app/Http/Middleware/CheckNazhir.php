@@ -19,8 +19,12 @@ class CheckNazhir
             $user = \App\Models\T02User::find(session('wakif_user_id'));
         }
 
-        if (!$user || (int)$user->id_role !== 1) {
+        if (!$user) {
             return redirect('/login')->with('error', 'Akses ditolak. Halaman ini hanya untuk Nazhir.');
+        }
+
+        if ((int)$user->id_role !== 1) {
+            return redirect('/')->with('error', 'Akses ditolak. Halaman ini hanya untuk Nazhir.');
         }
 
         return $next($request);

@@ -1,0 +1,73 @@
+@startuml
+page A4
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam theme plain
+
+title Diagram Use Case - Website Wakaf Baiturrahman
+
+actor "Wakif (Pengunjung)" as guest
+actor "Wakif (Masuk Akun)" as user
+actor "Nazhir" as nazhir
+
+user -|> guest
+
+rectangle "Sistem Website Wakaf Baiturrahman" {
+    usecase "Buka Beranda & Tentang Kami" as UC_beranda
+    usecase "Cari & Filter Program Wakaf" as UC_cari_filter
+    usecase "Lihat Detail Program\n(Deskripsi, Donatur, Berita)" as UC_detail
+    usecase "Lihat Laporan Bulanan/Tahunan" as UC_laporan
+    usecase "Isi Form Transaksi Wakaf\n(Input No. HP jika belum masuk)" as UC_transaksi
+    usecase "Daftar Akun (Sign Up)" as UC_signup
+    usecase "Lupa Kata Sandi" as UC_lupa_sandi
+    usecase "Masuk Akun (Login)" as UC_login
+    
+    usecase "Verifikasi Transaksi\n(Lihat Bukti, Setujui/Tolak)" as UC_verifikasi
+    usecase "Lihat & Unduh Invoice (PDF)" as UC_invoice
+    usecase "Keluar Akun (Logout)" as UC_logout
+    usecase "Lihat & Ubah Profil" as UC_profil
+    usecase "Lihat Riwayat Transaksi" as UC_riwayat
+    
+    usecase "Manajemen Pengguna\n(Cari & Urutkan User)" as UC_manajemen_user
+    usecase "Manajemen Program & Laporan\n(Tambah, Ubah, Hapus Program/Laporan)" as UC_manajemen_prog_lap
+    usecase "Lihat Dashboard Perkembangan\n(Filter Bulan, Tahun, Program)" as UC_dash_perkembangan
+    usecase "Lihat Dashboard Manajemen Wakif\n(Filter & Ekspor CSV)" as UC_dash_wakif
+}
+
+' Hubungan Aktor Wakif (Pengunjung)
+guest --> UC_beranda
+guest --> UC_cari_filter
+guest --> UC_detail
+guest --> UC_laporan
+guest --> UC_transaksi
+guest --> UC_signup
+guest --> UC_lupa_sandi
+guest --> UC_login
+
+' Hubungan Aktor Wakif (Masuk Akun)
+user --> UC_invoice
+user --> UC_logout
+user --> UC_profil
+user --> UC_riwayat
+
+' Hubungan Aktor Nazhir
+nazhir --> UC_login
+nazhir --> UC_verifikasi
+nazhir --> UC_manajemen_user
+nazhir --> UC_manajemen_prog_lap
+nazhir --> UC_dash_perkembangan
+nazhir --> UC_dash_wakif
+
+' Hubungan Include ke Masuk Akun (Login)
+UC_verifikasi ..> UC_login : <<include>>
+UC_invoice ..> UC_login : <<include>>
+UC_logout ..> UC_login : <<include>>
+UC_profil ..> UC_login : <<include>>
+UC_riwayat ..> UC_login : <<include>>
+UC_manajemen_user ..> UC_login : <<include>>
+UC_manajemen_prog_lap ..> UC_login : <<include>>
+UC_dash_perkembangan ..> UC_login : <<include>>
+UC_dash_wakif ..> UC_login : <<include>>
+
+@enduml

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Models\T02User as User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
@@ -75,4 +75,15 @@ test('password cannot be reset with invalid token', function () {
     ]);
 
     $response->assertSessionHasErrors('email');
+});
+
+test('reset password link cannot be requested if email is not in db', function () {
+    $response = $this->post(route('password.email'), ['email' => 'nonexistent@example.com']);
+
+    $response->assertSessionHasErrors('email');
+    
+    $this->assertEquals(
+        'Email tidak terdaftar.',
+        session()->get('errors')->first('email')
+    );
 });

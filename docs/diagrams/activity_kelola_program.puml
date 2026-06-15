@@ -1,0 +1,48 @@
+@startuml
+!theme plain
+
+title Diagram Aktivitas: Mengelola Program Wakaf oleh Nazhir
+
+start
+
+:Masuk Menu "Manajemen Program" di Dashboard;
+
+if (Pilih Operasi?) then (Tambah Program Baru)
+    repeat
+        :Isi Form Tambah Program\n(Nama, Target Dana, Due Date, Deskripsi);
+        :Unggah Gambar Thumbnail;
+        :Klik Simpan;
+        :Sistem Memvalidasi Input;
+    backward:Tampilkan Error Validasi;
+    repeat while (Apakah Input Valid?) is (Tidak) not (Ya)
+    :Sistem Menyimpan Gambar ke Folder Storage;
+    :Sistem Menyimpan Objek Program Baru ke DB (status_program = 1);
+    :Tampilkan Pesan Sukses Tambah Program;
+
+else if (Pilih Operasi?) then (Edit Program)
+    :Pilih Program dari Daftar;
+    :Klik Edit;
+    :Ubah Form Data (Ubah Detail atau Status: Aktif/Selesai);
+    repeat
+        :Klik Update;
+        :Sistem Memvalidasi Input;
+    backward:Tampilkan Error Validasi;
+    repeat while (Apakah Input Valid?) is (Tidak) not (Ya)
+    :Sistem Memperbarui Data Program di Database;
+    :Tampilkan Pesan Sukses Update Program;
+
+else if (Pilih Operasi?) then (Hapus Program)
+    :Pilih Program dari Daftar;
+    :Klik Tombol Hapus;
+    :Konfirmasi Hapus Dialog;
+    if (Konfirmasi?) then (Ya)
+        :Sistem Menghapus Data Program dari Database\n(cascade menghapus transaksi & laporan terkait);
+        :Tampilkan Pesan Sukses Hapus;
+    else (Tidak)
+        :Batalkan Operasi;
+    endif
+endif
+
+:Segarkan Daftar Program Wakaf di Layar;
+stop
+@enduml
