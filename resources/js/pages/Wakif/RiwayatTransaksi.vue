@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 // Transaction data state
 const transactions = ref<any[]>([]);
@@ -19,16 +19,19 @@ const rowsLimit = ref(10); // default limit 10 rows
 // Load token
 const getHeaders = () => {
     const token = localStorage.getItem('wakif_auth_token');
+
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 // Fetch transaction history
 const fetchHistory = async () => {
     isLoading.value = true;
+
     try {
         const response = await axios.get('/api/wakif/transaksi/riwayat', {
             headers: getHeaders()
         });
+
         if (response.data && response.data.success) {
             transactions.value = response.data.data || [];
         }
@@ -50,7 +53,10 @@ const formatRupiah = (value: number) => {
 
 // Format Date
 const formatDate = (dateStr: string) => {
-    if (!dateStr) return '-';
+    if (!dateStr) {
+return '-';
+}
+
     return new Date(dateStr).toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',
@@ -74,6 +80,7 @@ const filteredTransactions = computed(() => {
 
         // Date range filter
         let matchDate = true;
+
         if (t.created_at) {
             const txDate = new Date(t.created_at);
             // Reset hours for date comparison
@@ -82,15 +89,24 @@ const filteredTransactions = computed(() => {
             if (startDate.value) {
                 const start = new Date(startDate.value);
                 start.setHours(0,0,0,0);
-                if (txDate < start) matchDate = false;
+
+                if (txDate < start) {
+matchDate = false;
+}
             }
+
             if (endDate.value) {
                 const end = new Date(endDate.value);
                 end.setHours(0,0,0,0);
-                if (txDate > end) matchDate = false;
+
+                if (txDate > end) {
+matchDate = false;
+}
             }
         } else {
-            if (startDate.value || endDate.value) matchDate = false;
+            if (startDate.value || endDate.value) {
+matchDate = false;
+}
         }
 
         return matchSearch && matchStatus && matchDate;
@@ -101,6 +117,7 @@ const filteredTransactions = computed(() => {
 const paginatedTransactions = computed(() => {
     const startIdx = (currentPage.value - 1) * rowsLimit.value;
     const endIdx = startIdx + rowsLimit.value;
+
     return filteredTransactions.value.slice(startIdx, endIdx);
 });
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
-import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const props = defineProps<{
@@ -29,6 +29,7 @@ const isSubmitting = ref(false);
 const fetchLaporanDetails = async () => {
     try {
         const res = await axios.get(`/api/nazhir/laporan/detail/${props.id}`);
+
         if (res.data && res.data.data) {
             const report = res.data.data;
             form.value.judul_laporan = report.judul_laporan || '';
@@ -39,6 +40,7 @@ const fetchLaporanDetails = async () => {
             
             if (report.id_program) {
                 const progRes = await axios.get(`/api/wakif/program-wakaf/${report.id_program}`);
+
                 if (progRes.data && progRes.data.data) {
                     programName.value = progRes.data.data.nama_program || '';
                 }
@@ -56,6 +58,7 @@ const fetchLaporanDetails = async () => {
 
 const handleGambarLaporanChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files.length > 0) {
         gambarLaporanFile.value = target.files[0];
     }
@@ -69,10 +72,12 @@ const validateForm = () => {
         errors.value.judul_laporan = 'Judul laporan wajib diisi.';
         isValid = false;
     }
+
     if (!form.value.dana_disalurkan || Number(form.value.dana_disalurkan) < 0) {
         errors.value.dana_disalurkan = 'Dana disalurkan harus diisi dengan angka minimal 0.';
         isValid = false;
     }
+
     if (!form.value.penerima_manfaat || Number(form.value.penerima_manfaat) < 0) {
         errors.value.penerima_manfaat = 'Penerima manfaat harus diisi dengan angka minimal 0.';
         isValid = false;
@@ -82,7 +87,10 @@ const validateForm = () => {
 };
 
 const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+return;
+}
+
     isSubmitting.value = true;
 
     try {
@@ -109,6 +117,7 @@ const handleSubmit = async () => {
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to update report:', e);
+
         if (e.response && e.response.data && e.response.data.errors) {
             const apiErrors = e.response.data.errors;
             Object.keys(apiErrors).forEach(key => {
@@ -123,7 +132,10 @@ const handleSubmit = async () => {
 };
 
 const handleDelete = async () => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?'))) {
+return;
+}
+
     try {
         await axios.delete(`/api/nazhir/laporan/${props.id}`);
         await showSuccess('Laporan berhasil dihapus!');

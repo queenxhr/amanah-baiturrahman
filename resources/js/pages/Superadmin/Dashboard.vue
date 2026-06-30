@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
-import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
+import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const users = ref<any[]>([]);
@@ -18,6 +18,7 @@ const processingId = ref<any>(null);
 // Get headers helper
 const getHeaders = () => {
     const token = localStorage.getItem('superadmin_auth_token');
+
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -29,8 +30,10 @@ const fetchData = async () => {
 
 const fetchUsers = async () => {
     loadingUsers.value = true;
+
     try {
         const response = await axios.get('/api/superadmin/users', { headers: getHeaders() });
+
         if (response.data.success) {
             users.value = response.data.data;
         }
@@ -43,8 +46,10 @@ const fetchUsers = async () => {
 
 const fetchPrograms = async () => {
     loadingPrograms.value = true;
+
     try {
         const response = await axios.get('/api/superadmin/programs', { headers: getHeaders() });
+
         if (response.data.success) {
             programs.value = response.data.data;
         }
@@ -57,8 +62,10 @@ const fetchPrograms = async () => {
 
 const fetchPencairans = async () => {
     loadingPencairans.value = true;
+
     try {
         const response = await axios.get('/api/superadmin/pencairan', { headers: getHeaders() });
+
         if (response.data.success) {
             pencairans.value = response.data.data;
         }
@@ -96,10 +103,15 @@ const stats = computed(() => {
 
 // Approvals & Quick actions
 const approveNazhir = async (id: number) => {
-    if (!(await showConfirm('Setujui pendaftaran akun Nazhir ini?'))) return;
+    if (!(await showConfirm('Setujui pendaftaran akun Nazhir ini?'))) {
+return;
+}
+
     processingId.value = 'user-' + id;
+
     try {
         const res = await axios.put(`/api/superadmin/users/${id}/approve`, {}, { headers: getHeaders() });
+
         if (res.data.success) {
             await showSuccess(res.data.message);
             fetchUsers();
@@ -113,11 +125,17 @@ const approveNazhir = async (id: number) => {
 
 const handleProgramAction = async (id: number, status: 'approve' | 'reject') => {
     const text = status === 'approve' ? 'Setujui dan tayangkan program ini?' : 'Tolak pengajuan program ini?';
-    if (!(await showConfirm(text))) return;
+
+    if (!(await showConfirm(text))) {
+return;
+}
+
     processingId.value = 'prog-' + id;
+
     try {
         const endpoint = `/api/superadmin/programs/${id}/${status}`;
         const res = await axios.put(endpoint, {}, { headers: getHeaders() });
+
         if (res.data.success) {
             await showSuccess(res.data.message);
             fetchPrograms();
@@ -131,11 +149,17 @@ const handleProgramAction = async (id: number, status: 'approve' | 'reject') => 
 
 const handlePencairanAction = async (id: number, status: 'approve' | 'reject') => {
     const text = status === 'approve' ? 'Setujui pengajuan pencairan dana ini?' : 'Tolak pengajuan pencairan dana ini?';
-    if (!(await showConfirm(text))) return;
+
+    if (!(await showConfirm(text))) {
+return;
+}
+
     processingId.value = 'pencairan-' + id;
+
     try {
         const endpoint = `/api/superadmin/pencairan/${id}/${status}`;
         const res = await axios.put(endpoint, {}, { headers: getHeaders() });
+
         if (res.data.success) {
             await showSuccess(res.data.message);
             fetchPencairans();

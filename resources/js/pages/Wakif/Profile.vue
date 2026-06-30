@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 const page = usePage();
 
@@ -38,16 +38,19 @@ const passwordSuccessMsg = ref('');
 
 const getHeaders = () => {
     const token = localStorage.getItem('wakif_auth_token');
+
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 // Fetch current user details
 const fetchUserProfile = async () => {
     isLoadingProfile.value = true;
+
     try {
         const response = await axios.get('/api/wakif/user', {
             headers: getHeaders()
         });
+
         if (response.data && response.data.success) {
             const data = response.data.data;
             profileForm.value = {
@@ -74,28 +77,36 @@ const handleSaveProfile = async () => {
     
     // Front-end validations
     let hasError = false;
+
     if (!profileForm.value.nama.trim()) {
         profileErrors.value.nama = 'Nama Lengkap wajib diisi.';
         hasError = true;
     }
+
     if (!profileForm.value.email.trim()) {
         profileErrors.value.email = 'Email wajib diisi.';
         hasError = true;
     }
+
     if (!profileForm.value.no_hp.trim()) {
         profileErrors.value.no_hp = 'No WhatsApp wajib diisi.';
         hasError = true;
     }
 
-    if (hasError) return;
+    if (hasError) {
+return;
+}
 
     isSavingProfile.value = true;
+
     try {
         const response = await axios.put('/api/wakif/user', profileForm.value, {
             headers: getHeaders()
         });
+
         if (response.data && response.data.success) {
             profileSuccessMsg.value = 'Profil Anda berhasil diperbarui.';
+
             // Sync with page props if Inertia manages it
             if (page.props.auth?.user) {
                 page.props.auth.user.nama = profileForm.value.nama;
@@ -104,6 +115,7 @@ const handleSaveProfile = async () => {
         }
     } catch (e: any) {
         console.error('Failed to update profile:', e);
+
         if (e.response?.data?.errors) {
             const serverErrors = e.response.data.errors;
             Object.keys(serverErrors).forEach(key => {
@@ -124,10 +136,12 @@ const handleSavePassword = async () => {
     
     // Front-end validation
     let hasError = false;
+
     if (!passwordForm.value.old_password) {
         passwordErrors.value.old_password = 'Password Lama wajib diisi.';
         hasError = true;
     }
+
     if (!passwordForm.value.new_password) {
         passwordErrors.value.new_password = 'Password Baru wajib diisi.';
         hasError = true;
@@ -135,14 +149,18 @@ const handleSavePassword = async () => {
         passwordErrors.value.new_password = 'Password Baru minimal 8 karakter.';
         hasError = true;
     }
+
     if (passwordForm.value.new_password !== passwordForm.value.confirm_password) {
         passwordErrors.value.confirm_password = 'Konfirmasi Password Baru tidak sesuai.';
         hasError = true;
     }
 
-    if (hasError) return;
+    if (hasError) {
+return;
+}
 
     isSavingPassword.value = true;
+
     try {
         const response = await axios.put('/api/wakif/ubah-password', {
             old_password: passwordForm.value.old_password,
@@ -150,6 +168,7 @@ const handleSavePassword = async () => {
         }, {
             headers: getHeaders()
         });
+
         if (response.data && response.data.success) {
             passwordSuccessMsg.value = 'Password Anda berhasil diperbarui.';
             passwordForm.value = {
@@ -160,6 +179,7 @@ const handleSavePassword = async () => {
         }
     } catch (e: any) {
         console.error('Failed to change password:', e);
+
         if (e.response?.data?.errors) {
             const serverErrors = e.response.data.errors;
             Object.keys(serverErrors).forEach(key => {

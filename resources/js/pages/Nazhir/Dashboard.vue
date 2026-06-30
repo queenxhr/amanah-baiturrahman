@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, computed, watch } from 'vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 // Tabs
@@ -13,6 +13,7 @@ const programsList = ref<Array<{ id_program: number; nama_program: string }>>([]
 const fetchProgramsDropdown = async () => {
     try {
         const res = await axios.get('/api/nazhir/program?all=1');
+
         if (res.data && res.data.data) {
             programsList.value = res.data.data;
         }
@@ -57,23 +58,41 @@ const formatRupiah = (num: number) => {
 };
 
 const formatShortCurrency = (num: number) => {
-    if (num >= 1000000000) return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
-    if (num >= 1000000) return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
+    if (num >= 1000000000) {
+return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
+}
+
+    if (num >= 1000000) {
+return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
+}
+
     return formatRupiah(num);
 };
 
 const getMonthName = (monthNum: number) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+
     return months[monthNum - 1] || '';
 };
 
 const fetchCounters = async () => {
     try {
         let url = '/api/nazhir/counter?';
-        if (selectedMonth.value) url += `bulan=${selectedMonth.value}&`;
-        if (selectedYear.value) url += `tahun=${selectedYear.value}&`;
-        if (selectedProgram.value) url += `program=${selectedProgram.value}`;
+
+        if (selectedMonth.value) {
+url += `bulan=${selectedMonth.value}&`;
+}
+
+        if (selectedYear.value) {
+url += `tahun=${selectedYear.value}&`;
+}
+
+        if (selectedProgram.value) {
+url += `program=${selectedProgram.value}`;
+}
+
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             counters.value = res.data.data;
         }
@@ -85,9 +104,17 @@ const fetchCounters = async () => {
 const fetchPenyebaran = async () => {
     try {
         let url = '/api/nazhir/penyebaran-program?';
-        if (selectedMonth.value) url += `bulan=${selectedMonth.value}&`;
-        if (selectedYear.value) url += `tahun=${selectedYear.value}`;
+
+        if (selectedMonth.value) {
+url += `bulan=${selectedMonth.value}&`;
+}
+
+        if (selectedYear.value) {
+url += `tahun=${selectedYear.value}`;
+}
+
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             penyebaran.value = res.data.data;
         }
@@ -98,8 +125,10 @@ const fetchPenyebaran = async () => {
 
 const fetchTrend = async () => {
     isLoadingTrend.value = true;
+
     try {
         const res = await axios.get(`/api/nazhir/trend-wakaf?tahun=${selectedYear.value}`);
+
         if (res.data && res.data.data) {
             trendData.value = res.data.data;
         }
@@ -117,6 +146,7 @@ const fullYearTrend = computed(() => {
         trendMap.set(Number(item.bulan), Number(item.wakaf_terkumpul));
     });
     const result = [];
+
     for (let m = 1; m <= 12; m++) {
         result.push({
             bulan: m,
@@ -124,12 +154,14 @@ const fullYearTrend = computed(() => {
             val: trendMap.has(m) ? trendMap.get(m) : 0
         });
     }
+
     return result;
 });
 
 const maxTrendValue = computed(() => {
     const vals = fullYearTrend.value.map(item => item.val);
     const max = Math.max(...vals);
+
     return max === 0 ? 100000 : max * 1.1;
 });
 
@@ -142,27 +174,39 @@ const points = computed(() => {
     return fullYearTrend.value.map((item, idx) => {
         const x = paddingX + (idx / 11) * (chartWidth - paddingX * 2);
         const y = chartHeight - paddingY - (item.val / maxTrendValue.value) * (chartHeight - paddingY * 2);
+
         return { x, y, val: item.val, label: item.label };
     });
 });
 
 const areaPath = computed(() => {
-    if (points.value.length === 0) return '';
+    if (points.value.length === 0) {
+return '';
+}
+
     let p = `M ${points.value[0].x} ${points.value[0].y}`;
+
     for (let i = 1; i < points.value.length; i++) {
         p += ` L ${points.value[i].x} ${points.value[i].y}`;
     }
+
     p += ` L ${points.value[points.value.length - 1].x} ${chartHeight - paddingY}`;
     p += ` L ${points.value[0].x} ${chartHeight - paddingY} Z`;
+
     return p;
 });
 
 const linePath = computed(() => {
-    if (points.value.length === 0) return '';
+    if (points.value.length === 0) {
+return '';
+}
+
     let p = `M ${points.value[0].x} ${points.value[0].y}`;
+
     for (let i = 1; i < points.value.length; i++) {
         p += ` L ${points.value[i].x} ${points.value[i].y}`;
     }
+
     return p;
 });
 
@@ -203,13 +247,24 @@ const activeImageUrl = ref('');
 
 const fetchTransactions = async () => {
     isLoadingTx.value = true;
+
     try {
         let url = `/api/nazhir/transaksi?limit=${txLimit.value}&page=${txPage.value}&sort=${txSort.value}`;
-        if (txStart.value) url += `&start=${txStart.value}`;
-        if (txEnd.value) url += `&end=${txEnd.value}`;
-        if (txProgram.value) url += `&program=${txProgram.value}`;
+
+        if (txStart.value) {
+url += `&start=${txStart.value}`;
+}
+
+        if (txEnd.value) {
+url += `&end=${txEnd.value}`;
+}
+
+        if (txProgram.value) {
+url += `&program=${txProgram.value}`;
+}
         
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             transactions.value = res.data.data.data || [];
             txPagination.value = {
@@ -228,7 +283,10 @@ const fetchTransactions = async () => {
 };
 
 const handleApprove = async (id: number, status: number) => {
-    if (!(await showConfirm(status === 1 ? 'Approve transaksi ini?' : 'Tolak transaksi ini?'))) return;
+    if (!(await showConfirm(status === 1 ? 'Approve transaksi ini?' : 'Tolak transaksi ini?'))) {
+return;
+}
+
     try {
         await axios.put(`/api/nazhir/transaksi/${id}/approve`, { status_pembayaran: status });
         await showSuccess('Status pembayaran berhasil diperbarui!');
@@ -247,10 +305,21 @@ const openImageModal = (url: string) => {
 
 const exportCsvUrl = computed(() => {
     let url = '/api/nazhir/transaksi/export-csv?';
-    if (txStart.value) url += `start=${txStart.value}&`;
-    if (txEnd.value) url += `end=${txEnd.value}&`;
-    if (txProgram.value) url += `program=${txProgram.value}&`;
+
+    if (txStart.value) {
+url += `start=${txStart.value}&`;
+}
+
+    if (txEnd.value) {
+url += `end=${txEnd.value}&`;
+}
+
+    if (txProgram.value) {
+url += `program=${txProgram.value}&`;
+}
+
     url += `sort=${txSort.value}`;
+
     return url;
 });
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const programs = ref<any[]>([]);
@@ -21,12 +21,20 @@ const openPreview = (program: any) => {
 
 const fetchPrograms = async () => {
     loading.value = true;
+
     try {
         const params: any = {};
-        if (search.value) params.search = search.value;
-        if (status.value !== '') params.status = status.value;
+
+        if (search.value) {
+params.search = search.value;
+}
+
+        if (status.value !== '') {
+params.status = status.value;
+}
 
         const response = await axios.get('/api/superadmin/programs', { params });
+
         if (response.data.success) {
             programs.value = response.data.data;
         }
@@ -39,17 +47,24 @@ const fetchPrograms = async () => {
 
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
+
     if (urlParams.has('status')) {
         status.value = urlParams.get('status') || '';
     }
+
     fetchPrograms();
 });
 
 const approveProgram = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menyetujui program wakaf ini untuk tayang secara publik?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menyetujui program wakaf ini untuk tayang secara publik?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/programs/${id}/approve`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchPrograms();
@@ -62,10 +77,15 @@ const approveProgram = async (id: number) => {
 };
 
 const rejectProgram = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menolak program wakaf ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menolak program wakaf ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/programs/${id}/reject`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchPrograms();

@@ -58,6 +58,7 @@ export const showConfirm = async (message: string, title = 'Konfirmasi'): Promis
             cancelButton: 'px-5 py-2 rounded text-sm font-bold text-white transition'
         }
     });
+
     return result.isConfirmed;
 };
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { showError } from '@/lib/alert';
 
 const props = defineProps<{
@@ -49,6 +49,7 @@ const format = (command: string, value: string = '') => {
   document.execCommand(command, false, value);
   onInput();
   updateActiveStates();
+
   if (editorRef.value) {
     editorRef.value.focus();
   }
@@ -57,6 +58,7 @@ const format = (command: string, value: string = '') => {
 // Save selection range
 const saveSelection = () => {
   const sel = window.getSelection();
+
   if (sel && sel.rangeCount > 0) {
     savedRange.value = sel.getRangeAt(0);
   }
@@ -66,6 +68,7 @@ const saveSelection = () => {
 const restoreSelection = () => {
   if (savedRange.value) {
     const sel = window.getSelection();
+
     if (sel) {
       sel.removeAllRanges();
       sel.addRange(savedRange.value);
@@ -92,11 +95,14 @@ const updateActiveStates = () => {
 
   // Attempt to read current font family and size
   const font = document.queryCommandValue('fontName');
+
   if (font) {
     // strip out quotes if any
     currentFont.value = font.replace(/['"]/g, '');
   }
+
   const size = document.queryCommandValue('fontSize');
+
   if (size) {
     currentSize.value = size;
   }
@@ -106,6 +112,7 @@ const addLink = () => {
   saveSelection();
   const url = prompt('Masukkan URL Link:');
   restoreSelection();
+
   if (url) {
     format('createLink', url);
   }
@@ -113,6 +120,7 @@ const addLink = () => {
 
 const triggerImageUpload = () => {
   saveSelection();
+
   if (editorImageInput.value) {
     editorImageInput.value.click();
   }
@@ -120,6 +128,7 @@ const triggerImageUpload = () => {
 
 const handleImageUpload = async (e: Event) => {
   const target = e.target as HTMLInputElement;
+
   if (target.files && target.files[0]) {
     const file = target.files[0];
     const formData = new FormData();
@@ -145,6 +154,7 @@ onMounted(() => {
   if (editorRef.value) {
     editorRef.value.innerHTML = props.modelValue || '';
   }
+
   document.addEventListener('selectionchange', handleSelectionChange);
 });
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 const props = defineProps<{
     id: string | number;
@@ -13,15 +13,18 @@ const isLoading = ref(true);
 
 const getHeaders = () => {
     const token = localStorage.getItem('wakif_auth_token');
+
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 const fetchDetail = async () => {
     isLoading.value = true;
+
     try {
         const response = await axios.get(`/api/wakif/transaksi/${props.id}`, {
             headers: getHeaders()
         });
+
         if (response.data && response.data.success) {
             transaction.value = response.data.data;
         }
@@ -33,7 +36,10 @@ const fetchDetail = async () => {
 };
 
 const formatRupiah = (value: number) => {
-    if (value === undefined || value === null) return '-';
+    if (value === undefined || value === null) {
+return '-';
+}
+
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
@@ -42,7 +48,10 @@ const formatRupiah = (value: number) => {
 };
 
 const formatDate = (dateStr: string) => {
-    if (!dateStr) return '-';
+    if (!dateStr) {
+return '-';
+}
+
     return new Date(dateStr).toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',

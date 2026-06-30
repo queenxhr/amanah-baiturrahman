@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, watch } from 'vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const search = ref('');
@@ -27,12 +27,16 @@ const formatRupiah = (num: number) => {
 
 const fetchPrograms = async () => {
     isLoading.value = true;
+
     try {
         let url = `/api/nazhir/program?limit=${limit.value}&page=${page.value}&sort=${sort.value}`;
+
         if (search.value) {
             url += `&search=${encodeURIComponent(search.value)}`;
         }
+
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             programs.value = res.data.data.data || [];
             pagination.value = {
@@ -51,7 +55,10 @@ const fetchPrograms = async () => {
 };
 
 const handleDeleteProgram = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menghapus program ini? Semua data transaksi dan laporan terkait juga akan terhapus secara permanen.'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus program ini? Semua data transaksi dan laporan terkait juga akan terhapus secara permanen.'))) {
+return;
+}
+
     try {
         await axios.delete(`/api/nazhir/program/${id}`);
         await showSuccess('Program berhasil dihapus!');
@@ -63,7 +70,10 @@ const handleDeleteProgram = async (id: number) => {
 };
 
 const handleDeleteLaporan = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?'))) {
+return;
+}
+
     try {
         await axios.delete(`/api/nazhir/laporan/${id}`);
         await showSuccess('Laporan berhasil dihapus!');
@@ -94,7 +104,10 @@ onMounted(() => {
 
 let timeout: any = null;
 watch(search, () => {
-    if (timeout) clearTimeout(timeout);
+    if (timeout) {
+clearTimeout(timeout);
+}
+
     timeout = setTimeout(() => {
         page.value = 1;
         fetchPrograms();

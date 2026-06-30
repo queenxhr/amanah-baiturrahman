@@ -12,6 +12,7 @@ axios.interceptors.request.use((config) => {
     const url = config.url || '';
     const cleanUrl = url.toLowerCase();
     let token = null;
+
     if (cleanUrl.includes('api/superadmin')) {
         token = localStorage.getItem('superadmin_auth_token');
     } else if (cleanUrl.includes('api/nazhir')) {
@@ -24,6 +25,7 @@ axios.interceptors.request.use((config) => {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
 }, (error) => {
     return Promise.reject(error);
@@ -34,9 +36,11 @@ axios.interceptors.response.use(
     (response) => response,
     (error) => {
         let message = 'Terjadi kesalahan sistem.';
+
         if (error.response) {
             if (error.response.status === 422) {
                 const errors = error.response.data.errors;
+
                 if (errors && Object.keys(errors).length > 0) {
                     const firstKey = Object.keys(errors)[0];
                     message = errors[firstKey][0];
@@ -55,6 +59,7 @@ axios.interceptors.response.use(
         }
 
         showToastError(message);
+
         return Promise.reject(error);
     }
 );

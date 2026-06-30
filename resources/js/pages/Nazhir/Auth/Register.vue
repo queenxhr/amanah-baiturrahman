@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import axios from 'axios';
+import { ref } from 'vue';
 
 const form = ref({
     nama: '',
@@ -26,6 +26,7 @@ const submit = async () => {
     
     try {
         const response = await axios.post('/api/nazhir/signup', form.value);
+
         if (response.status === 201 || response.data.success) {
             successMsg.value = response.data.message || 'Pendaftaran berhasil. Silakan menunggu persetujuan dari Superadmin sebelum masuk.';
             form.value = { nama: '', email: '', no_hp: '', jenis_kelamin: '', tanggal_lahir: '', password: '', password_confirmation: '' };

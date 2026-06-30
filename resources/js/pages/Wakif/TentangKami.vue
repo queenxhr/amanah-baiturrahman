@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 </script>
 
 <template>
