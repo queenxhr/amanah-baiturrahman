@@ -3,7 +3,7 @@ import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import { showAlert, showSuccess, showError } from '@/lib/alert';
+import { showAlert, showError } from '@/lib/alert';
 
 const props = defineProps<{
     id: string | number;
@@ -36,7 +36,6 @@ const emailInput = ref('');
 const nominal = ref<number | string | null>(null);
 const customNominal = ref('');
 const hideName = ref(false);
-const otherName = ref(false);
 const pesanDoa = ref('');
 const isSubmitting = ref(false);
 

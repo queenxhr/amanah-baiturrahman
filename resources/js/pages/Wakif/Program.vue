@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import WakifLayout from '@/layouts/WakifLayout.vue';
 import ProgramCard from '@/components/Wakif/ProgramCard.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { onMounted, ref, computed, watch } from 'vue';
 import axios from 'axios';
 

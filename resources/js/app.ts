@@ -1,11 +1,11 @@
 import { createInertiaApp } from '@inertiajs/vue3';
+import axios from 'axios';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
-import '../css/app.css';
 import { initializeTheme } from '@/composables/useAppearance';
-import axios from 'axios';
 import { showToastError } from '@/lib/alert';
+import '../css/app.css';
 
 // Global Axios Request Interceptor for Auth Bearer Tokens
 axios.interceptors.request.use((config) => {

@@ -32,7 +32,7 @@ const handleLogout = async () => {
         await axios.post('/api/superadmin/logout', {}, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
-    } catch (e) {
+    } catch {
         // ignore
     }
     localStorage.removeItem('superadmin_auth_token');

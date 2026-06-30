@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage, router } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import axios from 'axios';
 
@@ -20,7 +20,7 @@ const handleLogout = async () => {
         await axios.post('/api/wakif/logout', {}, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
-    } catch (e) {
+    } catch {
         // ignore
     }
     localStorage.removeItem('wakif_auth_token');

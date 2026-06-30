@@ -76,7 +76,7 @@ const onProgramSelect = async () => {
             
             availableFunds.value = parseFloat(prog.dana_terkumpul) - approved;
             if (availableFunds.value < 0) availableFunds.value = 0;
-        } catch (e) {
+        } catch {
             availableFunds.value = parseFloat(prog.dana_terkumpul);
         }
     }

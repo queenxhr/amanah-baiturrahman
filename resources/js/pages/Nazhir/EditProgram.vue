@@ -4,7 +4,7 @@ import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import { showAlert, showSuccess, showError } from '@/lib/alert';
+import { showSuccess, showError } from '@/lib/alert';
 
 const props = defineProps<{
     id: string | number;

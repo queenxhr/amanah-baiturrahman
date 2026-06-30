@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import NazhirLayout from '@/layouts/NazhirLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';

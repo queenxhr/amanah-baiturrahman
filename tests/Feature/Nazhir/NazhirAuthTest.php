@@ -61,7 +61,8 @@ class NazhirAuthTest extends TestCase
             'no_hp' => '081234567801',
             'jenis_kelamin' => 'L',
             'tanggal_lahir' => '1990-01-01',
-            'password' => 'P@ssword123'
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
         ]);
 
         $response->assertStatus(201);
@@ -85,7 +86,8 @@ class NazhirAuthTest extends TestCase
             'no_hp' => '081234567803',
             'jenis_kelamin' => 'L',
             'tanggal_lahir' => '1990-01-01',
-            'password' => 'P@ssword123'
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
         ]);
 
         $response->assertStatus(422)
@@ -105,7 +107,8 @@ class NazhirAuthTest extends TestCase
             'no_hp' => '081234567804',
             'jenis_kelamin' => 'L',
             'tanggal_lahir' => '1990-01-01',
-            'password' => 'P@ssword123'
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
         ]);
 
         $response->assertStatus(422)

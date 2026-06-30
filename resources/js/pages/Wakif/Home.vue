@@ -63,7 +63,7 @@ onMounted(async () => {
                   gambar_placeholder: p.gambar_thumbnail
               }));
         }
-    } catch(e) {
+    } catch {
         // Fallback dummy
     }
 });

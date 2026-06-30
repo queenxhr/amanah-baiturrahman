@@ -37,7 +37,7 @@ class CustomSendPasswordResetLinkRequest extends FortifySendPasswordResetLinkReq
         return [
             $emailKey . '.required' => 'Kolom email wajib diisi.',
             $emailKey . '.email' => 'Format email tidak valid.',
-            $emailKey . '.exists' => 'User tidak ditemukan.',
+            $emailKey . '.exists' => 'Email tidak terdaftar.',
         ];
     }
 }
