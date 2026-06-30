@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import axios from 'axios';
+import { ref } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 const form = ref({
     email: '',
@@ -19,9 +19,11 @@ const submit = async () => {
     
     try {
         const response = await axios.post('/api/wakif/login', form.value);
+
         if (response.data.success) {
             localStorage.setItem('wakif_auth_token', response.data.data.token);
             const user = response.data.data.user;
+
             if (user && user.id_role === 1) {
                 window.location.href = '/dashboard';
             } else {

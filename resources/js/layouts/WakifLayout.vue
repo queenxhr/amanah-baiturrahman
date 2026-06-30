@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import axios from 'axios';
+import { ref, computed } from 'vue';
 
 const page = usePage();
 const mobileMenuOpen = ref(false);
@@ -10,11 +10,13 @@ const profileDropdownOpen = ref(false);
 const user = computed(() => (page.props.auth as any)?.user || null);
 const userInitial = computed(() => {
     const name = user.value?.nama || 'H';
+
     return name.substring(0, 1).toUpperCase();
 });
 
 const handleLogout = async () => {
     profileDropdownOpen.value = false;
+
     try {
         const token = localStorage.getItem('wakif_auth_token');
         await axios.post('/api/wakif/logout', {}, {
@@ -23,6 +25,7 @@ const handleLogout = async () => {
     } catch {
         // ignore
     }
+
     localStorage.removeItem('wakif_auth_token');
     window.location.href = '/';
 };

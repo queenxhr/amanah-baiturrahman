@@ -22,8 +22,12 @@ const formatRupiah = (number: number) => {
 };
 
 const persentase = computed(() => {
-    if (props.program.target_dana <= 0) return 0;
+    if (props.program.target_dana <= 0) {
+return 0;
+}
+
     const p = (props.program.dana_terkumpul / props.program.target_dana) * 100;
+
     return Math.min(Math.round(p), 100);
 });
 

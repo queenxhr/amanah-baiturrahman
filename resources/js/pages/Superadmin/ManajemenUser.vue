@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const users = ref<any[]>([]);
@@ -14,13 +14,24 @@ const processingId = ref<number | null>(null);
 
 const fetchUsers = async () => {
     loading.value = true;
+
     try {
         const params: any = {};
-        if (search.value) params.search = search.value;
-        if (role.value) params.role = role.value;
-        if (status.value) params.status = status.value;
+
+        if (search.value) {
+params.search = search.value;
+}
+
+        if (role.value) {
+params.role = role.value;
+}
+
+        if (status.value) {
+params.status = status.value;
+}
 
         const response = await axios.get('/api/superadmin/users', { params });
+
         if (response.data.success) {
             users.value = response.data.data;
         }
@@ -34,17 +45,24 @@ const fetchUsers = async () => {
 onMounted(() => {
     // Check url search params if any
     const urlParams = new URLSearchParams(window.location.search);
+
     if (urlParams.has('status')) {
         status.value = urlParams.get('status') || '';
     }
+
     fetchUsers();
 });
 
 const approveUser = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menyetujui pendaftaran Nazhir ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menyetujui pendaftaran Nazhir ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/users/${id}/approve`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchUsers();
@@ -57,10 +75,15 @@ const approveUser = async (id: number) => {
 };
 
 const rejectUser = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menolak pendaftaran Nazhir ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menolak pendaftaran Nazhir ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/users/${id}/reject`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchUsers();
@@ -73,10 +96,15 @@ const rejectUser = async (id: number) => {
 };
 
 const blockUser = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin memblokir akun ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin memblokir akun ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/users/${id}/block`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchUsers();
@@ -89,10 +117,15 @@ const blockUser = async (id: number) => {
 };
 
 const unblockUser = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin membuka blokir akun ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin membuka blokir akun ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/users/${id}/unblock`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchUsers();
@@ -105,10 +138,15 @@ const unblockUser = async (id: number) => {
 };
 
 const deleteUser = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menghapus akun ini secara permanen? Tindakan ini tidak dapat dibatalkan.'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus akun ini secara permanen? Tindakan ini tidak dapat dibatalkan.'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.delete(`/api/superadmin/users/${id}`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchUsers();

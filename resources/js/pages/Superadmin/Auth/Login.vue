@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import axios from 'axios';
+import { ref } from 'vue';
 
 const form = ref({
     email: '',
@@ -18,6 +18,7 @@ const submit = async () => {
     
     try {
         const response = await axios.post('/api/superadmin/login', form.value);
+
         if (response.data.success) {
             localStorage.setItem('superadmin_auth_token', response.data.data.token);
             window.location.href = '/superadmin/dashboard';

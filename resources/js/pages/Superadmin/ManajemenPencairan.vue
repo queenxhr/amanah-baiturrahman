@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import SuperadminLayout from '@/layouts/SuperadminLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const pencairans = ref<any[]>([]);
@@ -20,11 +20,16 @@ const openPreviewModal = (p: any) => {
 
 const fetchPencairans = async () => {
     loading.value = true;
+
     try {
         const params: any = {};
-        if (status.value !== '') params.status = status.value;
+
+        if (status.value !== '') {
+params.status = status.value;
+}
 
         const response = await axios.get('/api/superadmin/pencairan', { params });
+
         if (response.data.success) {
             pencairans.value = response.data.data;
         }
@@ -37,17 +42,24 @@ const fetchPencairans = async () => {
 
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
+
     if (urlParams.has('status')) {
         status.value = urlParams.get('status') || '';
     }
+
     fetchPencairans();
 });
 
 const approvePencairan = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menyetujui pengajuan pencairan dana ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menyetujui pengajuan pencairan dana ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/pencairan/${id}/approve`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchPencairans();
@@ -60,10 +72,15 @@ const approvePencairan = async (id: number) => {
 };
 
 const rejectPencairan = async (id: number) => {
-    if (!(await showConfirm('Apakah Anda yakin ingin menolak pengajuan pencairan dana ini?'))) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menolak pengajuan pencairan dana ini?'))) {
+return;
+}
+
     processingId.value = id;
+
     try {
         const response = await axios.put(`/api/superadmin/pencairan/${id}/reject`);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             fetchPencairans();

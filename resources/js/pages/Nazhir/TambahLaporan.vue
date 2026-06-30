@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
-import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showSuccess, showError } from '@/lib/alert';
 
 const props = defineProps<{
@@ -28,6 +28,7 @@ const isSubmitting = ref(false);
 const fetchProgramDetails = async () => {
     try {
         const res = await axios.get(`/api/wakif/program-wakaf/${props.programId}`);
+
         if (res.data && res.data.data) {
             programName.value = res.data.data.nama_program || '';
         }
@@ -42,6 +43,7 @@ const fetchProgramDetails = async () => {
 
 const handleGambarLaporanChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files.length > 0) {
         gambarLaporanFile.value = target.files[0];
     }
@@ -55,10 +57,12 @@ const validateForm = () => {
         errors.value.judul_laporan = 'Judul laporan wajib diisi.';
         isValid = false;
     }
+
     if (!form.value.dana_disalurkan || Number(form.value.dana_disalurkan) < 0) {
         errors.value.dana_disalurkan = 'Dana disalurkan harus diisi dengan angka minimal 0.';
         isValid = false;
     }
+
     if (!form.value.penerima_manfaat || Number(form.value.penerima_manfaat) < 0) {
         errors.value.penerima_manfaat = 'Penerima manfaat harus diisi dengan angka minimal 0.';
         isValid = false;
@@ -68,7 +72,10 @@ const validateForm = () => {
 };
 
 const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+return;
+}
+
     isSubmitting.value = true;
 
     try {
@@ -94,6 +101,7 @@ const handleSubmit = async () => {
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to add report:', e);
+
         if (e.response && e.response.data && e.response.data.errors) {
             const apiErrors = e.response.data.errors;
             Object.keys(apiErrors).forEach(key => {

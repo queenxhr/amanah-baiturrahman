@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, watch } from 'vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 
 const search = ref('');
 const sortOrder = ref('asc');
@@ -15,12 +15,16 @@ const formatRupiah = (num: number) => {
 
 const fetchUsers = async () => {
     isLoading.value = true;
+
     try {
         let url = `/api/nazhir/users?sort=${sortOrder.value}`;
+
         if (search.value) {
             url += `&search=${encodeURIComponent(search.value)}`;
         }
+
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             users.value = res.data.data;
         }
@@ -43,7 +47,10 @@ watch(sortOrder, () => {
 // Watch search with a slight debounce
 let timeout: any = null;
 watch(search, () => {
-    if (timeout) clearTimeout(timeout);
+    if (timeout) {
+clearTimeout(timeout);
+}
+
     timeout = setTimeout(() => {
         fetchUsers();
     }, 300);

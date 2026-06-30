@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
-import ProgramCard from '@/components/Wakif/ProgramCard.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { onMounted, ref, computed } from 'vue';
 import axios from 'axios';
+import { onMounted, ref, computed } from 'vue';
+import ProgramCard from '@/components/Wakif/ProgramCard.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 // Stats state 
 const stats = ref({
@@ -18,7 +18,10 @@ const programs = ref([]);
 const searchQuery = ref('');
 
 const filteredPrograms = computed(() => {
-    if (!searchQuery.value) return programs.value;
+    if (!searchQuery.value) {
+return programs.value;
+}
+
     return programs.value.filter((p: any) => 
         p.nama_program.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         p.deskripsi.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -26,8 +29,14 @@ const filteredPrograms = computed(() => {
 });
 
 const formatShortCurrency = (num: number) => {
-    if (num >= 1000000000) return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
-    if (num >= 1000000) return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
+    if (num >= 1000000000) {
+return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
+}
+
+    if (num >= 1000000) {
+return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
+}
+
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
 };
 
@@ -35,6 +44,7 @@ onMounted(async () => {
     // Fetch stats counters from backend API
     try {
         const statsResponse = await axios.get('/api/wakif/counter');
+
         if (statsResponse.data && statsResponse.data.data) {
             const d = statsResponse.data.data;
             stats.value = {
@@ -51,6 +61,7 @@ onMounted(async () => {
     // Fetch programs from backend API built earlier
     try {
         const response = await axios.get('/api/wakif/program-wakaf');
+
         if (response.data && response.data.data) {
               // Map backend format to card format
               programs.value = response.data.data.slice(0, 4).map((p: any) => ({

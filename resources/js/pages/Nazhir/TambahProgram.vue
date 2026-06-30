@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
-import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import axios from 'axios';
+import { ref } from 'vue';
+import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showSuccess, showError } from '@/lib/alert';
 
 const form = ref({
@@ -21,6 +21,7 @@ const isSubmitting = ref(false);
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files[0]) {
         const file = target.files[0];
         thumbnailFile.value = file;
@@ -36,10 +37,12 @@ const validateForm = () => {
         errors.value.nama_program = 'Nama program wajib diisi.';
         isValid = false;
     }
+
     if (!form.value.target_dana || Number(form.value.target_dana) <= 0) {
         errors.value.target_dana = 'Target dana harus diisi dengan angka lebih dari 0.';
         isValid = false;
     }
+
     if (!form.value.due_date) {
         errors.value.due_date = 'Tenggat waktu program wajib diisi.';
         isValid = false;
@@ -49,7 +52,10 @@ const validateForm = () => {
 };
 
 const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+return;
+}
+
     isSubmitting.value = true;
 
     try {
@@ -59,6 +65,7 @@ const handleSubmit = async () => {
         formData.append('due_date', form.value.due_date);
         formData.append('status_program', String(form.value.status_program));
         formData.append('deskripsi', form.value.deskripsi);
+
         if (thumbnailFile.value) {
             formData.append('gambar_thumbnail', thumbnailFile.value);
         }
@@ -73,6 +80,7 @@ const handleSubmit = async () => {
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to add program:', e);
+
         if (e.response && e.response.data && e.response.data.errors) {
             const apiErrors = e.response.data.errors;
             Object.keys(apiErrors).forEach(key => {

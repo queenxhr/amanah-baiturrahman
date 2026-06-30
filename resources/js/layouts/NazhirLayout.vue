@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
 
 const page = usePage();
 const isSidebarOpen = ref(false);
@@ -9,6 +9,7 @@ const isSidebarOpen = ref(false);
 const user = computed(() => (page.props.auth as any)?.user || null);
 const userInitial = computed(() => {
     const name = user.value?.nama || 'N';
+
     return name.substring(0, 1).toUpperCase();
 });
 
@@ -35,6 +36,7 @@ const handleLogout = async () => {
     } catch {
         // ignore
     }
+
     localStorage.removeItem('nazhir_auth_token');
     window.location.href = '/nazhir/login';
 };

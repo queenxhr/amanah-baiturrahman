@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import axios from 'axios';
+import { ref } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 const form = ref({
     nama: '',
@@ -27,6 +27,7 @@ const submit = async () => {
     
     try {
         const response = await axios.post('/api/wakif/signup', form.value);
+
         if (response.status === 201 || response.data.success) {
             successMsg.value = 'Akun berhasil dibuat! Silakan Masuk.';
             form.value = { nama: '', email: '', no_hp: '', jenis_kelamin: '', tanggal_lahir: '', password: '', password_confirmation: '' };

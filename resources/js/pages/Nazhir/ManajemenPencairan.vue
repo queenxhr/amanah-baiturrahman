@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import NazhirLayout from '@/layouts/NazhirLayout.vue';
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showAlert, showSuccess, showError } from '@/lib/alert';
 
 const pencairans = ref<any[]>([]);
@@ -31,6 +31,7 @@ const availableFunds = ref(0);
 const fetchPencairans = async () => {
     try {
         const response = await axios.get('/api/nazhir/pencairan');
+
         if (response.data.success) {
             pencairans.value = response.data.data;
         }
@@ -43,6 +44,7 @@ const fetchPrograms = async () => {
     try {
         // Fetch all programs for select box
         const response = await axios.get('/api/nazhir/program?all=true');
+
         if (response.data.success) {
             programs.value = response.data.data;
         }
@@ -61,9 +63,12 @@ const onProgramSelect = async () => {
     selectedProgram.value = null;
     availableFunds.value = 0;
     
-    if (!form.value.id_program) return;
+    if (!form.value.id_program) {
+return;
+}
     
     const prog = programs.value.find(p => p.id_program === parseInt(form.value.id_program));
+
     if (prog) {
         selectedProgram.value = prog;
         
@@ -75,7 +80,10 @@ const onProgramSelect = async () => {
                 .reduce((acc, curr) => acc + parseFloat(curr.jumlah_dana), 0);
             
             availableFunds.value = parseFloat(prog.dana_terkumpul) - approved;
-            if (availableFunds.value < 0) availableFunds.value = 0;
+
+            if (availableFunds.value < 0) {
+availableFunds.value = 0;
+}
         } catch {
             availableFunds.value = parseFloat(prog.dana_terkumpul);
         }
@@ -96,20 +104,27 @@ const openRequestModal = () => {
 const submitRequest = async () => {
     if (!form.value.id_program) {
         await showAlert('Silakan pilih program wakaf.', 'Validasi');
+
         return;
     }
+
     if (form.value.jumlah_dana <= 0) {
         await showAlert('Jumlah dana harus lebih besar dari 0.', 'Validasi');
+
         return;
     }
+
     if (form.value.jumlah_dana > availableFunds.value) {
         await showAlert('Jumlah dana melebihi sisa dana terkumpul yang tersedia.', 'Validasi');
+
         return;
     }
 
     submitProcessing.value = true;
+
     try {
         const response = await axios.post('/api/nazhir/pencairan', form.value);
+
         if (response.data.success) {
             await showSuccess(response.data.message);
             showModal.value = false;
@@ -127,8 +142,12 @@ const formatCurrency = (val: number) => {
 };
 
 const canDisburse = (prog: any) => {
-    if (parseInt(prog.status) !== 1) return false; // Must be active
+    if (parseInt(prog.status) !== 1) {
+return false;
+} // Must be active
+
     const minTarget = parseFloat(prog.target_dana) * 0.1;
+
     return parseFloat(prog.dana_terkumpul) >= minTarget;
 };
 </script>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { onMounted, ref, computed, watch } from 'vue';
 import axios from 'axios';
+import { onMounted, ref, computed, watch } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 
 // Month & Year filters
 const selectedMonth = ref<string | number>(''); // default: all months
@@ -43,13 +43,20 @@ const formatRupiah = (num: number) => {
 };
 
 const formatShortCurrency = (num: number) => {
-    if (num >= 1000000000) return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
-    if (num >= 1000000) return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
+    if (num >= 1000000000) {
+return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
+}
+
+    if (num >= 1000000) {
+return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
+}
+
     return formatRupiah(num);
 };
 
 const getMonthName = (monthNum: number) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+
     return months[monthNum - 1] || '';
 };
 
@@ -57,9 +64,17 @@ const getMonthName = (monthNum: number) => {
 const fetchCounters = async () => {
     try {
         let url = '/api/wakif/counter?';
-        if (selectedMonth.value) url += `bulan=${selectedMonth.value}&`;
-        if (selectedYear.value) url += `tahun=${selectedYear.value}`;
+
+        if (selectedMonth.value) {
+url += `bulan=${selectedMonth.value}&`;
+}
+
+        if (selectedYear.value) {
+url += `tahun=${selectedYear.value}`;
+}
+
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             counters.value = res.data.data;
         }
@@ -71,9 +86,17 @@ const fetchCounters = async () => {
 const fetchPenyebaran = async () => {
     try {
         let url = '/api/wakif/penyebaran-program?';
-        if (selectedMonth.value) url += `bulan=${selectedMonth.value}&`;
-        if (selectedYear.value) url += `tahun=${selectedYear.value}`;
+
+        if (selectedMonth.value) {
+url += `bulan=${selectedMonth.value}&`;
+}
+
+        if (selectedYear.value) {
+url += `tahun=${selectedYear.value}`;
+}
+
         const res = await axios.get(url);
+
         if (res.data && res.data.data) {
             penyebaran.value = res.data.data;
         }
@@ -84,8 +107,10 @@ const fetchPenyebaran = async () => {
 
 const fetchTrend = async () => {
     isLoadingTrend.value = true;
+
     try {
         const res = await axios.get(`/api/wakif/trend-wakaf?tahun=${selectedYear.value}`);
+
         if (res.data && res.data.data) {
             trendData.value = res.data.data;
         }
@@ -117,6 +142,7 @@ const fullYearTrend = computed(() => {
     });
 
     const result = [];
+
     for (let m = 1; m <= 12; m++) {
         result.push({
             bulan: m,
@@ -124,6 +150,7 @@ const fullYearTrend = computed(() => {
             val: trendMap.has(m) ? trendMap.get(m) : 0
         });
     }
+
     return result;
 });
 
@@ -131,6 +158,7 @@ const fullYearTrend = computed(() => {
 const maxTrendValue = computed(() => {
     const vals = fullYearTrend.value.map(item => item.val);
     const max = Math.max(...vals);
+
     return max === 0 ? 100000 : max * 1.1; // padding 10%
 });
 
@@ -145,30 +173,42 @@ const points = computed(() => {
     return fullYearTrend.value.map((item, idx) => {
         const x = paddingX + (idx / 11) * (chartWidth - paddingX * 2);
         const y = chartHeight - paddingY - (item.val / maxTrendValue.value) * (chartHeight - paddingY * 2);
+
         return { x, y, val: item.val, label: item.label };
     });
 });
 
 // Area path string (goes down to bottom line for gradient fill)
 const areaPath = computed(() => {
-    if (points.value.length === 0) return '';
+    if (points.value.length === 0) {
+return '';
+}
+
     let p = `M ${points.value[0].x} ${points.value[0].y}`;
+
     for (let i = 1; i < points.value.length; i++) {
         p += ` L ${points.value[i].x} ${points.value[i].y}`;
     }
+
     // close the path
     p += ` L ${points.value[points.value.length - 1].x} ${chartHeight - paddingY}`;
     p += ` L ${points.value[0].x} ${chartHeight - paddingY} Z`;
+
     return p;
 });
 
 // Line path string (only outlines the points)
 const linePath = computed(() => {
-    if (points.value.length === 0) return '';
+    if (points.value.length === 0) {
+return '';
+}
+
     let p = `M ${points.value[0].x} ${points.value[0].y}`;
+
     for (let i = 1; i < points.value.length; i++) {
         p += ` L ${points.value[i].x} ${points.value[i].y}`;
     }
+
     return p;
 });
 </script>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { showAlert, showError } from '@/lib/alert';
 
 const props = defineProps<{
@@ -78,22 +78,33 @@ const formatRupiah = (number: number) => {
 };
 
 const persentase = computed(() => {
-    if (!program.value || program.value.target_dana <= 0) return 0;
+    if (!program.value || program.value.target_dana <= 0) {
+return 0;
+}
+
     const p = (program.value.dana_terkumpul / program.value.target_dana) * 100;
+
     return Math.min(Math.round(p), 100);
 });
 
 const startQrisTimer = () => {
     let seconds = 15 * 60;
     qrisTimeLeft.value = '00:15:00';
-    if (countdownInterval) clearInterval(countdownInterval);
+
+    if (countdownInterval) {
+clearInterval(countdownInterval);
+}
+
     countdownInterval = setInterval(() => {
         seconds--;
+
         if (seconds <= 0) {
             clearInterval(countdownInterval);
             qrisTimeLeft.value = 'Expired';
+
             return;
         }
+
         const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
         const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
         const secs = String(seconds % 60).padStart(2, '0');
@@ -108,6 +119,7 @@ const copyToClipboard = (text: string) => {
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files.length > 0) {
         paymentFile.value = target.files[0];
         paymentFileName.value = target.files[0].name;
@@ -116,6 +128,7 @@ const handleFileChange = (e: Event) => {
 
 const handleFileDrop = (e: DragEvent) => {
     e.preventDefault();
+
     if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
         paymentFile.value = e.dataTransfer.files[0];
         paymentFileName.value = e.dataTransfer.files[0].name;
@@ -171,9 +184,12 @@ const proceedToQris = async () => {
         hasError = true;
     }
 
-    if (hasError) return;
+    if (hasError) {
+return;
+}
 
     isSubmitting.value = true;
+
     try {
         const finalName = hideName.value ? 'Hamba Allah' : nameInput.value;
         const postData = {
@@ -191,11 +207,13 @@ const proceedToQris = async () => {
         const endpoint = isLoggedIn ? '/api/wakif/transaksi/user' : '/api/wakif/transaksi/guest';
         const token = localStorage.getItem('wakif_auth_token');
         const headers: any = {};
+
         if (isLoggedIn && token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
         const response = await axios.post(endpoint, postData, { headers });
+
         if (response.data && response.data.success) {
             createdTransaction.value = response.data.data;
             mockTransactionId.value = createdTransaction.value.kode_referensi;
@@ -215,35 +233,42 @@ const proceedToQris = async () => {
 const loadProgramData = async () => {
     if (!props.id || props.id === 'undefined' || isNaN(Number(props.id))) {
         console.warn('loadProgramData called with invalid ID:', props.id);
+
         return;
     }
+
     try {
         // Fetch program basic info
         const progRes = await axios.get(`/api/wakif/program-wakaf/${props.id}`);
+
         if (progRes.data && progRes.data.data) {
             program.value = progRes.data.data;
         }
         
         // Fetch countdown
         const countRes = await axios.get(`/api/wakif/program-wakaf/${props.id}/countdown`);
+
         if (countRes.data && countRes.data.data) {
             countdown.value = countRes.data.data.formatted;
         }
 
         // Fetch description
         const descRes = await axios.get(`/api/wakif/program-wakaf/${props.id}/deskripsi`);
+
         if (descRes.data && descRes.data.data) {
             fullDeskripsi.value = descRes.data.data.deskripsi;
         }
 
         // Fetch donor count
         const countDonorRes = await axios.get(`/api/wakif/counter-donatur?id_program=${props.id}`);
+
         if (countDonorRes.data && countDonorRes.data.data) {
             donorCount.value = countDonorRes.data.data.counter_donatur;
         }
 
         // Fetch reports
         const laporanRes = await axios.get(`/api/wakif/berita-laporan?id_program=${props.id}`);
+
         if (laporanRes.data && laporanRes.data.data) {
             laporanList.value = laporanRes.data.data;
         }
@@ -257,16 +282,23 @@ const loadProgramData = async () => {
 };
 
 const loadDonors = async (pageNumber: number) => {
-    if (!props.id || props.id === 'undefined' || isNaN(Number(props.id))) return;
+    if (!props.id || props.id === 'undefined' || isNaN(Number(props.id))) {
+return;
+}
+
     try {
         let url = `/api/wakif/program-wakaf/${props.id}/donatur?page=${pageNumber}&limit=${limit.value}`;
+
         if (startDate.value) {
             url += `&start=${startDate.value}`;
         }
+
         if (endDate.value) {
             url += `&end=${endDate.value}`;
         }
+
         const donorsRes = await axios.get(url);
+
         if (donorsRes.data && donorsRes.data.data) {
             const resData = donorsRes.data.data;
             donorsList.value = resData.data || [];
@@ -280,17 +312,21 @@ const loadDonors = async (pageNumber: number) => {
 
 const submitWakaf = async () => {
     paymentFileError.value = '';
+
     if (!paymentFile.value) {
         paymentFileError.value = 'Silakan unggah bukti pembayaran terlebih dahulu.';
+
         return;
     }
 
     if (!createdTransaction.value || !createdTransaction.value.id_transaksi) {
         showAlert('Data transaksi tidak ditemukan. Silakan ulangi proses.', 'Peringatan');
+
         return;
     }
 
     isSubmitting.value = true;
+
     try {
         const formData = new FormData();
         formData.append('bukti_pembayaran', paymentFile.value);
@@ -305,7 +341,11 @@ const submitWakaf = async () => {
 
         if (response.data && response.data.success) {
             createdTransaction.value = response.data.data;
-            if (countdownInterval) clearInterval(countdownInterval);
+
+            if (countdownInterval) {
+clearInterval(countdownInterval);
+}
+
             modalStep.value = 3;
         }
     } catch (e: any) {
@@ -345,12 +385,16 @@ const closeModalAndRefresh = async () => {
         emailInput.value = '';
     }
 
-    if (countdownInterval) clearInterval(countdownInterval);
+    if (countdownInterval) {
+clearInterval(countdownInterval);
+}
+
     await loadProgramData();
 };
 
 const visiblePages = computed(() => {
     const pages: (number | string)[] = [];
+
     if (totalPages.value <= 5) {
         for (let i = 1; i <= totalPages.value; i++) {
             pages.push(i);
@@ -364,6 +408,7 @@ const visiblePages = computed(() => {
             pages.push(1, '...', currentPage.value, '...', totalPages.value);
         }
     }
+
     return pages;
 });
 
@@ -380,6 +425,7 @@ onMounted(async () => {
 
     // Check if ?wakaf=true query param is present
     const urlParams = new URLSearchParams(window.location.search);
+
     if (urlParams.get('wakaf') === 'true') {
         modalOpen.value = true;
     }
