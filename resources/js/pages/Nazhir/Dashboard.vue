@@ -3,6 +3,7 @@ import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 // Tabs
 const activeTab = ref<'laporan' | 'transaksi'>('laporan');
@@ -19,7 +20,6 @@ const fetchProgramsDropdown = async () => {
         console.error('Failed to fetch programs for filter:', e);
     }
 };
-
 // ==================== LAPORAN TAB STATES & METHODS ====================
 const selectedMonth = ref<string | number>('');
 const selectedYear = ref(new Date().getFullYear());
@@ -176,8 +176,26 @@ const getTodayDateString = () => {
     return `${yyyy}-${mm}-${dd}`;
 };
 
-const txStart = ref(getTodayDateString());
-const txEnd = ref(getTodayDateString());
+const txStart = ref('');
+const txEnd = ref('');
+const tempTxStart = ref('');
+const tempTxEnd = ref('');
+const showTxDatePicker = ref(false);
+
+const applyTxDateFilter = () => {
+    txStart.value = tempTxStart.value;
+    txEnd.value = tempTxEnd.value;
+    showTxDatePicker.value = false;
+};
+
+const clearTxDateFilter = () => {
+    txStart.value = '';
+    txEnd.value = '';
+    tempTxStart.value = '';
+    tempTxEnd.value = '';
+    showTxDatePicker.value = false;
+};
+
 const txProgram = ref<string | number>('');
 const txLimit = ref(10);
 const txSort = ref('desc');
@@ -217,15 +235,15 @@ const fetchTransactions = async () => {
 };
 
 const handleApprove = async (id: number, status: number) => {
-    if (!confirm(status === 1 ? 'Approve transaksi ini?' : 'Tolak transaksi ini?')) return;
+    if (!(await showConfirm(status === 1 ? 'Approve transaksi ini?' : 'Tolak transaksi ini?'))) return;
     try {
         await axios.put(`/api/nazhir/transaksi/${id}/approve`, { status_pembayaran: status });
-        alert('Status pembayaran berhasil diperbarui!');
+        await showSuccess('Status pembayaran berhasil diperbarui!');
         fetchTransactions();
         fetchCounters(); // recalculate counters too
     } catch (e) {
         console.error('Approve failed:', e);
-        alert('Gagal memproses transaksi.');
+        await showError('Gagal memproses transaksi.');
     }
 };
 
@@ -502,22 +520,67 @@ watch([txStart, txEnd, txProgram, txLimit, txSort], () => {
         <section class="bg-white border border-gray-150 rounded-2xl p-5 shadow-xs flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
           <div class="flex flex-wrap items-center gap-4 flex-1">
             
-            <div class="flex flex-col min-w-[130px]">
-              <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Mulai Tanggal</label>
-              <input 
-                type="date" 
-                v-model="txStart"
-                class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-1.5 text-xs text-gray-700 font-semibold focus:outline-none focus:ring-1 focus:ring-[#143E2C]"
-              />
+            <!-- Date Filter Calendar Popover (Modeled after ProgramDetail.vue) -->
+            <div class="flex flex-col relative min-w-[200px]">
+              <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Filter Tanggal</label>
+              <div class="relative max-w-xs flex items-center">
+                <input 
+                  type="text" 
+                  readonly 
+                  @click="showTxDatePicker = !showTxDatePicker"
+                  :value="txStart && txEnd ? `${txStart} s/d ${txEnd}` : 'Pilih Rentang Tanggal'" 
+                  class="w-full bg-gray-50 border border-gray-250 rounded-xl pl-3 pr-10 py-1.5 text-xs font-semibold text-gray-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#143E2C]"
+                />
+                <button 
+                  type="button" 
+                  @click="showTxDatePicker = !showTxDatePicker"
+                  class="absolute right-0 top-0 bottom-0 px-3 bg-[#1e5842] hover:bg-[#143E2C] text-white rounded-r-xl flex items-center justify-center transition-colors"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Date Picker Dropdown Popover -->
+              <div v-if="showTxDatePicker" class="absolute left-0 top-[100%] mt-2 z-50 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72">
+                <h4 class="text-xs font-bold text-gray-750 mb-3 text-center">Pilih Rentang Tanggal</h4>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-[10px] text-gray-400 font-bold mb-1">Mulai</label>
+                    <input 
+                      type="date" 
+                      v-model="tempTxStart" 
+                      :max="tempTxEnd || undefined"
+                      class="w-full border border-gray-300 rounded-lg p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#143E2C]" 
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-gray-400 font-bold mb-1">Sampai</label>
+                    <input 
+                      type="date" 
+                      v-model="tempTxEnd" 
+                      :min="tempTxStart || undefined"
+                      class="w-full border border-gray-300 rounded-lg p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#143E2C]" 
+                    />
+                  </div>
+                  <div class="flex gap-2 justify-end pt-2">
+                    <button type="button" @click="showTxDatePicker = false" class="px-3 py-1.5 text-[10px] border border-gray-300 rounded-lg hover:bg-gray-50 font-bold text-gray-600">Batal</button>
+                    <button type="button" @click="applyTxDateFilter" class="px-3 py-1.5 text-[10px] bg-[#1e5842] hover:bg-[#143E2C] text-white rounded-lg font-bold">OK</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="flex flex-col min-w-[130px]">
-              <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Hingga Tanggal</label>
-              <input 
-                type="date" 
-                v-model="txEnd"
-                class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-1.5 text-xs text-gray-700 font-semibold focus:outline-none focus:ring-1 focus:ring-[#143E2C]"
-              />
+            <!-- Reset Button for Date Filter -->
+            <div v-if="txStart || txEnd" class="flex flex-col justify-end self-end">
+              <button 
+                type="button" 
+                @click="clearTxDateFilter" 
+                class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-650 rounded-xl text-xs font-bold border border-red-200 transition"
+              >
+                Reset Tanggal
+              </button>
             </div>
 
             <div class="flex flex-col w-56">
@@ -554,6 +617,11 @@ watch([txStart, txEnd, txProgram, txLimit, txSort], () => {
                 <option value="asc">Terlama (Asc)</option>
               </select>
             </div>
+            <div class="flex items-end justify-end">
+                <button @click="fetchTransactions" :disabled="isLoadingTx" class="px-4 py-2.5 bg-[#143E2C] hover:bg-[#1e5842] disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all w-full sm:w-auto">
+                    Refresh Data
+                </button>
+            </div>
 
           </div>
 
@@ -580,6 +648,7 @@ watch([txStart, txEnd, txProgram, txLimit, txSort], () => {
                   <th class="px-6 py-4">Program Wakaf</th>
                   <th class="px-6 py-4">Nominal</th>
                   <th class="px-6 py-4">Tanggal</th>
+                  <th class="px-6 py-4 text-center">Metode</th>
                   <th class="px-6 py-4 text-center">Bukti</th>
                   <th class="px-6 py-4 text-center">Status</th>
                   <th class="px-6 py-4 text-right">Aksi</th>
@@ -587,24 +656,27 @@ watch([txStart, txEnd, txProgram, txLimit, txSort], () => {
               </thead>
               <tbody class="divide-y divide-gray-100 text-xs font-semibold text-gray-700">
                 <tr v-if="isLoadingTx">
-                  <td colspan="8" class="text-center py-10 text-gray-400">
+                  <td colspan="9" class="text-center py-10 text-gray-400">
                     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#143E2C] mx-auto"></div>
                   </td>
                 </tr>
                 <tr v-else-if="transactions.length === 0">
-                  <td colspan="8" class="text-center py-10 text-gray-400">Belum ada transaksi ditemukan.</td>
+                  <td colspan="9" class="text-center py-10 text-gray-400">Belum ada transaksi ditemukan.</td>
                 </tr>
                 <tr v-for="t in transactions" :key="t.id_transaksi" class="hover:bg-gray-50/50 transition">
                   <td class="px-6 py-4 font-mono font-bold text-gray-900">
                     {{ t.kode_referensi ?? `WKF-${String(t.id_transaksi).padStart(6, '0')}` }}
                   </td>
                   <td class="px-6 py-4 text-gray-900">{{ t.nama_donatur || 'Hamba Allah' }}</td>
-                  <td class="px-6 py-4 truncate max-w-[200px]" :title="t.t03_program_wakaf?.nama_program">
+                  <td class="px-6 py-4 min-w-[150px] max-w-[250px] whitespace-normal break-words" :title="t.t03_program_wakaf?.nama_program">
                     {{ t.t03_program_wakaf?.nama_program || '-' }}
                   </td>
                   <td class="px-6 py-4 text-gray-900 font-bold">{{ formatRupiah(t.nominal) }}</td>
                   <td class="px-6 py-4 text-gray-500 font-normal">
                     {{ new Date(t.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) }}
+                  </td>
+                  <td class="px-6 py-4 text-center font-bold text-gray-700 uppercase">
+                    {{ t.metode_pembayaran || 'QRIS' }}
                   </td>
                   <td class="px-6 py-4 text-center">
                     <button 
@@ -614,7 +686,7 @@ watch([txStart, txEnd, txProgram, txLimit, txSort], () => {
                     >
                       Lihat Gambar
                     </button>
-                    <span v-else class="text-[10px] text-gray-400 font-bold uppercase">QRIS/VA</span>
+                    <span v-else class="text-gray-400 italic font-medium">Belum diunggah</span>
                   </td>
                   <td class="px-6 py-4 text-center">
                     <span 

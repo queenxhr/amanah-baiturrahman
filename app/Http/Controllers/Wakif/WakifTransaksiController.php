@@ -18,15 +18,17 @@ class WakifTransaksiController extends Controller
 
     public function createTransaksiGuest(Request $request)
     {
-        // nama, no_hp, id_program, nominal, bukti_pembayaran, pesan_doa, hide_nama
+        // nama, no_hp, email, id_program, nominal, bukti_pembayaran, pesan_doa, hide_nama
         $request->validate([
             'nama'             => 'required|string|max:100',
             'no_hp'            => 'required|string|max:20',
+            'email'            => 'required|email|max:100',
             'id_program'       => 'required|integer|exists:t03_program_wakaf,id_program',
             'nominal'          => 'required|numeric|min:10000',
             'pesan_doa'        => 'nullable|string',
             'hide_nama'        => 'nullable|integer|in:0,1',
-            'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048'
+            'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'metode_pembayaran'=> 'nullable|string|in:QRIS,BCA,qris,bca'
         ]);
 
         $data = $request->except('bukti_pembayaran');
@@ -43,13 +45,15 @@ class WakifTransaksiController extends Controller
 
     public function createTransaksiUser(Request $request)
     {
-        // id_user, nama (auto), id_program, nominal, bukti_pembayaran, pesan_doa, hide_nama
+        // id_user, nama (auto), email, id_program, nominal, bukti_pembayaran, pesan_doa, hide_nama
         $request->validate([
+            'email'            => 'required|email|max:100',
             'id_program'       => 'required|integer|exists:t03_program_wakaf,id_program',
             'nominal'          => 'required|numeric|min:10000',
             'pesan_doa'        => 'nullable|string',
             'hide_nama'        => 'nullable|integer|in:0,1',
-            'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048'
+            'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'metode_pembayaran'=> 'nullable|string|in:QRIS,BCA,qris,bca'
         ]);
 
         $data = $request->except('bukti_pembayaran');
@@ -63,6 +67,23 @@ class WakifTransaksiController extends Controller
 
         $transaksi = $this->service->createTransaksiUser($data, $request->user()->id_user);
         return response()->json(['success' => true, 'message' => 'Transaksi berhasil dibuat', 'data' => $transaksi], 201);
+    }
+
+    public function uploadBuktiPembayaran(Request $request, $id)
+    {
+        $request->validate([
+            'bukti_pembayaran' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120'
+        ]);
+
+        if ($request->hasFile('bukti_pembayaran')) {
+            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
+            $buktiUrl = Storage::disk('public')->url($path);
+            
+            $transaksi = $this->service->uploadBuktiPembayaran($id, $buktiUrl);
+            return response()->json(['success' => true, 'message' => 'Bukti pembayaran berhasil diupload', 'data' => $transaksi]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'File bukti pembayaran tidak ditemukan'], 400);
     }
 
     public function getDetailPembayaran($id)

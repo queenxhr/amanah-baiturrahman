@@ -84,7 +84,7 @@ watch(search, () => {
           <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Urutkan Akun:</span>
           <select 
             v-model="sortOrder"
-            class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#143E2C] cursor-pointer"
+            class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#143E2C] cursor-pointer mr-1"
           >
             <option value="asc">Terlama Bergabung (Asc)</option>
             <option value="desc">Terbaru Bergabung (Desc)</option>

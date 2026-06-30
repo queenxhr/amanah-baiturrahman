@@ -11,17 +11,6 @@ class NazhirProgramRepository implements NazhirProgramRepositoryInterface
 {
     public function getListProgram(array $filters = [])
     {
-        $programs = T03ProgramWakaf::all();
-        foreach ($programs as $prog) {
-            $sum = T04Transaksi::where('id_program', $prog->id_program)
-                ->where('status_pembayaran', 1)
-                ->sum('nominal') ?? 0;
-            if ($prog->dana_terkumpul != $sum) {
-                $prog->dana_terkumpul = $sum;
-                $prog->save();
-            }
-        }
-
         $query = T03ProgramWakaf::with('t05_laporan_penyalurans:id_laporan,id_program')->select(
             'id_program',
             'nama_program',
@@ -35,7 +24,7 @@ class NazhirProgramRepository implements NazhirProgramRepositoryInterface
         );
 
         if (!empty($filters['search'])) {
-            $query->where('nama_program', 'like', '%' . $filters['search'] . '%');
+            $query->where('nama_program', 'ilike', '%' . $filters['search'] . '%');
         }
 
         if (isset($filters['sort']) && in_array($filters['sort'], ['asc', 'desc'])) {

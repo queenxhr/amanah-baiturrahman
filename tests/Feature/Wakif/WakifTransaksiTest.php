@@ -31,6 +31,7 @@ class WakifTransaksiTest extends TestCase
         $response = $this->postJson('/api/wakif/transaksi/guest', [
             'nama'             => 'Guest Donatur',
             'no_hp'            => '081234567890',
+            'email'            => 'donatur@example.com',
             'id_program'       => $program->id_program,
             'nominal'          => 50000,
             'bukti_pembayaran' => $file,
@@ -50,6 +51,7 @@ class WakifTransaksiTest extends TestCase
 
         $response = $this->postJson('/api/wakif/transaksi/user', [
             // nama auto-filled from user account
+            'email'            => 'wakif@example.com',
             'id_program'       => $program->id_program,
             'nominal'          => 100000,
             'bukti_pembayaran' => $file,

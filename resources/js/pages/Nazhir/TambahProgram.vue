@@ -4,6 +4,7 @@ import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import axios from 'axios';
+import { showSuccess, showError } from '@/lib/alert';
 
 const form = ref({
     nama_program: '',
@@ -68,7 +69,7 @@ const handleSubmit = async () => {
             }
         });
 
-        alert('Program wakaf berhasil ditambahkan!');
+        await showSuccess('Program wakaf berhasil ditambahkan!');
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to add program:', e);
@@ -78,7 +79,7 @@ const handleSubmit = async () => {
                 errors.value[key] = apiErrors[key][0];
             });
         } else {
-            alert('Terjadi kesalahan saat menambahkan program.');
+            await showError('Terjadi kesalahan saat menambahkan program.');
         }
     } finally {
         isSubmitting.value = false;

@@ -67,6 +67,7 @@ class T02User extends Authenticatable
 		'jenis_kelamin',
 		'alamat',
 		'tanggal_lahir',
+		'status',
 		'edited_at',
 		'two_factor_secret',
 		'two_factor_recovery_codes',

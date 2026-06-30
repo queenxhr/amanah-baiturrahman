@@ -1,73 +1,162 @@
 @startuml
-page A4
 left to right direction
 skinparam packageStyle rectangle
-skinparam actorStyle awesome
-skinparam theme plain
+skinparam monochrome false
 
-title Diagram Use Case - Website Wakaf Baiturrahman
-
-actor "Wakif (Pengunjung)" as guest
-actor "Wakif (Masuk Akun)" as user
-actor "Nazhir" as nazhir
-
-user -|> guest
-
-rectangle "Sistem Website Wakaf Baiturrahman" {
-    usecase "Buka Beranda & Tentang Kami" as UC_beranda
-    usecase "Cari & Filter Program Wakaf" as UC_cari_filter
-    usecase "Lihat Detail Program\n(Deskripsi, Donatur, Berita)" as UC_detail
-    usecase "Lihat Laporan Bulanan/Tahunan" as UC_laporan
-    usecase "Isi Form Transaksi Wakaf\n(Input No. HP jika belum masuk)" as UC_transaksi
-    usecase "Daftar Akun (Sign Up)" as UC_signup
-    usecase "Lupa Kata Sandi" as UC_lupa_sandi
-    usecase "Masuk Akun (Login)" as UC_login
-    
-    usecase "Verifikasi Transaksi\n(Lihat Bukti, Setujui/Tolak)" as UC_verifikasi
-    usecase "Lihat & Unduh Invoice (PDF)" as UC_invoice
-    usecase "Keluar Akun (Logout)" as UC_logout
-    usecase "Lihat & Ubah Profil" as UC_profil
-    usecase "Lihat Riwayat Transaksi" as UC_riwayat
-    
-    usecase "Manajemen Pengguna\n(Cari & Urutkan User)" as UC_manajemen_user
-    usecase "Manajemen Program & Laporan\n(Tambah, Ubah, Hapus Program/Laporan)" as UC_manajemen_prog_lap
-    usecase "Lihat Dashboard Perkembangan\n(Filter Bulan, Tahun, Program)" as UC_dash_perkembangan
-    usecase "Lihat Dashboard Manajemen Wakif\n(Filter & Ekspor CSV)" as UC_dash_wakif
+' Colors and style configurations
+skinparam actor {
+    BackgroundColor white
+    BorderColor black
+    ArrowColor black
 }
 
-' Hubungan Aktor Wakif (Pengunjung)
-guest --> UC_beranda
-guest --> UC_cari_filter
-guest --> UC_detail
-guest --> UC_laporan
-guest --> UC_transaksi
-guest --> UC_signup
-guest --> UC_lupa_sandi
-guest --> UC_login
+skinparam usecase {
+    BackgroundColor white
+    BorderColor black
+    ArrowColor black
+}
 
-' Hubungan Aktor Wakif (Masuk Akun)
-user --> UC_invoice
-user --> UC_logout
-user --> UC_profil
-user --> UC_riwayat
+' --- ACTORS LEFT ---
+actor "Wakif (Belum Login)" as wakif_belum
+actor "Wakif (Sudah Login)" as wakif_sudah
 
-' Hubungan Aktor Nazhir
-nazhir --> UC_login
-nazhir --> UC_verifikasi
-nazhir --> UC_manajemen_user
-nazhir --> UC_manajemen_prog_lap
-nazhir --> UC_dash_perkembangan
-nazhir --> UC_dash_wakif
+' Generalisasi
+wakif_sudah --|> wakif_belum
 
-' Hubungan Include ke Masuk Akun (Login)
-UC_verifikasi ..> UC_login : <<include>>
-UC_invoice ..> UC_login : <<include>>
-UC_logout ..> UC_login : <<include>>
-UC_profil ..> UC_login : <<include>>
-UC_riwayat ..> UC_login : <<include>>
-UC_manajemen_user ..> UC_login : <<include>>
-UC_manajemen_prog_lap ..> UC_login : <<include>>
-UC_dash_perkembangan ..> UC_login : <<include>>
-UC_dash_wakif ..> UC_login : <<include>>
+' --- ACTORS RIGHT ---
+actor "Nazhir" as nazhir
+actor "Superadmin" as superadmin
+
+' --- SINGLE SYSTEM BOUNDARY ---
+rectangle "Website Wakaf Baiturrahman" {
+    
+    ' --- Use Cases: Fitur Publik & Transaksi Wakif (Guest) ---
+    usecase "Buka Halaman Beranda\n(Cari & Lihat Program)" as UC6
+    usecase "Melihat Deskripsi Program" as UC7a
+    usecase "Melihat List Donatur Program" as UC7b
+    usecase "Melihat Laporan Program" as UC7c
+    usecase "Buka Halaman Program Wakaf\n(Search Program)" as UC8
+    usecase "Mengisi Form Transaksi Wakaf" as UC9
+    usecase "Lihat Halaman Tentang Kami" as UC10
+    usecase "Lihat Laporan Berdasarkan\nBulan & Tahun" as UC11
+    
+    ' --- Use Cases: Fitur Member (Wakif Sudah Login) ---
+    usecase "Melihat Riwayat Transaksi" as UC12
+    usecase "Kelola Invoice\n(Lihat & Download PDF)" as UC13
+    usecase "Kelola Profil Pengguna\n(Lihat & Edit Profil)" as UC14
+
+    ' --- Use Cases: Autentikasi & Akun ---
+    usecase "Login" as login
+    usecase "Logout" as logout
+    usecase "Sign Up Wakif" as signup
+    usecase "Daftar Akun Nazhir\n(Menunggu Persetujuan)" as signup_nazhir
+    usecase "Lupa Password" as lupapass
+
+    ' --- Use Cases: Panel Manajemen Nazhir ---
+    usecase "Lihat Dashboard Laporan\n& Perkembangan (Nazhir)" as UC3
+    usecase "Lihat & Cari Akun Wakif\n(Cari & Urutkan)" as UC1
+    usecase "Lihat Data Wakif dengan\nParameter Filter" as UC4a
+    usecase "Ekspor CSV Data Wakif" as UC4b
+    usecase "Kelola Program Wakaf\n(CRUD - Pending Review)" as UC2a
+    usecase "Kelola Laporan Program\n(CRUD)" as UC2b
+    usecase "Verifikasi Transaksi\n(Lihat Bukti, Approve/Tolak)" as UC5
+    usecase "Ajukan Pencairan Dana\n& Lihat Riwayat" as UC_pencairan_nazhir
+    
+    ' --- Use Cases: Panel Manajemen Superadmin ---
+    usecase "Lihat Dashboard Laporan\n& Statistik (Superadmin)" as UC_dash_superadmin
+    usecase "Kelola Data Akun User\n(Approve Nazhir, Blokir/Unblok)" as UC_manajemen_user
+    usecase "Verifikasi Program Wakaf\n(Approve/Reject)" as UC_verifikasi_program
+    usecase "Verifikasi Pencairan Dana\n(Approve/Reject)" as UC_verifikasi_pencairan
+
+    ' --- LAYOUT GRID (2 Ovals per Row) ---
+    UC6 -[hidden]down-> UC7a
+    UC6 -[hidden]right-> UC7b
+    UC7b -[hidden]down-> UC7c
+    UC7b -[hidden]right-> UC8
+    UC8 -[hidden]down-> UC9
+    UC8 -[hidden]right-> UC10
+    UC10 -[hidden]down-> UC11
+    UC10 -[hidden]right-> UC12
+    UC12 -[hidden]down-> UC13
+    UC12 -[hidden]right-> UC14
+    UC14 -[hidden]down-> login
+    UC14 -[hidden]right-> signup
+    signup -[hidden]down-> signup_nazhir
+    signup -[hidden]right-> lupapass
+    lupapass -[hidden]down-> logout
+    lupapass -[hidden]right-> UC3
+    UC3 -[hidden]down-> UC1
+    UC3 -[hidden]right-> UC4a
+    UC4a -[hidden]down-> UC4b
+    UC4a -[hidden]right-> UC2a
+    UC2a -[hidden]down-> UC2b
+    UC2a -[hidden]right-> UC5
+    UC5 -[hidden]down-> UC_pencairan_nazhir
+    UC5 -[hidden]right-> UC_dash_superadmin
+    UC_dash_superadmin -[hidden]down-> UC_manajemen_user
+    UC_dash_superadmin -[hidden]right-> UC_verifikasi_program
+    UC_verifikasi_program -[hidden]down-> UC_verifikasi_pencairan
+}
+
+' --- RELATIONSHIPS ---
+
+' Wakif Belum Login Connections
+wakif_belum --> UC6
+wakif_belum --> UC7a
+wakif_belum --> UC7b
+wakif_belum --> UC7c
+wakif_belum --> UC8
+wakif_belum --> UC9
+wakif_belum --> UC10
+wakif_belum --> UC11
+wakif_belum --> signup
+wakif_belum --> lupapass
+wakif_belum --> login
+
+' Wakif Sudah Login Connections
+wakif_sudah --> UC12
+wakif_sudah --> UC13
+wakif_sudah --> UC14
+wakif_sudah --> logout
+
+' Nazhir Connections (Kanan - Menggunakan <-- agar Aktor di Kanan)
+login <-- nazhir
+logout <-- nazhir
+signup_nazhir <-- nazhir
+UC1 <-- nazhir
+UC2a <-- nazhir
+UC2b <-- nazhir
+UC3 <-- nazhir
+UC4a <-- nazhir
+UC4b <-- nazhir
+UC5 <-- nazhir
+UC_pencairan_nazhir <-- nazhir
+
+' Superadmin Connections (Kanan - Menggunakan <-- agar Aktor di Kanan)
+login <-- superadmin
+logout <-- superadmin
+UC_dash_superadmin <-- superadmin
+UC_manajemen_user <-- superadmin
+UC_verifikasi_program <-- superadmin
+UC_verifikasi_pencairan <-- superadmin
+
+' Include Relationships to Login
+UC1 ..> login : <<include>>
+UC2a ..> login : <<include>>
+UC2b ..> login : <<include>>
+UC3 ..> login : <<include>>
+UC4a ..> login : <<include>>
+UC4b ..> login : <<include>>
+UC5 ..> login : <<include>>
+UC_pencairan_nazhir ..> login : <<include>>
+
+UC12 ..> login : <<include>>
+UC13 ..> login : <<include>>
+UC14 ..> login : <<include>>
+
+UC_dash_superadmin ..> login : <<include>>
+UC_manajemen_user ..> login : <<include>>
+UC_verifikasi_program ..> login : <<include>>
+UC_verifikasi_pencairan ..> login : <<include>>
 
 @enduml

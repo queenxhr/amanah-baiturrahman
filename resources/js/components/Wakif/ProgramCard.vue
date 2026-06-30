@@ -73,8 +73,8 @@ const defaultImage = "/dashboard_foto.png";
                         </div>
                         <p class="text-xs font-bold text-gray-800 truncate w-full text-center">
                             {{ 
-                            program.due_date && !isNaN(Date.parse(program.due_date.replace(/\.\d+Z$/, 'Z'))) 
-                            ? new Date(program.due_date.replace(/\.\d+Z$/, 'Z')).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) 
+                            program.due_date && !isNaN(Date.parse(program.due_date)) 
+                            ? new Date(program.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) 
                             : '-' 
                             }}
                         </p>

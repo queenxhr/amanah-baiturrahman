@@ -3,6 +3,9 @@
 namespace App\Services\Wakif;
 
 use App\RepositoryInterfaces\Wakif\WakifTransaksiRepositoryInterface;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TransaksiTagihanMail;
+use App\Mail\TransaksiSuccessMail;
 
 class WakifTransaksiService
 {
@@ -17,7 +20,14 @@ class WakifTransaksiService
     {
         // nama, id_program, nominal, bukti_pembayaran, pesan_doa
         $data['kode_referensi'] = 'INV-G-' . time();
-        return $this->repo->createTransaksi($data);
+        $transaksi = $this->repo->createTransaksi($data);
+        $transaksi->load('t03_program_wakaf');
+        
+        if ($transaksi->email) {
+            Mail::to($transaksi->email)->send(new TransaksiTagihanMail($transaksi));
+        }
+        
+        return $transaksi;
     }
 
     public function createTransaksiUser(array $data, int $userId)
@@ -27,7 +37,26 @@ class WakifTransaksiService
         $data['id_user'] = $userId;
         $data['nama'] = $user ? $user->nama : ($data['nama'] ?? '');
         $data['kode_referensi'] = 'INV-U-' . time();
-        return $this->repo->createTransaksi($data);
+        $transaksi = $this->repo->createTransaksi($data);
+        $transaksi->load('t03_program_wakaf');
+        
+        if ($transaksi->email) {
+            Mail::to($transaksi->email)->send(new TransaksiTagihanMail($transaksi));
+        }
+        
+        return $transaksi;
+    }
+
+    public function uploadBuktiPembayaran(int $id, string $buktiUrl)
+    {
+        $transaksi = $this->repo->updateBuktiPembayaran($id, $buktiUrl);
+        $transaksi->load('t03_program_wakaf');
+        
+        if ($transaksi->email) {
+            Mail::to($transaksi->email)->send(new TransaksiSuccessMail($transaksi));
+        }
+        
+        return $transaksi;
     }
 
     public function getDetailPembayaran($id)

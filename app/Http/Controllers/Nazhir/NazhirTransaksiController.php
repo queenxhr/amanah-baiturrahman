@@ -74,6 +74,7 @@ class NazhirTransaksiController extends Controller
                 'Program Wakaf',
                 'Nominal',
                 'Tanggal',
+                'Metode Pembayaran',
                 'Status Pembayaran',
             ]);
             foreach ($transaksis as $row) {
@@ -89,6 +90,7 @@ class NazhirTransaksiController extends Controller
                     $row->t03_program_wakaf->nama_program ?? '-',
                     $row->nominal,
                     $row->created_at,
+                    strtoupper($row->metode_pembayaran ?? 'QRIS'),
                     $status,
                 ]);
             }

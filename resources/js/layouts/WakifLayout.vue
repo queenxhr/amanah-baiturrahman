@@ -1,23 +1,29 @@
 <script setup lang="ts">
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 
 const page = usePage();
 const mobileMenuOpen = ref(false);
 const profileDropdownOpen = ref(false);
 
+const user = computed(() => (page.props.auth as any)?.user || null);
+const userInitial = computed(() => {
+    const name = user.value?.nama || 'H';
+    return name.substring(0, 1).toUpperCase();
+});
+
 const handleLogout = async () => {
     profileDropdownOpen.value = false;
     try {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('wakif_auth_token');
         await axios.post('/api/wakif/logout', {}, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
     } catch (e) {
         // ignore
     }
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem('wakif_auth_token');
     window.location.href = '/';
 };
 
@@ -66,9 +72,9 @@ const handleLogout = async () => {
          <div v-else class="relative">
             <button @click="profileDropdownOpen = !profileDropdownOpen" class="flex items-center gap-2 focus:outline-none group">
                <div class="w-9 h-9 rounded-full bg-primary/10 border border-primary flex items-center justify-center text-primary font-bold text-sm uppercase transition duration-200 group-hover:bg-primary/20">
-                  {{ ($page.props.auth.user.nama || 'H').substring(0, 1) }}
+                  {{ userInitial }}
                </div>
-               <span class="font-bold text-xs text-gray-700 max-w-[120px] truncate">{{ $page.props.auth.user.nama ?? 'Hamba Allah' }}</span>
+               <span class="font-bold text-xs text-gray-700 max-w-[120px] truncate">{{ user?.nama ?? 'Hamba Allah' }}</span>
                <svg class="w-3.5 h-3.5 text-gray-500 transition-transform duration-200" :class="{'rotate-180': profileDropdownOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
             </button>
             
@@ -76,8 +82,8 @@ const handleLogout = async () => {
             <div v-if="profileDropdownOpen" class="absolute right-0 mt-3 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 transition-all">
                 <div class="px-4 py-2 border-b border-gray-100 mb-1">
                     <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">Nama Akun</span>
-                    <span class="block text-xs font-bold text-gray-900 truncate">{{ $page.props.auth.user.nama ?? 'Hamba Allah' }}</span>
-                    <span class="block text-[10px] text-gray-500 truncate mt-0.5">{{ $page.props.auth.user.email }}</span>
+                    <span class="block text-xs font-bold text-gray-900 truncate">{{ user?.nama ?? 'Hamba Allah' }}</span>
+                    <span class="block text-[10px] text-gray-500 truncate mt-0.5">{{ user?.email }}</span>
                 </div>
                 <Link href="/profil" @click="profileDropdownOpen = false" class="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-primary transition flex items-center gap-2">
                     <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -111,11 +117,11 @@ const handleLogout = async () => {
            <div v-else class="space-y-4">
                <div class="flex items-center gap-3 px-2">
                    <div class="w-10 h-10 rounded-full bg-primary/10 border border-primary flex items-center justify-center text-primary font-bold text-sm uppercase">
-                      {{ ($page.props.auth.user.nama || 'H').substring(0, 1) }}
+                      {{ userInitial }}
                    </div>
                    <div>
-                       <span class="block text-sm font-bold text-gray-800">{{ $page.props.auth.user.nama ?? 'Hamba Allah' }}</span>
-                       <span class="block text-xs text-gray-400">{{ $page.props.auth.user.email }}</span>
+                       <span class="block text-sm font-bold text-gray-800">{{ user?.nama ?? 'Hamba Allah' }}</span>
+                       <span class="block text-xs text-gray-400">{{ user?.email }}</span>
                    </div>
                </div>
                <Link href="/profil" @click="mobileMenuOpen=false" class="w-full text-left px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 rounded flex items-center gap-2">

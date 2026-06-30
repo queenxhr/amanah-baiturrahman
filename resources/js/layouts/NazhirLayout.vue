@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const page = usePage();
 const isSidebarOpen = ref(false);
+
+const user = computed(() => (page.props.auth as any)?.user || null);
+const userInitial = computed(() => {
+    const name = user.value?.nama || 'N';
+    return name.substring(0, 1).toUpperCase();
+});
 
 onMounted(() => {
     isSidebarOpen.value = window.innerWidth >= 768;
@@ -22,15 +28,15 @@ const closeSidebarOnMobile = () => {
 
 const handleLogout = async () => {
     try {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('nazhir_auth_token');
         await axios.post('/api/nazhir/logout', {}, {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
     } catch (e) {
         // ignore
     }
-    localStorage.removeItem('auth_token');
-    window.location.href = '/login';
+    localStorage.removeItem('nazhir_auth_token');
+    window.location.href = '/nazhir/login';
 };
 
 </script>
@@ -53,10 +59,10 @@ const handleLogout = async () => {
         <!-- Profile Box -->
         <div class="bg-white/5 border border-white/10 rounded-2xl p-4 mb-8 flex items-center gap-3">
           <div class="w-11 h-11 rounded-full bg-[#b1cf49]/20 border border-[#b1cf49]/40 flex items-center justify-center text-[#b1cf49] font-black text-base uppercase">
-            {{ ($page.props.auth?.user?.nama || 'N').substring(0, 1) }}
+            {{ userInitial }}
           </div>
           <div class="min-w-0 flex-1">
-            <h4 class="font-bold text-sm text-white truncate">{{ $page.props.auth?.user?.nama ?? 'Ust. Ahmad' }}</h4>
+            <h4 class="font-bold text-sm text-white break-words whitespace-normal">{{ user?.nama ?? 'Ust. Ahmad' }}</h4>
             <span class="inline-block bg-[#b1cf49] text-[#143E2C] text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-0.5">
               Nazhir
             </span>
@@ -92,6 +98,15 @@ const handleLogout = async () => {
                 ]">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
             Manajemen Program
+          </Link>
+          <Link href="/manajemen-pencairan" 
+                @click="closeSidebarOnMobile"
+                :class="[
+                  'flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition duration-250',
+                  $page.url === '/manajemen-pencairan' ? 'bg-[#b1cf49] text-[#143E2C]' : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                ]">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Pencairan Dana
           </Link>
         </nav>
       </div>

@@ -171,3 +171,37 @@
         font-family: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
     }
 }
+
+/* Bullet and list styling for editor and public pages */
+.editor-content ul, .rich-text-content ul {
+    list-style-type: disc !important;
+    margin-left: 1.5rem !important;
+    padding-left: 1rem !important;
+    display: block !important;
+}
+.editor-content ol, .rich-text-content ol {
+    list-style-type: decimal !important;
+    margin-left: 1.5rem !important;
+    padding-left: 1rem !important;
+    display: block !important;
+}
+.editor-content li, .rich-text-content li {
+    display: list-item !important;
+}
+
+/* SweetAlert2 Custom Styling Overrides */
+.swal2-popup {
+    font-family: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif !important;
+    font-size: 0.85rem !important;
+}
+.swal2-title {
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+}
+.swal2-html-container {
+    font-size: 0.8rem !important;
+}
+.swal2-actions button {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+}

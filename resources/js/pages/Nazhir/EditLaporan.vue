@@ -4,6 +4,7 @@ import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const props = defineProps<{
     id: string | number;
@@ -17,6 +18,9 @@ const form = ref({
     penerima_manfaat: '',
     keterangan: ''
 });
+
+
+const gambarLaporanFile = ref<File | null>(null);
 
 const errors = ref<Record<string, string>>({});
 const isLoading = ref(true);
@@ -42,9 +46,18 @@ const fetchLaporanDetails = async () => {
         }
     } catch (e) {
         console.error('Failed to fetch report details:', e);
-        alert('Gagal mengambil detail laporan.');
+        await showError('Gagal mengambil detail laporan.');
     } finally {
         isLoading.value = false;
+    }
+};
+
+
+
+const handleGambarLaporanChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        gambarLaporanFile.value = target.files[0];
     }
 };
 
@@ -73,17 +86,26 @@ const handleSubmit = async () => {
     isSubmitting.value = true;
 
     try {
-        const payload = {
-            id_program: programId.value,
-            judul_laporan: form.value.judul_laporan,
-            dana_disalurkan: Number(form.value.dana_disalurkan),
-            penerima_manfaat: Number(form.value.penerima_manfaat),
-            keterangan: form.value.keterangan
-        };
+        const formData = new FormData();
+        formData.append('_method', 'PUT');
+        formData.append('id_program', String(programId.value));
+        formData.append('judul_laporan', form.value.judul_laporan);
+        formData.append('dana_disalurkan', form.value.dana_disalurkan);
+        formData.append('penerima_manfaat', form.value.penerima_manfaat);
+        formData.append('keterangan', form.value.keterangan || '');
 
-        await axios.put(`/api/nazhir/laporan/${props.id}`, payload);
 
-        alert('Laporan penyaluran berhasil diperbarui!');
+        if (gambarLaporanFile.value) {
+            formData.append('gambar_laporan', gambarLaporanFile.value);
+        }
+
+        await axios.post(`/api/nazhir/laporan/${props.id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        await showSuccess('Laporan penyaluran berhasil diperbarui!');
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to update report:', e);
@@ -93,7 +115,7 @@ const handleSubmit = async () => {
                 errors.value[key] = apiErrors[key][0];
             });
         } else {
-            alert('Terjadi kesalahan saat memperbarui laporan.');
+            await showError('Terjadi kesalahan saat memperbarui laporan.');
         }
     } finally {
         isSubmitting.value = false;
@@ -101,14 +123,14 @@ const handleSubmit = async () => {
 };
 
 const handleDelete = async () => {
-    if (!confirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?')) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?'))) return;
     try {
         await axios.delete(`/api/nazhir/laporan/${props.id}`);
-        alert('Laporan berhasil dihapus!');
+        await showSuccess('Laporan berhasil dihapus!');
         router.visit('/manajemen-program');
     } catch (e) {
         console.error('Failed to delete report:', e);
-        alert('Gagal menghapus laporan.');
+        await showError('Gagal menghapus laporan.');
     }
 };
 
@@ -200,6 +222,25 @@ onMounted(() => {
         <div class="flex flex-col gap-1.5">
           <label class="text-xs font-bold text-gray-750">Keterangan & Galeri Kegiatan</label>
           <RichTextEditor v-model="form.keterangan" />
+        </div>
+
+        <!-- File Uploads Section -->
+        <div class="border-t border-gray-150 pt-5 space-y-4">
+          <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Gambar Sampul Laporan (Kosongkan jika tidak ingin mengubah)</h4>
+          
+          <div>
+            <!-- Gambar Laporan -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-gray-750">Gambar Sampul Laporan (Gambar)</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                @change="handleGambarLaporanChange"
+                class="w-full bg-gray-50 border border-gray-250 rounded-xl px-4 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#143E2C] transition-all"
+              />
+              <span v-if="errors.gambar_laporan" class="text-[10px] font-bold text-red-500 mt-0.5">{{ errors.gambar_laporan }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Submit Buttons -->

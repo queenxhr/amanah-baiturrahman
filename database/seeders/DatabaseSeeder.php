@@ -28,5 +28,30 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('password'),
             ]);
         }
+
+        if (!\App\Models\T02User::where('email', 'superadmin@example.com')->exists()) {
+            \App\Models\T02User::create([
+                'id_role' => 3,
+                'nama' => 'Superadmin Amanah',
+                'email' => 'superadmin@example.com',
+                'password' => bcrypt('password'),
+                'no_hp' => '081234567890',
+                'status' => 'active'
+            ]);
+        }
+
+        if (config('database.default') === 'pgsql') {
+            $tables = [
+                't01_roles' => 'id_role',
+                't02_users' => 'id_user',
+                't03_program_wakaf' => 'id_program',
+                't04_transaksi' => 'id_transaksi',
+                't05_laporan_penyaluran' => 'id_laporan',
+                't06_pencairan_dana' => 'id_pencairan',
+            ];
+            foreach ($tables as $table => $pk) {
+                \Illuminate\Support\Facades\DB::statement("SELECT setval(pg_get_serial_sequence('$table', '$pk'), coalesce(max($pk), 1)) FROM $table");
+            }
+        }
     }
 }

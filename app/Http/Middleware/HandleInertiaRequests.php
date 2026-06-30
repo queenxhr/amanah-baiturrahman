@@ -35,10 +35,33 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user();
-        if (!$user && session()->has('wakif_user_id')) {
-            $user = \App\Models\T02User::find(session('wakif_user_id'));
+        $user = null;
+        $path = $request->getPathInfo();
+
+        if (str_starts_with($path, '/superadmin')) {
+            if (session()->has('superadmin_user_id')) {
+                $user = \App\Models\T02User::find(session('superadmin_user_id'));
+            }
+        } elseif (
+            str_starts_with($path, '/nazhir') || 
+            $path === '/dashboard' || 
+            str_starts_with($path, '/manajemen-') || 
+            str_starts_with($path, '/laporan/tambah') || 
+            (str_starts_with($path, '/laporan/') && str_ends_with($path, '/edit')) ||
+            (str_starts_with($path, '/program/') && str_ends_with($path, '/edit'))
+        ) {
+            if (session()->has('nazhir_user_id')) {
+                $user = \App\Models\T02User::find(session('nazhir_user_id'));
+            }
+        } else {
+            // Default to Wakif
+            if (session()->has('wakif_user_id')) {
+                $user = \App\Models\T02User::find(session('wakif_user_id'));
+            }
         }
+
+        // No fallback to $request->user() to prevent cross-role session leaks
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),

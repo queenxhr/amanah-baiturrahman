@@ -50,6 +50,7 @@ class WakifAuthController extends Controller
             'email' => [
                 'required',
                 'email',
+                'unique:t02_users,email',
                 function ($attribute, $value, $fail) {
                     if (app()->runningUnitTests()) {
                         return;
@@ -60,12 +61,22 @@ class WakifAuthController extends Controller
                     }
                 }
             ],
-            'no_hp' => 'required|string|max:15',
-            'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()]
+            'no_hp' => 'required|string|max:15|unique:t02_users,no_hp',
+            'jenis_kelamin' => 'required|in:L,P',
+            'tanggal_lahir' => 'required|date',
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()]
         ], [
             'email.required' => 'Kolom email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan. Silakan gunakan email lain.',
+            'no_hp.required' => 'Kolom nomor handphone wajib diisi.',
+            'no_hp.unique' => 'Nomor handphone sudah digunakan. Silakan gunakan nomor lain.',
+            'jenis_kelamin.required' => 'Kolom jenis kelamin wajib diisi.',
+            'jenis_kelamin.in' => 'Format jenis kelamin tidak valid.',
+            'tanggal_lahir.required' => 'Kolom tanggal lahir wajib diisi.',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid.',
             'password.required' => 'Kolom kata sandi wajib diisi.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
             'password.min' => 'Kolom kata sandi harus minimal 8 karakter.',
             'password.mixed' => 'Kolom kata sandi harus mengandung setidaknya satu huruf besar dan satu huruf kecil.',
             'password.letters' => 'Kolom kata sandi harus mengandung setidaknya satu huruf.',
@@ -130,8 +141,6 @@ class WakifAuthController extends Controller
         }
         session()->forget('wakif_user_id');
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
         return response()->json([
             'success' => true,
             'message' => 'Logout successful'
