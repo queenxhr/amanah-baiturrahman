@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import axios from 'axios';
@@ -20,7 +20,7 @@ const submit = async () => {
     try {
         const response = await axios.post('/api/wakif/login', form.value);
         if (response.data.success) {
-            localStorage.setItem('auth_token', response.data.data.token);
+            localStorage.setItem('wakif_auth_token', response.data.data.token);
             const user = response.data.data.user;
             if (user && user.id_role === 1) {
                 window.location.href = '/dashboard';
@@ -41,7 +41,7 @@ const submit = async () => {
 </script>
 
 <template>
-    <Head title="Masuk" />
+    <Head title="Masuk - Wakif" />
 
     <WakifLayout>
         <div class="flex items-center justify-center min-h-screen sm:min-h-[70vh] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 sm:bg-white">
@@ -56,7 +56,7 @@ const submit = async () => {
                 </div>
 
                 <form class="mt-6 space-y-5" @submit.prevent="submit">
-                    <div v-if="errorMsg" class="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded mb-4">
+                    <div v-if="errorMsg" class="p-3 text-sm text-red-650 bg-red-50 border border-red-200 rounded mb-4">
                         {{ errorMsg }}
                     </div>
 
@@ -92,7 +92,7 @@ const submit = async () => {
 
                     <div>
                         <button type="submit" :disabled="processing"
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-full text-white bg-primary hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-colors">
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-full text-white bg-primary hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-colors cursor-pointer">
                             <span v-if="processing">Memproses...</span>
                             <span v-else>Masuk</span>
                         </button>
@@ -100,7 +100,7 @@ const submit = async () => {
 
                     <div class="text-center mt-6">
                         <p class="text-[11px] text-gray-500 font-semibold">
-                            Belum punya akun? Ayo <Link href="/register" class="font-bold text-blue-500 hover:text-blue-600">daftar di sini</Link>
+                            Belum punya akun? Ayo <Link href="/wakif/register" class="font-bold text-blue-500 hover:text-blue-600">daftar di sini</Link>
                         </p>
                     </div>
                 </form>

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->char('jenis_kelamin', 1)->nullable();
             $table->text('alamat')->nullable();
             $table->date('tanggal_lahir')->nullable();
+            $table->string('status', 20)->default('active');
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('edited_at')->nullable()->useCurrent();
             $table->text('two_factor_secret')->nullable();

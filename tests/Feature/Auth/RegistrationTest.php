@@ -8,7 +8,9 @@ beforeEach(function () {
 
 test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));
+    $response->assertRedirect(route('wakif.register'));
 
+    $response = $this->get(route('wakif.register'));
     $response->assertOk();
 });
 

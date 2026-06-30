@@ -16,7 +16,7 @@ class WakifTransaksiRepository implements WakifTransaksiRepositoryInterface
     {
         // id_transaksi, nama, id_program, nama program, created_at, nominal
         return T04Transaksi::with('t03_program_wakaf:id_program,nama_program')
-            ->select('id_transaksi', 'nama', 'id_program', 'created_at', 'nominal', 'kode_referensi')
+            ->select('id_transaksi', 'nama', 'id_program', 'created_at', 'nominal', 'kode_referensi', 'metode_pembayaran')
             ->where('id_transaksi', $id)
             ->first();
     }
@@ -35,8 +35,18 @@ class WakifTransaksiRepository implements WakifTransaksiRepositoryInterface
     {
         // id_transaksi, nama program, nama donatur, nominal, tanggal, status_pembayaran
         return T04Transaksi::with('t03_program_wakaf:id_program,nama_program')
-            ->select('id_transaksi', 'id_program', 'nama as nama_donatur', 'nominal', 'created_at', 'status_pembayaran', 'kode_referensi')
+            ->select('id_transaksi', 'id_program', 'nama as nama_donatur', 'nominal', 'created_at', 'status_pembayaran', 'kode_referensi', 'metode_pembayaran')
             ->where('id_transaksi', $id)
             ->first();
+    }
+
+    public function updateBuktiPembayaran(int $id, string $url)
+    {
+        $transaksi = T04Transaksi::find($id);
+        if ($transaksi) {
+            $transaksi->bukti_pembayaran = $url;
+            $transaksi->save();
+        }
+        return $transaksi;
     }
 }

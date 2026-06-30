@@ -31,6 +31,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'jenis_kelamin' => 'L',
                 'alamat' => 'Bandung, Jawa Barat',
                 'tanggal_lahir' => '1995-05-10',
+                'status' => 'active',
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now()
             ]
@@ -47,6 +48,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'jenis_kelamin' => 'L',
                 'alamat' => 'Bandung, Jawa Barat',
                 'tanggal_lahir' => '1985-02-15',
+                'status' => 'active',
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now()
             ]
@@ -68,7 +70,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addMonths(6)->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1541944743827-e04aa6427c33?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/sumur.jpeg'
             ],
             [
                 'id_program' => 2,
@@ -80,7 +82,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addMonths(12)->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1597935258735-e254c1839512?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/masjid jami.jpg'
             ],
             [
                 'id_program' => 3,
@@ -92,7 +94,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addMonths(3)->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/transport.jpg'
             ],
             [
                 'id_program' => 4,
@@ -104,7 +106,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->subDays(2)->toDateString(),
                 'created_at' => Carbon::now()->subMonths(8),
                 'edited_at' => Carbon::now()->subDays(1),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/yatim.png'
             ],
             [
                 'id_program' => 5,
@@ -116,7 +118,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addYear()->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/asrama.webp'
             ],
             [
                 'id_program' => 6,
@@ -128,7 +130,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addMonths(4)->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/alquran.jpg'
             ],
             [
                 'id_program' => 7,
@@ -140,7 +142,7 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addMonths(2)->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/alat shalat.jpg'
             ],
             [
                 'id_program' => 8,
@@ -152,7 +154,127 @@ class T03ProgramWakafSeeder extends Seeder
                 'due_date' => Carbon::now()->addMonths(9)->toDateString(),
                 'created_at' => Carbon::now(),
                 'edited_at' => Carbon::now(),
-                'gambar_thumbnail' => 'https://images.unsplash.com/photo-1541944743827-e04aa6427c33?auto=format&fit=crop&q=80&w=600'
+                'gambar_thumbnail' => '/storage/programs/madrasah.webp'
+            ],
+            [
+                'id_program' => 9,
+                'nama_program' => 'Wakaf Ambulans Gratis untuk Umat',
+                'deskripsi' => 'Pengadaan mobil pelayanan ambulans gratis untuk mengantarkan pasien sakit maupun jenazah dari kalangan dhuafa di wilayah Bandung dan sekitarnya.',
+                'target_dana' => 250000000,
+                'dana_terkumpul' => 85000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(8)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/transport.jpg'
+            ],
+            [
+                'id_program' => 10,
+                'nama_program' => 'Pembangunan MCK Layak untuk Santri',
+                'deskripsi' => 'Pembangunan sarana Mandi, Cuci, dan Kakus (MCK) yang bersih dan representatif untuk menjaga kesehatan serta kebersihan lingkungan pesantren santri yatim.',
+                'target_dana' => 35000000,
+                'dana_terkumpul' => 12000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(3)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/asrama.webp'
+            ],
+            [
+                'id_program' => 11,
+                'nama_program' => 'Wakaf Panel Surya untuk Penerangan Masjid',
+                'deskripsi' => 'Pemasangan sistem energi ramah lingkungan berupa panel surya untuk menunjang listrik dan penerangan masjid pelosok agar hemat biaya operasional.',
+                'target_dana' => 60000000,
+                'dana_terkumpul' => 30000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(5)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/masjid jami.jpg'
+            ],
+            [
+                'id_program' => 12,
+                'nama_program' => 'Pengadaan Karpet Masjid Jami',
+                'deskripsi' => 'Pengadaan karpet sajadah shalat baru yang lembut, tebal, dan bersih demi kenyamanan para jamaah saat menunaikan ibadah shalat berjamaah.',
+                'target_dana' => 20000000,
+                'dana_terkumpul' => 20000000,
+                'status_program' => 0,
+                'due_date' => Carbon::now()->subDays(10)->toDateString(),
+                'created_at' => Carbon::now()->subMonths(1),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/alat shalat.jpg'
+            ],
+            [
+                'id_program' => 13,
+                'nama_program' => 'Wakaf Al-Qur\'an Braille untuk Difabel Netra',
+                'deskripsi' => 'Pemberian mushaf Al-Qur\'an khusus Braille untuk memudahkan saudara-saudara kita penyandang disabilitas netra dalam belajar dan menghafal kalamullah.',
+                'target_dana' => 40000000,
+                'dana_terkumpul' => 15000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(6)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/alquran.jpg'
+            ],
+            [
+                'id_program' => 14,
+                'nama_program' => 'Renovasi Jembatan Penghubung Desa',
+                'deskripsi' => 'Wakaf infrastruktur pembangunan jembatan kayu yang sudah rapuh menjadi jembatan beton kokoh guna mempermudah akses anak-anak menuju sekolah dan masjid.',
+                'target_dana' => 90000000,
+                'dana_terkumpul' => 45000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(7)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/madrasah.webp'
+            ],
+            [
+                'id_program' => 15,
+                'nama_program' => 'Wakaf Sumur Bor Pertanian Produktif',
+                'deskripsi' => 'Pembangunan sumur bor air tanah untuk mengairi lahan pertanian wakaf produktif yang dikelola masyarakat miskin guna mewujudkan ketahanan pangan lokal.',
+                'target_dana' => 70000000,
+                'dana_terkumpul' => 50000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(4)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/sumur.jpeg'
+            ],
+            [
+                'id_program' => 16,
+                'nama_program' => 'Pengadaan Sound System Masjid Baitussalam',
+                'deskripsi' => 'Wakaf pengadaan pengeras suara dan sound system masjid yang jernih agar kumandang adzan dan penyampaian khutbah keagamaan terdengar jelas oleh warga desa.',
+                'target_dana' => 15000000,
+                'dana_terkumpul' => 15000000,
+                'status_program' => 0,
+                'due_date' => Carbon::now()->subDays(15)->toDateString(),
+                'created_at' => Carbon::now()->subMonths(2),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/alat shalat.jpg'
+            ],
+            [
+                'id_program' => 17,
+                'nama_program' => 'Pembangunan Laboratorium Komputer Santri',
+                'deskripsi' => 'Pembangunan ruang kelas baru khusus IT beserta pengadaan laptop dan koneksi internet bagi santri yatim dhuafa agar melek teknologi di era digital.',
+                'target_dana' => 180000000,
+                'dana_terkumpul' => 60000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(10)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/madrasah.webp'
+            ],
+            [
+                'id_program' => 18,
+                'nama_program' => 'Penyediaan Kitab Kuning untuk Pesantren',
+                'deskripsi' => 'Pengadaan kitab-kitab rujukan (kitab kuning) klasik terlengkap bagi para santri tingkat menengah dan tinggi dalam memperdalam ilmu fikih, tafsir, dan hadits.',
+                'target_dana' => 25000000,
+                'dana_terkumpul' => 10000000,
+                'status_program' => 1,
+                'due_date' => Carbon::now()->addMonths(3)->toDateString(),
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'gambar_thumbnail' => '/storage/programs/alquran.jpg'
             ],
         ];
 
@@ -263,6 +385,36 @@ class T03ProgramWakafSeeder extends Seeder
                 'no_hp' => '08111222333',
                 'hide_nama' => 1
             ],
+            // Pending Transaction 1 (Wakif User - Budi Santoso)
+            [
+                'id_user' => $wakifUser->id_user,
+                'nama' => 'Budi Santoso',
+                'pesan_doa' => 'Wakaf pembangunan sumur desa.',
+                'id_program' => 1,
+                'nominal' => 2500000,
+                'bukti_pembayaran' => 'https://images.unsplash.com/photo-1598501170281-a6cc05307bc1?auto=format&fit=crop&q=80',
+                'status_pembayaran' => 0, // Pending / Menunggu
+                'kode_referensi' => 'INV-U-' . time() . '-8',
+                'created_at' => Carbon::now()->subDays(1),
+                'edited_at' => Carbon::now()->subDays(1),
+                'no_hp' => '081234567890',
+                'hide_nama' => 0
+            ],
+            // Pending Transaction 2 (Wakif User - Budi Santoso)
+            [
+                'id_user' => $wakifUser->id_user,
+                'nama' => 'Budi Santoso',
+                'pesan_doa' => 'Wakaf pembangunan asrama santri.',
+                'id_program' => 5,
+                'nominal' => 5000000,
+                'bukti_pembayaran' => 'https://images.unsplash.com/photo-1598501170281-a6cc05307bc1?auto=format&fit=crop&q=80',
+                'status_pembayaran' => 0, // Pending / Menunggu
+                'kode_referensi' => 'INV-U-' . time() . '-9',
+                'created_at' => Carbon::now(),
+                'edited_at' => Carbon::now(),
+                'no_hp' => '081234567890',
+                'hide_nama' => 0
+            ],
         ];
 
         foreach ($transactions as $tx) {
@@ -355,6 +507,53 @@ class T03ProgramWakafSeeder extends Seeder
 
         foreach ($reports as $rep) {
             T05LaporanPenyaluran::create($rep);
+        }
+
+        // Clean up first
+        \App\Models\T06PencairanDana::query()->delete();
+
+        // Seed some Pencairan Dana
+        $pencairans = [
+            [
+                'id_program' => 1,
+                'id_user' => $nazhirUser->id_user,
+                'jumlah_dana' => 5000000.00,
+                'keterangan' => 'Penyaluran tahap awal untuk pengeboran sumur dan pipa air.',
+                'status_pencairan' => 1, // Approved
+                'created_at' => Carbon::now()->subDays(4),
+                'updated_at' => Carbon::now()->subDays(4),
+            ],
+            [
+                'id_program' => 3,
+                'id_user' => $nazhirUser->id_user,
+                'jumlah_dana' => 80000000.00,
+                'keterangan' => 'Pembelian unit armada mobil operasional santri.',
+                'status_pencairan' => 1, // Approved
+                'created_at' => Carbon::now()->subDays(3),
+                'updated_at' => Carbon::now()->subDays(3),
+            ],
+            [
+                'id_program' => 2,
+                'id_user' => $nazhirUser->id_user,
+                'jumlah_dana' => 15000000.00,
+                'keterangan' => 'Pembelian material pondasi, besi cor, semen, dan pasir.',
+                'status_pencairan' => 0, // Pending
+                'created_at' => Carbon::now()->subDays(6),
+                'updated_at' => Carbon::now()->subDays(6),
+            ],
+            [
+                'id_program' => 5,
+                'id_user' => $nazhirUser->id_user,
+                'jumlah_dana' => 25000000.00,
+                'keterangan' => 'Pemasangan tiang pancang asrama santri.',
+                'status_pencairan' => 0, // Pending
+                'created_at' => Carbon::now()->subDays(2),
+                'updated_at' => Carbon::now()->subDays(2),
+            ],
+        ];
+
+        foreach ($pencairans as $pc) {
+            \App\Models\T06PencairanDana::create($pc);
         }
     }
 }

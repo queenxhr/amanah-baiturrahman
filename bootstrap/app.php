@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\ParseMultipartPutPATCH::class);
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
@@ -25,8 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
             $user = $request->user();
-            if ($user && (int)$user->id_role === 1) {
-                return '/dashboard';
+            if ($user) {
+                if ((int)$user->id_role === 1) {
+                    return '/dashboard';
+                } elseif ((int)$user->id_role === 3) {
+                    return '/superadmin/dashboard';
+                }
             }
             return '/';
         });

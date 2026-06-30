@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import NazhirLayout from '@/layouts/NazhirLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const search = ref('');
 const sort = ref('desc'); // 'asc' or 'desc'
@@ -11,6 +12,14 @@ const page = ref(1);
 const programs = ref<any[]>([]);
 const pagination = ref<any>({});
 const isLoading = ref(false);
+
+const selectedProgram = ref<any>(null);
+const showPreviewModal = ref(false);
+
+const openPreview = (program: any) => {
+    selectedProgram.value = program;
+    showPreviewModal.value = true;
+};
 
 const formatRupiah = (num: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
@@ -42,26 +51,26 @@ const fetchPrograms = async () => {
 };
 
 const handleDeleteProgram = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus program ini? Semua data transaksi dan laporan terkait juga akan terhapus secara permanen.')) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus program ini? Semua data transaksi dan laporan terkait juga akan terhapus secara permanen.'))) return;
     try {
         await axios.delete(`/api/nazhir/program/${id}`);
-        alert('Program berhasil dihapus!');
+        await showSuccess('Program berhasil dihapus!');
         fetchPrograms();
     } catch (e) {
         console.error('Failed to delete program:', e);
-        alert('Gagal menghapus program.');
+        await showError('Gagal menghapus program.');
     }
 };
 
 const handleDeleteLaporan = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?')) return;
+    if (!(await showConfirm('Apakah Anda yakin ingin menghapus laporan penyaluran ini secara permanen?'))) return;
     try {
         await axios.delete(`/api/nazhir/laporan/${id}`);
-        alert('Laporan berhasil dihapus!');
+        await showSuccess('Laporan berhasil dihapus!');
         fetchPrograms();
     } catch (e) {
         console.error('Failed to delete report:', e);
-        alert('Gagal menghapus laporan.');
+        await showError('Gagal menghapus laporan.');
     }
 };
 
@@ -220,15 +229,33 @@ watch(sort, () => {
                 <td class="px-6 py-4 text-center">
                   <span 
                     :class="[
-                      'inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider',
-                      p.status === 1 ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
+                      'inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border',
+                      p.status === 1 ? 'bg-green-50 text-green-700 border-green-200' : 
+                      p.status === 2 ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse' : 
+                      p.status === 3 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200'
                     ]"
                   >
-                    {{ p.status === 1 ? 'Dibuka' : 'Ditutup' }}
+                    {{ 
+                      p.status === 1 ? 'Aktif' : 
+                      p.status === 2 ? 'Pending Review' : 
+                      p.status === 3 ? 'Ditolak' : 'Selesai' 
+                    }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex justify-end items-center gap-2">
+                    
+                    <!-- Pratinjau Program -->
+                    <button 
+                      @click="openPreview(p)"
+                      class="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-650 rounded-lg border border-blue-200 transition"
+                      title="Pratinjau Program"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
                     
                     <!-- Laporan Button -->
                     <template v-if="p.t05_laporan_penyalurans && p.t05_laporan_penyalurans.length > 0">
@@ -310,6 +337,103 @@ watch(sort, () => {
 
     </div>
   </NazhirLayout>
+
+  <!-- Preview Modal -->
+  <div v-if="showPreviewModal && selectedProgram" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-300">
+    <div class="bg-white rounded-[24px] border border-gray-150 shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col transform scale-100 transition-all duration-300">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-blue-50 text-blue-650 border border-blue-200">
+            Pratinjau Program
+          </span>
+          <h3 class="text-sm font-bold text-gray-905 mt-1">Detail Program Wakaf</h3>
+        </div>
+        <button @click="showPreviewModal = false" class="p-1.5 rounded-xl hover:bg-gray-200 text-gray-400 hover:text-gray-700 transition">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1">
+        <!-- Thumbnail & Quick Stats -->
+        <div class="flex flex-col md:flex-row gap-5">
+          <img :src="selectedProgram.gambar_thumbnail || '/images/default_program.jpg'" 
+            class="w-full md:w-44 h-44 rounded-2xl object-cover border border-gray-250 bg-gray-50 shadow-sm" />
+          <div class="flex-1 space-y-4">
+            <h2 class="text-base font-black text-gray-905 leading-snug">{{ selectedProgram.nama_program }}</h2>
+            
+            <!-- Target & Progress -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs">
+                <span class="text-gray-400 font-bold">Progress Capaian</span>
+                <span class="text-[#143E2C] font-black">
+                  {{ selectedProgram.progress || (selectedProgram.target_dana > 0 ? ((selectedProgram.dana_terkumpul / selectedProgram.target_dana) * 100).toFixed(2) : '0') }}%
+                </span>
+              </div>
+              <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden border border-gray-150">
+                <div class="h-full bg-gradient-to-r from-[#1e5842] to-[#143E2C] rounded-full" 
+                  :style="{ width: `${Math.min(selectedProgram.progress || (selectedProgram.target_dana > 0 ? (selectedProgram.dana_terkumpul / selectedProgram.target_dana) * 100 : 0), 100)}%` }"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                <div>
+                  <span class="block text-gray-400 font-semibold">Terkumpul</span>
+                  <span class="font-black text-green-750 text-xs">{{ formatRupiah(selectedProgram.dana_terkumpul) }}</span>
+                </div>
+                <div>
+                  <span class="block text-gray-400 font-semibold">Target Dana</span>
+                  <span class="font-black text-gray-900 text-xs">{{ formatRupiah(selectedProgram.target_dana) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other parameters -->
+            <div class="grid grid-cols-2 gap-4 border-t border-gray-100 pt-3 text-[11px]">
+              <div>
+                <span class="block text-gray-400 font-semibold">Tenggat Waktu</span>
+                <span class="font-bold text-gray-800">
+                  {{ selectedProgram.due_date ? new Date(selectedProgram.due_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-' }}
+                </span>
+              </div>
+              <div>
+                <span class="block text-gray-400 font-semibold">Status Program</span>
+                <span :class="[
+                  'inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase border mt-0.5',
+                  selectedProgram.status === 1 ? 'bg-green-50 text-green-700 border-green-200' : 
+                  selectedProgram.status === 2 ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse' : 
+                  selectedProgram.status === 3 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                ]">
+                  {{ 
+                    selectedProgram.status === 1 ? 'Aktif / Dibuka' : 
+                    selectedProgram.status === 2 ? 'Menunggu Verifikasi' : 
+                    selectedProgram.status === 3 ? 'Ditolak' : 'Ditutup / Selesai' 
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="border-t border-gray-100 pt-5 space-y-2">
+          <h4 class="text-xs font-black uppercase text-gray-500 tracking-wider">Deskripsi Program</h4>
+          <div class="bg-gray-50 rounded-2xl p-4 border border-gray-250 text-xs text-gray-700 font-semibold leading-relaxed overflow-y-auto max-h-[25vh] rich-text-content"
+            v-html="selectedProgram.deskripsi || '<p class=\'text-gray-400 italic\'>Tidak ada deskripsi</p>'">
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2.5">
+        <!-- Close button -->
+        <button @click="showPreviewModal = false" class="px-4 py-2 border border-gray-250 text-gray-705 rounded-xl text-xs font-bold hover:bg-gray-100 transition">
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
 </template>
 
 <style scoped>

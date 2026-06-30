@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps<{

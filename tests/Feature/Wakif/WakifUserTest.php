@@ -58,4 +58,32 @@ class WakifUserTest extends TestCase
             'nama' => 'Update Name'
         ]);
     }
+
+    public function test_update_profile_cannot_use_duplicate_email()
+    {
+        $user1 = T02UserFactory::new()->create(['id_role' => 2, 'email' => 'user1@example.com']);
+        $user2 = T02UserFactory::new()->create(['id_role' => 2, 'email' => 'user2@example.com']);
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->putJson('/api/wakif/user', [
+            'email' => 'user2@example.com'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('email');
+    }
+
+    public function test_update_profile_cannot_use_duplicate_no_hp()
+    {
+        $user1 = T02UserFactory::new()->create(['id_role' => 2, 'no_hp' => '081234567801']);
+        $user2 = T02UserFactory::new()->create(['id_role' => 2, 'no_hp' => '081234567802']);
+        Sanctum::actingAs($user1, ['*']);
+
+        $response = $this->putJson('/api/wakif/user', [
+            'no_hp' => '081234567802'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('no_hp');
+    }
 }

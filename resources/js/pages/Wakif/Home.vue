@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
-import ProgramCard from '@/Components/Wakif/ProgramCard.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
+import ProgramCard from '@/components/Wakif/ProgramCard.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, ref, computed } from 'vue';
 import axios from 'axios';
@@ -25,7 +25,7 @@ const filteredPrograms = computed(() => {
     );
 });
 
-const formatShortCurrency = (num) => {
+const formatShortCurrency = (num: number) => {
     if (num >= 1000000000) return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
     if (num >= 1000000) return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
@@ -52,18 +52,18 @@ onMounted(async () => {
     try {
         const response = await axios.get('/api/wakif/program-wakaf');
         if (response.data && response.data.data) {
-             // Map backend format to card format
-             programs.value = response.data.data.slice(0, 4).map((p: any) => ({
-                 id: p.id_program,
-                 nama_program: p.nama_program,
-                 deskripsi: p.deskripsi,
-                 target_dana: p.target_dana,
-                 dana_terkumpul: p.dana_terkumpul,
-                 due_date: new Date(p.due_date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}),
-                 gambar_placeholder: p.gambar_thumbnail
-             }));
+              // Map backend format to card format
+              programs.value = response.data.data.slice(0, 4).map((p: any) => ({
+                  id: p.id_program,
+                  nama_program: p.nama_program,
+                  deskripsi: p.deskripsi,
+                  target_dana: p.target_dana,
+                  dana_terkumpul: p.dana_terkumpul,
+                  due_date: p.due_date,
+                  gambar_placeholder: p.gambar_thumbnail
+              }));
         }
-    } catch(e) {
+    } catch {
         // Fallback dummy
     }
 });

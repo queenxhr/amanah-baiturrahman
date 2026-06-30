@@ -57,7 +57,9 @@ class T04Transaksi extends Model
 		'kode_referensi',
 		'edited_at',
 		'no_hp',
-		'hide_nama'
+		'email',
+		'hide_nama',
+		'metode_pembayaran'
 	];
 
 	protected static function booted()

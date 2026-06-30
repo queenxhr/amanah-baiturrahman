@@ -24,6 +24,18 @@ class FortifyServiceProvider extends ServiceProvider
             \Laravel\Fortify\Http\Requests\SendPasswordResetLinkRequest::class,
             \App\Http\Requests\Auth\CustomSendPasswordResetLinkRequest::class
         );
+
+        $this->app->instance(
+            \Laravel\Fortify\Contracts\PasswordResetResponse::class,
+            new class implements \Laravel\Fortify\Contracts\PasswordResetResponse {
+                public function toResponse($request)
+                {
+                    return $request->wantsJson()
+                        ? response()->json(['message' => trans('passwords.reset')], 200)
+                        : redirect('/wakif/login')->with('status', trans('passwords.reset'));
+                }
+            }
+        );
     }
 
     /**

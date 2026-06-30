@@ -35,10 +35,11 @@ class NazhirProgramController extends Controller
             'deskripsi'     => 'nullable|string',
             'target_dana'   => 'required|numeric|min:0',
             'dana_terkumpul'=> 'nullable|numeric|min:0',
-            'status_program'=> 'nullable|integer|in:0,1',
+            'status_program'=> 'nullable|integer|in:0,1,2,3',
             'due_date'      => 'nullable|date',
-            'gambar_thumbnail' => 'nullable|image|max:2048',
+            'gambar_thumbnail' => 'nullable|image|max:5120',
         ]);
+        $data['status_program'] = 2; // Default to Pending Review (Ditinjau)
         if ($request->hasFile('gambar_thumbnail')) {
             $file = $request->file('gambar_thumbnail');
             $path = $file->store('programs', 'public');
@@ -56,9 +57,9 @@ class NazhirProgramController extends Controller
             'deskripsi'     => 'sometimes|string',
             'target_dana'   => 'sometimes|numeric|min:0',
             'dana_terkumpul'=> 'sometimes|numeric|min:0',
-            'status_program'=> 'sometimes|integer|in:0,1',
+            'status_program'=> 'sometimes|integer|in:0,1,2,3',
             'due_date'      => 'sometimes|date',
-            'gambar_thumbnail' => 'nullable|image|max:2048',
+            'gambar_thumbnail' => 'nullable|image|max:5120',
         ]);
         if ($request->hasFile('gambar_thumbnail')) {
             $file = $request->file('gambar_thumbnail');

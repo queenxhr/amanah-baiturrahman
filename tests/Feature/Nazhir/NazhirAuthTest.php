@@ -52,4 +52,66 @@ class NazhirAuthTest extends TestCase
         $response->assertStatus(200)
                  ->assertJson(['success' => true]);
     }
+
+    public function test_nazhir_can_register()
+    {
+        $response = $this->postJson('/api/nazhir/signup', [
+            'nama' => 'Nazhir Baru',
+            'email' => 'nazhirbaru@example.com',
+            'no_hp' => '081234567801',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1990-01-01',
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('t02_users', [
+            'email' => 'nazhirbaru@example.com',
+            'id_role' => 1,
+            'status' => 'pending'
+        ]);
+    }
+
+    public function test_nazhir_cannot_register_with_duplicate_email()
+    {
+        T02UserFactory::new()->create([
+            'email' => 'nazhir_dup@example.com',
+            'no_hp' => '081234567802'
+        ]);
+
+        $response = $this->postJson('/api/nazhir/signup', [
+            'nama' => 'Nazhir Baru',
+            'email' => 'nazhir_dup@example.com',
+            'no_hp' => '081234567803',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1990-01-01',
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('email');
+    }
+
+    public function test_nazhir_cannot_register_with_duplicate_no_hp()
+    {
+        T02UserFactory::new()->create([
+            'email' => 'nazhir_other@example.com',
+            'no_hp' => '081234567804'
+        ]);
+
+        $response = $this->postJson('/api/nazhir/signup', [
+            'nama' => 'Nazhir Baru',
+            'email' => 'nazhir_new@example.com',
+            'no_hp' => '081234567804',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1990-01-01',
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('no_hp');
+    }
 }

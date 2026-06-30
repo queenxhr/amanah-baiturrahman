@@ -4,6 +4,7 @@ import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { showSuccess, showError } from '@/lib/alert';
 
 const props = defineProps<{
     programId: string | number;
@@ -16,6 +17,9 @@ const form = ref({
     penerima_manfaat: '',
     keterangan: ''
 });
+
+
+const gambarLaporanFile = ref<File | null>(null);
 
 const errors = ref<Record<string, string>>({});
 const isLoading = ref(true);
@@ -31,6 +35,15 @@ const fetchProgramDetails = async () => {
         console.error('Failed to fetch program details:', e);
     } finally {
         isLoading.value = false;
+    }
+};
+
+
+
+const handleGambarLaporanChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files.length > 0) {
+        gambarLaporanFile.value = target.files[0];
     }
 };
 
@@ -59,17 +72,25 @@ const handleSubmit = async () => {
     isSubmitting.value = true;
 
     try {
-        const payload = {
-            id_program: Number(props.programId),
-            judul_laporan: form.value.judul_laporan,
-            dana_disalurkan: Number(form.value.dana_disalurkan),
-            penerima_manfaat: Number(form.value.penerima_manfaat),
-            keterangan: form.value.keterangan
-        };
+        const formData = new FormData();
+        formData.append('id_program', String(props.programId));
+        formData.append('judul_laporan', form.value.judul_laporan);
+        formData.append('dana_disalurkan', form.value.dana_disalurkan);
+        formData.append('penerima_manfaat', form.value.penerima_manfaat);
+        formData.append('keterangan', form.value.keterangan || '');
 
-        await axios.post('/api/nazhir/laporan', payload);
 
-        alert('Laporan penyaluran berhasil ditambahkan!');
+        if (gambarLaporanFile.value) {
+            formData.append('gambar_laporan', gambarLaporanFile.value);
+        }
+
+        await axios.post('/api/nazhir/laporan', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        await showSuccess('Laporan penyaluran berhasil ditambahkan!');
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to add report:', e);
@@ -79,7 +100,7 @@ const handleSubmit = async () => {
                 errors.value[key] = apiErrors[key][0];
             });
         } else {
-            alert('Terjadi kesalahan saat menambahkan laporan.');
+            await showError('Terjadi kesalahan saat menambahkan laporan.');
         }
     } finally {
         isSubmitting.value = false;
@@ -171,9 +192,28 @@ onMounted(() => {
         </div>
 
         <!-- Keterangan Laporan (RichTextEditor) -->
-        <div class="flex flex-col gap-1.5">
+        <div class="flex flex-col gap-1.5 font-sans">
           <label class="text-xs font-bold text-gray-750">Keterangan & Galeri Kegiatan</label>
           <RichTextEditor v-model="form.keterangan" />
+        </div>
+
+        <!-- File Uploads Section -->
+        <div class="border-t border-gray-150 pt-5 space-y-4">
+          <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Gambar Sampul Laporan</h4>
+          
+          <div>
+            <!-- Gambar Laporan -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-gray-750">Gambar Sampul Laporan (Gambar)</label>
+              <input 
+                type="file" 
+                accept="image/*"
+                @change="handleGambarLaporanChange"
+                class="w-full bg-gray-50 border border-gray-250 rounded-xl px-4 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#143E2C] transition-all"
+              />
+              <span v-if="errors.gambar_laporan" class="text-[10px] font-bold text-red-500 mt-0.5">{{ errors.gambar_laporan }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Submit Buttons -->

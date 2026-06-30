@@ -66,7 +66,10 @@ class WakifAuthTest extends TestCase
             'nama' => 'John Doe',
             'email' => 'johndoe@example.com',
             'no_hp' => '081234567890',
-            'password' => 'P@ssword123'
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1995-05-15',
+            'password' => 'P@ssword123',
+            'password_confirmation' => 'P@ssword123'
         ]);
 
         $response->assertStatus(201) // Or 200 depending on API implementation
@@ -87,7 +90,7 @@ class WakifAuthTest extends TestCase
 
         Sanctum::actingAs($user, ['*']);
 
-        $response = $this->postJson('/api/wakif/ubah-password', [
+        $response = $this->putJson('/api/wakif/ubah-password', [
             'old_password' => 'P@ssword123',
             'new_password' => 'N3wP@ssword!'
         ]);
@@ -114,10 +117,52 @@ class WakifAuthTest extends TestCase
             'nama' => 'John Doe',
             'email' => 'invalid-email-format',
             'no_hp' => '081234567890',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1995-05-15',
             'password' => 'P@ssword123'
         ]);
 
         $response->assertStatus(422)
                  ->assertJsonValidationErrors('email');
+    }
+
+    public function test_wakif_cannot_register_with_duplicate_email()
+    {
+        T02UserFactory::new()->create([
+            'email' => 'duplicate@example.com',
+            'no_hp' => '081234567800'
+        ]);
+
+        $response = $this->postJson('/api/wakif/signup', [
+            'nama' => 'John Doe',
+            'email' => 'duplicate@example.com',
+            'no_hp' => '081234567890',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1995-05-15',
+            'password' => 'P@ssword123'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('email');
+    }
+
+    public function test_wakif_cannot_register_with_duplicate_no_hp()
+    {
+        T02UserFactory::new()->create([
+            'email' => 'other@example.com',
+            'no_hp' => '081234567890'
+        ]);
+
+        $response = $this->postJson('/api/wakif/signup', [
+            'nama' => 'John Doe',
+            'email' => 'johndoe@example.com',
+            'no_hp' => '081234567890',
+            'jenis_kelamin' => 'L',
+            'tanggal_lahir' => '1995-05-15',
+            'password' => 'P@ssword123'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors('no_hp');
     }
 }

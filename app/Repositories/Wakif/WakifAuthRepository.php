@@ -21,6 +21,8 @@ class WakifAuthRepository implements WakifAuthRepositoryInterface
             'email' => $data['email'],
             'no_hp' => $data['no_hp'],
             'password' => Hash::make($data['password']),
+            'jenis_kelamin' => $data['jenis_kelamin'],
+            'tanggal_lahir' => $data['tanggal_lahir'],
             'id_role' => 2 // assuming 2 is Wakif
         ]);
     }

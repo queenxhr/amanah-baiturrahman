@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { showAlert, showError } from '@/lib/alert';
 
 const props = defineProps<{
     id: string | number;
@@ -13,6 +14,7 @@ const page = usePage();
 const tab = ref('deskripsi');
 const modalOpen = ref(false);
 const modalStep = ref(1); // 1 = form, 2 = qris, 3 = success
+
 
 // Program details state
 const program = ref<any>(null);
@@ -30,16 +32,17 @@ const limit = ref(10); // Show 10 per page as requested
 // Form States
 const nameInput = ref('');
 const noHpInput = ref('');
+const emailInput = ref('');
 const nominal = ref<number | string | null>(null);
 const customNominal = ref('');
 const hideName = ref(false);
-const otherName = ref(false);
 const pesanDoa = ref('');
 const isSubmitting = ref(false);
 
 // Error States
 const nameError = ref('');
 const noHpError = ref('');
+const emailError = ref('');
 const nominalError = ref('');
 const paymentFileError = ref('');
 
@@ -55,9 +58,16 @@ const mockTransactionId = ref('');
 const createdTransaction = ref<any>(null);
 const paymentFile = ref<File | null>(null);
 const paymentFileName = ref('');
+const paymentMethod = ref('qris');
+const paymentMethodInput = ref('qris');
 const qrisTimeLeft = ref('00:15:00');
 const showCaraBayar = ref(true);
 let countdownInterval: any = null;
+
+const fileInput = ref<HTMLInputElement | null>(null);
+const triggerFileInput = () => {
+    fileInput.value?.click();
+};
 
 const formatRupiah = (number: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -93,7 +103,7 @@ const startQrisTimer = () => {
 
 const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert('Disalin: ' + text);
+    showAlert('Disalin: ' + text, 'Berhasil');
 };
 
 const handleFileChange = (e: Event) => {
@@ -128,9 +138,10 @@ const clearDateFilter = () => {
     loadDonors(1);
 };
 
-const proceedToQris = () => {
+const proceedToQris = async () => {
     nameError.value = '';
     noHpError.value = '';
+    emailError.value = '';
     nominalError.value = '';
     paymentFileError.value = '';
 
@@ -147,6 +158,14 @@ const proceedToQris = () => {
         hasError = true;
     }
 
+    if (!emailInput.value) {
+        emailError.value = 'Email wajib diisi';
+        hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+        emailError.value = 'Format email tidak valid';
+        hasError = true;
+    }
+
     if (!finalNominal || finalNominal < 10000) {
         nominalError.value = 'Nominal wakaf minimal Rp10.000';
         hasError = true;
@@ -154,9 +173,43 @@ const proceedToQris = () => {
 
     if (hasError) return;
 
-    mockTransactionId.value = 'WKF-' + Math.floor(100000 + Math.random() * 900000);
-    startQrisTimer();
-    modalStep.value = 2;
+    isSubmitting.value = true;
+    try {
+        const finalName = hideName.value ? 'Hamba Allah' : nameInput.value;
+        const postData = {
+            id_program: Number(props.id),
+            nominal: finalNominal,
+            pesan_doa: pesanDoa.value || '',
+            hide_nama: hideName.value ? 1 : 0,
+            nama: finalName,
+            no_hp: noHpInput.value,
+            email: emailInput.value,
+            metode_pembayaran: paymentMethodInput.value.toUpperCase()
+        };
+
+        const isLoggedIn = !!page.props.auth?.user;
+        const endpoint = isLoggedIn ? '/api/wakif/transaksi/user' : '/api/wakif/transaksi/guest';
+        const token = localStorage.getItem('wakif_auth_token');
+        const headers: any = {};
+        if (isLoggedIn && token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await axios.post(endpoint, postData, { headers });
+        if (response.data && response.data.success) {
+            createdTransaction.value = response.data.data;
+            mockTransactionId.value = createdTransaction.value.kode_referensi;
+            paymentMethod.value = paymentMethodInput.value;
+            startQrisTimer();
+            modalStep.value = 2;
+        }
+    } catch (e: any) {
+        console.error('Failed to initialize transaction:', e);
+        const errMsg = e.response?.data?.message || 'Gagal membuat transaksi wakaf. Silakan coba lagi.';
+        showError(errMsg);
+    } finally {
+        isSubmitting.value = false;
+    }
 };
 
 const loadProgramData = async () => {
@@ -232,29 +285,23 @@ const submitWakaf = async () => {
         return;
     }
 
+    if (!createdTransaction.value || !createdTransaction.value.id_transaksi) {
+        showAlert('Data transaksi tidak ditemukan. Silakan ulangi proses.', 'Peringatan');
+        return;
+    }
+
     isSubmitting.value = true;
     try {
-        const finalNominal = nominal.value === 'custom' ? Number(customNominal.value) : Number(nominal.value);
         const formData = new FormData();
-        formData.append('id_program', String(props.id));
-        formData.append('nominal', String(finalNominal));
-        formData.append('pesan_doa', pesanDoa.value || '');
-        formData.append('hide_nama', hideName.value ? '1' : '0');
-        formData.append('nama', hideName.value ? 'Hamba Allah' : nameInput.value);
-        formData.append('no_hp', noHpInput.value);
-        if (paymentFile.value) {
-            formData.append('bukti_pembayaran', paymentFile.value);
-        }
+        formData.append('bukti_pembayaran', paymentFile.value);
+        formData.append('_method', 'PATCH');
 
-        const isLoggedIn = !!page.props.auth?.user;
-        const endpoint = isLoggedIn ? '/api/wakif/transaksi/user' : '/api/wakif/transaksi/guest';
-        const token = localStorage.getItem('auth_token');
-        const headers: any = { 'Content-Type': 'multipart/form-data' };
-        if (isLoggedIn && token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const response = await axios.post(endpoint, formData, { headers });
+        const endpoint = `/api/wakif/transaksi/${createdTransaction.value.id_transaksi}/bukti`;
+        const response = await axios.post(endpoint, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
 
         if (response.data && response.data.success) {
             createdTransaction.value = response.data.data;
@@ -262,9 +309,9 @@ const submitWakaf = async () => {
             modalStep.value = 3;
         }
     } catch (e: any) {
-        console.error('Submit transaction failed:', e);
-        const errMsg = e.response?.data?.message || 'Gagal mengirim transaksi wakaf. Silakan coba lagi.';
-        alert(errMsg);
+        console.error('Submit transaction proof failed:', e);
+        const errMsg = e.response?.data?.message || 'Gagal mengirim bukti pembayaran. Silakan coba lagi.';
+        showError(errMsg);
     } finally {
         isSubmitting.value = false;
     }
@@ -282,8 +329,22 @@ const closeModalAndRefresh = async () => {
     // Reset errors
     nameError.value = '';
     noHpError.value = '';
+    emailError.value = '';
     nominalError.value = '';
     paymentFileError.value = '';
+
+    // Reset inputs to user data if logged in
+    if (page.props.auth?.user) {
+        const u = page.props.auth.user as any;
+        nameInput.value = u.nama || '';
+        noHpInput.value = u.no_hp || '';
+        emailInput.value = u.email || '';
+    } else {
+        nameInput.value = '';
+        noHpInput.value = '';
+        emailInput.value = '';
+    }
+
     if (countdownInterval) clearInterval(countdownInterval);
     await loadProgramData();
 };
@@ -309,8 +370,10 @@ const visiblePages = computed(() => {
 onMounted(async () => {
     // Auto-fill logged in user info if present
     if (page.props.auth?.user) {
-        nameInput.value = page.props.auth.user.nama || '';
-        noHpInput.value = page.props.auth.user.no_hp || '';
+        const u = page.props.auth.user as any;
+        nameInput.value = u.nama || '';
+        noHpInput.value = u.no_hp || '';
+        emailInput.value = u.email || '';
     }
 
     await loadProgramData();
@@ -420,9 +483,7 @@ onMounted(async () => {
                      <!-- Tab Content: Deskripsi -->
                      <div v-show="tab === 'deskripsi'" class="text-[12px] text-gray-600 space-y-6 max-w-2xl font-sans">
                          <h3 class="text-sm font-bold text-gray-900 font-sans">{{ program?.nama_program }}</h3>
-                         <p class="leading-relaxed text-justify whitespace-pre-line">
-                             {{ fullDeskripsi }}
-                         </p>
+                         <div class="leading-relaxed text-justify rich-text-content" v-html="fullDeskripsi"></div>
                          <img :src="program?.gambar_thumbnail || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80'" alt="Inline madrasah view" class="w-full h-56 object-cover rounded">
                      </div>
 
@@ -597,6 +658,12 @@ onMounted(async () => {
                                         <p v-if="noHpError" class="text-red-500 text-[10px] mt-1 font-semibold">{{ noHpError }}</p>
                                     </div>
 
+                                    <div class="mb-5">
+                                        <label class="block text-[11px] font-semibold text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                                        <input type="email" v-model="emailInput" placeholder="Masukkan Email Anda" class="w-full border border-[#d6c56b] rounded px-3 py-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-[#d6c56b]">
+                                        <p v-if="emailError" class="text-red-500 text-[10px] mt-1 font-semibold">{{ emailError }}</p>
+                                    </div>
+
                                     <!-- Nominal -->
                                     <h3 class="text-[12px] font-bold text-gray-800 mb-3 border-b border-gray-100 pb-1">Nominal <span class="text-red-500">*</span></h3>
                                     
@@ -628,22 +695,49 @@ onMounted(async () => {
                         <textarea rows="3" v-model="pesanDoa" placeholder="Tuliskan do'a terbaik Anda" class="w-full border border-[#d6c56b] rounded px-3 py-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-[#d6c56b]"></textarea>
                     </div>
 
-                    <!-- Toggle Atas Nama Orang Lain -->
-                    <div class="flex items-center gap-3 mb-6">
-                         <div class="relative inline-block w-8 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" v-model="otherName" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 checked:right-0 checked:border-primary checked:bg-white checked:translate-x-full transition-transform duration-200" style="top: 2px; left: 2px;"/>
-                            <label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer" :class="{'bg-[#c5db54]': otherName}"></label>
+                    <!-- Metode Pembayaran Selection -->
+                    <div class="mb-5">
+                        <label class="block text-[11px] font-semibold text-gray-700 mb-2">Metode Pembayaran <span class="text-red-500">*</span></label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- QRIS Option -->
+                            <div 
+                                @click="paymentMethodInput = 'qris'"
+                                :class="paymentMethodInput === 'qris' ? 'border-[#1e5842] bg-[#1e5842]/5 border-2' : 'border-gray-300 hover:bg-gray-50 border'"
+                                class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition select-none"
+                            >
+                                <div class="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
+                                    <div v-if="paymentMethodInput === 'qris'" class="w-2.5 h-2.5 rounded-full bg-[#1e5842]"></div>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-bold text-gray-950 leading-none">QRIS</h4>
+                                </div>
+                            </div>
+
+                            <!-- Transfer Bank BCA Option -->
+                            <div 
+                                @click="paymentMethodInput = 'bca'"
+                                :class="paymentMethodInput === 'bca' ? 'border-[#1e5842] bg-[#1e5842]/5 border-2' : 'border-gray-300 hover:bg-gray-50 border'"
+                                class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition select-none"
+                            >
+                                <div class="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
+                                    <div v-if="paymentMethodInput === 'bca'" class="w-2.5 h-2.5 rounded-full bg-[#1e5842]"></div>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-bold text-gray-950 leading-none">Transfer BCA</h4>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="flex justify-end">
-                        <button @click="proceedToQris" class="bg-[#1e5842] hover:bg-green-800 text-white font-bold py-2 px-6 rounded text-sm transition shadow shadow-green-900/30">
-                            Lanjutkan
+                        <button :disabled="isSubmitting" @click="proceedToQris" class="bg-[#1e5842] hover:bg-green-800 text-white font-bold py-2 px-6 rounded text-sm transition shadow shadow-green-900/30 disabled:opacity-50 flex items-center gap-2">
+                            <span v-if="isSubmitting" class="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                            {{ isSubmitting ? 'Memproses...' : 'Lanjutkan' }}
                         </button>
                     </div>
                 </div>
 
-                <!-- STEP 2: QRIS Payment -->
+                <!-- STEP 2: QRIS / BCA Payment -->
                 <div v-if="modalStep === 2" class="p-6 overflow-y-auto">
                     <h2 class="text-center font-bold text-[16px] text-gray-900 mb-2">Wakaf {{ program?.nama_program }}</h2>
                     
@@ -686,13 +780,51 @@ onMounted(async () => {
                         </div>
                     </div>
 
+                    <!-- Selected Payment Method Banner -->
+                    <div class="px-4 py-2.5 bg-[#1e5842]/5 border border-[#1e5842]/20 rounded-xl mb-4 text-center">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Metode Pembayaran Terpilih</span>
+                        <span class="text-xs font-black text-[#1e5842] uppercase mt-0.5 block">
+                            {{ paymentMethod === 'qris' ? 'QRIS' : 'Transfer Bank BCA' }}
+                        </span>
+                    </div>
+
                     <!-- QRIS Image Box -->
-                    <div class="flex flex-col items-center border border-gray-200 rounded-lg p-4 bg-white mb-4">
+                    <div v-show="paymentMethod === 'qris'" class="flex flex-col items-center border border-gray-200 rounded-lg p-4 bg-white mb-4">
                         <span class="text-xs font-black text-gray-800 tracking-wider mb-2">QRIS PEMBAYARAN</span>
                         <div class="w-48 h-48 border border-gray-100 flex items-center justify-center p-2 rounded bg-white">
                             <img src="/qris_payment_mock.png" alt="QRIS Code" class="max-w-full max-h-full object-contain" />
                         </div>
-                        <span class="text-[9px] text-gray-400 mt-2">Scan QRIS menggunakan aplikasi pembayaran digital Anda</span>
+                        <a href="/qris_payment_mock.png" download="QRIS-Amanah-Baiturrahman.png" class="mt-3 px-4 py-1.5 bg-[#1e5842]/10 hover:bg-[#1e5842]/20 text-[#1e5842] rounded-full text-[11px] font-bold transition flex items-center gap-1.5 border border-[#1e5842]/25">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Unduh QRIS
+                        </a>
+                        <span class="text-[9px] text-gray-400 mt-2 text-center">Scan QRIS menggunakan aplikasi pembayaran digital Anda</span>
+                    </div>
+
+                    <!-- BCA Transfer Info Box -->
+                    <div v-show="paymentMethod === 'bca'" class="border border-gray-200 rounded-lg p-4 bg-white mb-4 flex flex-col items-center">
+                        <span class="text-xs font-black text-gray-800 tracking-wider mb-3">TRANSFER BANK BCA</span>
+                        <div class="w-full bg-gray-50 p-3.5 rounded-lg border border-gray-150 space-y-3">
+                            <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
+                                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">Nama Bank</span>
+                                <span class="text-xs font-bold text-gray-900">BCA (Bank Central Asia)</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-gray-200/50 pb-2">
+                                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">No. Rekening</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black text-gray-900 font-mono tracking-wider">12345678</span>
+                                    <button type="button" @click="copyToClipboard('12345678')" class="text-primary hover:text-green-800 p-1 hover:bg-gray-200/50 rounded transition duration-150">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wide">Nama Penerima</span>
+                                <span class="text-xs font-bold text-gray-905">Yayasan Amanah Baiturrahman</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Collapsible Cara Membayar -->
@@ -702,12 +834,22 @@ onMounted(async () => {
                             <svg class="w-4 h-4 text-gray-500 transition-transform duration-200" :class="{'rotate-180': showCaraBayar}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                         <div v-show="showCaraBayar" class="p-3 text-[11px] text-gray-600 space-y-2 bg-white leading-relaxed">
-                            <p>1. Buka aplikasi e-wallet (Gopay, OVO, Dana, LinkAja) atau Mobile Banking Anda.</p>
-                            <p>2. Pilih menu <strong>Scan QRIS</strong> atau bayar menggunakan gambar QR.</p>
-                            <p>3. Pindai/Scan QR Code yang tertera di atas.</p>
-                            <p>4. Masukkan nominal yang sesuai (<strong>{{ formatRupiah(nominal === 'custom' ? Number(customNominal) : Number(nominal)) }}</strong>).</p>
-                            <p>5. Selesaikan proses transfer lalu simpan bukti transaksi.</p>
-                            <p>6. Unggah bukti pembayaran tersebut pada kolom di bawah ini.</p>
+                            <template v-if="paymentMethod === 'qris'">
+                                <p>1. Buka aplikasi e-wallet (Gopay, OVO, Dana, LinkAja) or Mobile Banking Anda.</p>
+                                <p>2. Pilih menu <strong>Scan QRIS</strong> or bayar menggunakan gambar QR.</p>
+                                <p>3. Pindai/Scan QR Code yang tertera di atas.</p>
+                                <p>4. Masukkan nominal yang sesuai (<strong>{{ formatRupiah(nominal === 'custom' ? Number(customNominal) : Number(nominal)) }}</strong>).</p>
+                                <p>5. Selesaikan proses transfer lalu simpan bukti transaksi.</p>
+                                <p>6. Unggah bukti pembayaran tersebut pada kolom di bawah ini.</p>
+                            </template>
+                            <template v-else>
+                                <p>1. Buka aplikasi Mobile Banking, Internet Banking, or pergi ke ATM BCA terdekat.</p>
+                                <p>2. Pilih menu <strong>Transfer</strong> -&gt; <strong>Ke Rekening BCA</strong>.</p>
+                                <p>3. Masukkan nomor rekening tujuan: <strong>12345678</strong>.</p>
+                                <p>4. Masukkan nominal yang sesuai (<strong>{{ formatRupiah(nominal === 'custom' ? Number(customNominal) : Number(nominal)) }}</strong>).</p>
+                                <p>5. Selesaikan proses transfer lalu simpan struk/bukti transaksi.</p>
+                                <p>6. Unggah bukti pembayaran tersebut pada kolom di bawah ini.</p>
+                            </template>
                         </div>
                     </div>
 
@@ -718,7 +860,7 @@ onMounted(async () => {
                             @dragover.prevent
                             @drop.prevent="handleFileDrop"
                             class="border-2 border-dashed border-gray-300 hover:border-primary rounded-lg p-5 flex flex-col items-center justify-center cursor-pointer transition-colors bg-gray-55"
-                            @click="$refs.fileInput.click()"
+                            @click="triggerFileInput"
                         >
                             <input 
                                 type="file" 

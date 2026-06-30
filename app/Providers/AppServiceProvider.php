@@ -52,6 +52,20 @@ class AppServiceProvider extends ServiceProvider
             \App\RepositoryInterfaces\Nazhir\NazhirLaporanRepositoryInterface::class,
             \App\Repositories\Nazhir\NazhirLaporanRepository::class
         );
+
+        // Superadmin bindings
+        $this->app->bind(
+            \App\RepositoryInterfaces\Superadmin\SuperadminUserRepositoryInterface::class,
+            \App\Repositories\Superadmin\SuperadminUserRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Superadmin\SuperadminProgramRepositoryInterface::class,
+            \App\Repositories\Superadmin\SuperadminProgramRepository::class
+        );
+        $this->app->bind(
+            \App\RepositoryInterfaces\Superadmin\SuperadminPencairanRepositoryInterface::class,
+            \App\Repositories\Superadmin\SuperadminPencairanRepository::class
+        );
     }
 
     /**

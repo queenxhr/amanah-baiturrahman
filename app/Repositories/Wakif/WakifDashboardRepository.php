@@ -78,35 +78,14 @@ class WakifDashboardRepository implements WakifDashboardRepositoryInterface
             ->where('due_date', '<', \Carbon\Carbon::now()->toDateString())
             ->update(['status_program' => 0]);
 
-        $programs = T03ProgramWakaf::all();
-        foreach ($programs as $prog) {
-            $sum = T04Transaksi::where('id_program', $prog->id_program)
-                ->where('status_pembayaran', 1)
-                ->sum('nominal') ?? 0;
-            if ($prog->dana_terkumpul != $sum) {
-                $prog->dana_terkumpul = $sum;
-                $prog->save();
-            }
-        }
-
         return T03ProgramWakaf::select('id_program', 'nama_program', 'deskripsi', 'target_dana', 'dana_terkumpul', 'due_date', 'status_program', 'gambar_thumbnail')
-            ->where('status_program', '!=', 0)
+            ->where('status_program', 1)
             ->get();
     }
 
     public function getProgramById($id)
     {
-        $program = T03ProgramWakaf::find($id);
-        if ($program) {
-            $sum = T04Transaksi::where('id_program', $program->id_program)
-                ->where('status_pembayaran', 1)
-                ->sum('nominal') ?? 0;
-            if ($program->dana_terkumpul != $sum) {
-                $program->dana_terkumpul = $sum;
-                $program->save();
-            }
-        }
-        return $program;
+        return T03ProgramWakaf::find($id);
     }
 
     public function getProgramDeskripsi($id)

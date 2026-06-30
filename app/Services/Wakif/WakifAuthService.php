@@ -23,6 +23,14 @@ class WakifAuthService
             throw new Exception("Kata sandi salah. Silakan coba lagi", 401);
         }
 
+        if ((int)$user->id_role !== 2) {
+            throw new Exception("Akun Anda tidak terdaftar sebagai Wakif.", 403);
+        }
+
+        if ($user->status === 'blocked') {
+            throw new Exception("Akun Anda telah diblokir oleh Superadmin.", 403);
+        }
+
         // Assuming Sanctum is used
         $token = $user->createToken('auth_token')->plainTextToken;
 

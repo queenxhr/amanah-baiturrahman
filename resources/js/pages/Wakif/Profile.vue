@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
@@ -37,7 +37,7 @@ const profileSuccessMsg = ref('');
 const passwordSuccessMsg = ref('');
 
 const getHeaders = () => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('wakif_auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -144,7 +144,7 @@ const handleSavePassword = async () => {
 
     isSavingPassword.value = true;
     try {
-        const response = await axios.post('/api/wakif/ubah-password', {
+        const response = await axios.put('/api/wakif/ubah-password', {
             old_password: passwordForm.value.old_password,
             new_password: passwordForm.value.new_password
         }, {

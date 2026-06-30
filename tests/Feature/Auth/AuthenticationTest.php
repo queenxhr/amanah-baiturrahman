@@ -6,7 +6,9 @@ use Laravel\Fortify\Features;
 
 test('login screen can be rendered', function () {
     $response = $this->get(route('login'));
+    $response->assertRedirect(route('wakif.login'));
 
+    $response = $this->get(route('wakif.login'));
     $response->assertOk();
 });
 

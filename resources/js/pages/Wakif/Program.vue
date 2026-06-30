@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
-import ProgramCard from '@/Components/Wakif/ProgramCard.vue';
-import { Head, Link } from '@inertiajs/vue3';
-import { onMounted, ref, computed } from 'vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
+import ProgramCard from '@/components/Wakif/ProgramCard.vue';
+import { Head } from '@inertiajs/vue3';
+import { onMounted, ref, computed, watch } from 'vue';
 import axios from 'axios';
 
 // Stats state 
@@ -16,6 +16,7 @@ const stats = ref({
 // Programs state
 const programs = ref([]);
 const searchQuery = ref('');
+const visibleCount = ref(4);
 
 const filteredPrograms = computed(() => {
     if (!searchQuery.value) return programs.value;
@@ -25,7 +26,19 @@ const filteredPrograms = computed(() => {
     );
 });
 
-const formatShortCurrency = (num) => {
+const visiblePrograms = computed(() => {
+    return filteredPrograms.value.slice(0, visibleCount.value);
+});
+
+const loadMore = () => {
+    visibleCount.value += 4;
+};
+
+watch(searchQuery, () => {
+    visibleCount.value = 4;
+});
+
+const formatShortCurrency = (num: number) => {
     if (num >= 1000000000) return 'Rp' + (num / 1000000000).toFixed(1).replace('.0', '') + 'M';
     if (num >= 1000000) return 'Rp' + (num / 1000000).toFixed(1).replace('.0', '') + 'Jt';
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
@@ -59,7 +72,7 @@ onMounted(async () => {
                   deskripsi: p.deskripsi,
                   target_dana: p.target_dana,
                   dana_terkumpul: p.dana_terkumpul,
-                  due_date: new Date(p.due_date).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}),
+                  due_date: p.due_date,
                   gambar_placeholder: p.gambar_thumbnail
               }));
         }
@@ -185,12 +198,22 @@ onMounted(async () => {
             </div>
         </section>
 
-        <!-- Program Wakaf (displays all programs, no "Lihat Program Lainnya") -->
+        <!-- Program Wakaf (displays filtered programs limited by visibleCount) -->
         <section class="max-w-7xl mx-auto px-12 py-8 mb-16">
             <h2 class="text-2xl font-black text-gray-900 mb-6">Program Wakaf</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <ProgramCard v-for="(p, i) in filteredPrograms" :key="i" :program="p" />
+                <ProgramCard v-for="(p, i) in visiblePrograms" :key="i" :program="p" />
+            </div>
+
+            <!-- Load More Button -->
+            <div v-if="filteredPrograms.length > visibleCount" class="flex justify-center mt-10">
+                <button @click="loadMore" class="flex items-center gap-2 px-6 py-2.5 bg-white border border-[#1e5842] text-[#1e5842] hover:bg-[#1e5842] hover:text-white transition-all font-bold text-xs rounded-full shadow-sm cursor-pointer">
+                    <span>Lihat Lebih Banyak</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
             </div>
         </section>
     </WakifLayout>

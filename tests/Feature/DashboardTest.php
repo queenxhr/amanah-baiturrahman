@@ -5,7 +5,7 @@ use Database\Factories\T01RoleFactory;
 
 test('guests are redirected to the login page', function () {
     $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('login'));
+    $response->assertRedirect(route('nazhir.login'));
 });
 
 test('authenticated users can visit the dashboard', function () {

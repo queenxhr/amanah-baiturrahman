@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
@@ -18,7 +18,7 @@ const rowsLimit = ref(10); // default limit 10 rows
 
 // Load token
 const getHeaders = () => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('wakif_auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

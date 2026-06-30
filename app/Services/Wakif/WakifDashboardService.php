@@ -21,10 +21,11 @@ class WakifDashboardService
     public function getProgramWakafList()
     {
         $programs = $this->repo->getProgramWakafList();
-        // Shorten description to 1 sentence
+        // Shorten description to 1 sentence and strip HTML tags
         foreach ($programs as $prog) {
-            $sentences = explode('.', $prog->deskripsi);
-            $prog->deskripsi = isset($sentences[0]) ? $sentences[0] . '.' : $prog->deskripsi;
+            $plainText = strip_tags($prog->deskripsi);
+            $sentences = explode('.', $plainText);
+            $prog->deskripsi = isset($sentences[0]) ? $sentences[0] . '.' : $plainText;
         }
         return $programs;
     }

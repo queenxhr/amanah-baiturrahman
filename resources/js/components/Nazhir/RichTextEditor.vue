@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import axios from 'axios';
+import { showError } from '@/lib/alert';
 
 const props = defineProps<{
   modelValue: string;
@@ -135,7 +136,7 @@ const handleImageUpload = async (e: Event) => {
       }
     } catch (err) {
       console.error('Failed to upload editor image:', err);
-      alert('Gagal mengunggah gambar. Pastikan file adalah gambar dan ukuran maksimal 5MB.');
+      await showError('Gagal mengunggah gambar. Pastikan file adalah gambar dan ukuran maksimal 5MB.');
     }
   }
 };

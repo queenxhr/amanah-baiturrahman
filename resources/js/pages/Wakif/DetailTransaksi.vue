@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WakifLayout from '@/Layouts/WakifLayout.vue';
+import WakifLayout from '@/layouts/WakifLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
@@ -12,7 +12,7 @@ const transaction = ref<any>(null);
 const isLoading = ref(true);
 
 const getHeaders = () => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('wakif_auth_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -52,7 +52,7 @@ const formatDate = (dateStr: string) => {
     });
 };
 
-const handlePrint = () => {
+const handleDownloadPDF = () => {
     window.print();
 };
 
@@ -71,11 +71,11 @@ onMounted(() => {
                 <Link href="/riwayat-transaksi" class="inline-flex items-center text-xs font-bold text-gray-500 hover:text-primary gap-1.5 transition">
                     <span>&larr;</span> Kembali ke Riwayat
                 </Link>
-                <button @click="handlePrint" class="inline-flex items-center px-4 py-2 bg-[#638734] hover:bg-[#1e5842] text-white font-bold rounded-lg text-xs shadow-sm transition gap-1.5">
+                <button @click="handleDownloadPDF" class="inline-flex items-center px-4 py-2 bg-[#638734] hover:bg-[#1e5842] text-white font-bold rounded-lg text-xs shadow-sm transition gap-1.5">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    Cetak / Download PDF
+                    Download PDF
                 </button>
             </div>
 
@@ -85,7 +85,7 @@ onMounted(() => {
             </div>
 
             <!-- Invoice Card -->
-            <div v-else-if="transaction" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-8 md:p-12 print:border-none print:shadow-none print:rounded-none">
+            <div v-else-if="transaction" id="invoice-card" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-8 md:p-12 print:border-none print:shadow-none print:rounded-none">
                 <!-- Invoice Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-150 pb-8 gap-6">
                     <div>
@@ -113,7 +113,7 @@ onMounted(() => {
                     <div class="sm:text-right">
                         <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Rincian Pembayaran</span>
                         <span class="block text-gray-500">Tanggal: <span class="font-bold text-gray-900">{{ formatDate(transaction.created_at) }}</span></span>
-                        <span class="block text-gray-500 mt-1">Metode: QRIS / Transfer Manual</span>
+                        <span class="block text-gray-500 mt-1">Metode: <span class="font-bold text-gray-900 uppercase">{{ transaction.metode_pembayaran || 'QRIS' }}</span></span>
                     </div>
                 </div>
 
@@ -190,16 +190,33 @@ onMounted(() => {
     </WakifLayout>
 </template>
 
-<style scoped>
+<style>
 @media print {
-    /* Hide layout navigation headers and footer */
-    nav, footer, .print\:hidden {
+    /* Hide layout navigation, sidebar, header, and footer */
+    nav, footer, header, aside,
+    .print\:hidden,
+    [class*="sidebar"],
+    [class*="md:pl-64"] > header {
         display: none !important;
     }
     
-    /* Center the print content and remove backgrounds */
-    body, .min-h-screen {
+    /* Reset page layout for print */
+    body, .min-h-screen, .flex-grow {
         background-color: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Remove sidebar offset */
+    [class*="md:pl-64"] {
+        padding-left: 0 !important;
+    }
+
+    /* Remove shadow and border radius in print */
+    #invoice-card {
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
     }
 }
 </style>

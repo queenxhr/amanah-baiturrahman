@@ -24,4 +24,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
+    //  server: {
+    //     host: '192.168.100.163',
+    //     hmr: {
+    //         host: '192.168.100.163',
+    //     },
+    // },
 });

@@ -4,6 +4,7 @@ import RichTextEditor from '@/components/Nazhir/RichTextEditor.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { showSuccess, showError } from '@/lib/alert';
 
 const props = defineProps<{
     id: string | number;
@@ -55,7 +56,7 @@ const fetchProgramDetails = async () => {
         }
     } catch (e) {
         console.error('Failed to load program details:', e);
-        alert('Gagal memuat detail program.');
+        await showError('Gagal memuat detail program.');
     } finally {
         isLoading.value = false;
     }
@@ -87,7 +88,6 @@ const handleSubmit = async () => {
 
     try {
         const formData = new FormData();
-        // Method spoofing since Laravel doesn't parse multipart form data natively in PUT requests
         formData.append('_method', 'PUT');
         formData.append('nama_program', form.value.nama_program);
         formData.append('target_dana', form.value.target_dana);
@@ -104,7 +104,7 @@ const handleSubmit = async () => {
             }
         });
 
-        alert('Program wakaf berhasil diperbarui!');
+        await showSuccess('Program wakaf berhasil diperbarui!');
         router.visit('/manajemen-program');
     } catch (e: any) {
         console.error('Failed to update program:', e);
@@ -114,7 +114,7 @@ const handleSubmit = async () => {
                 errors.value[key] = apiErrors[key][0];
             });
         } else {
-            alert('Terjadi kesalahan saat memperbarui program.');
+            await showError('Terjadi kesalahan saat memperbarui program.');
         }
     } finally {
         isSubmitting.value = false;

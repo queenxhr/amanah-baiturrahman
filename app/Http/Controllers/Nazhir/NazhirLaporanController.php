@@ -38,29 +38,41 @@ class NazhirLaporanController extends Controller
 
     public function createLaporan(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'id_program'      => 'required|integer|exists:t03_program_wakaf,id_program',
             'judul_laporan'   => 'required|string|max:150',
             'keterangan'      => 'nullable|string',
             'dana_disalurkan' => 'required|numeric',
             'penerima_manfaat'=> 'nullable|integer|min:0',
+            'gambar_laporan'    => 'nullable|image|max:5120',
         ]);
 
-        $this->service->createLaporan($request->all());
+        if ($request->hasFile('gambar_laporan')) {
+            $path = $request->file('gambar_laporan')->store('reports', 'public');
+            $data['gambar_laporan'] = '/storage/' . $path;
+        }
+
+        $this->service->createLaporan($data);
         return response()->json(['success' => true, 'message' => 'Laporan berhasil ditambahkan'], 201);
     }
 
     public function updateLaporan(Request $request, $id)
     {
-        $request->validate([
+        $data = $request->validate([
             'id_program'      => 'sometimes|integer',
             'judul_laporan'   => 'sometimes|string|max:150',
             'keterangan'      => 'sometimes|string',
             'dana_disalurkan' => 'sometimes|numeric',
             'penerima_manfaat'=> 'sometimes|integer|min:0',
+            'gambar_laporan'    => 'nullable|image|max:5120',
         ]);
 
-        $this->service->updateLaporan($id, $request->all());
+        if ($request->hasFile('gambar_laporan')) {
+            $path = $request->file('gambar_laporan')->store('reports', 'public');
+            $data['gambar_laporan'] = '/storage/' . $path;
+        }
+
+        $this->service->updateLaporan($id, $data);
         return response()->json(['success' => true, 'message' => 'Laporan berhasil diupdate']);
     }
 
