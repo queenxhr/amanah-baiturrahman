@@ -76,7 +76,7 @@ jobs:
           php-version: '8.2' 
 
       - name: Install Composer Dependencies
-        run: composer install --prefer-dist --aria --no-progress
+        run: composer install --prefer-dist --no-progress
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
