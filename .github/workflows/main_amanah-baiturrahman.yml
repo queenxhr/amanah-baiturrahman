@@ -68,3 +68,23 @@ jobs:
           slot-name: 'Production'
           package: .
           
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' 
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --aria --no-progress
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0' 
+
+      - name: Install NPM & Build Frontend
+        run: |
+          npm install
+          npm run build 
+          
