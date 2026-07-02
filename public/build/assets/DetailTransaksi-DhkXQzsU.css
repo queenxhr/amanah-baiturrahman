@@ -1,0 +1,1 @@
+@media print{nav,footer,header,aside,.print\:hidden,[class*=sidebar],[class*="md:pl-64"]>header{display:none!important}body,.min-h-screen,.flex-grow{background-color:#fff!important;padding:0!important;margin:0!important}[class*="md:pl-64"]{padding-left:0!important}#invoice-card{border:none!important;box-shadow:none!important;border-radius:0!important}}
