@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Class T03ProgramWakaf
  * 
@@ -52,6 +54,25 @@ class T03ProgramWakaf extends Model
 		'due_date',
 		'gambar_thumbnail'
 	];
+
+	public function getGambarThumbnailAttribute($value)
+	{
+		if (empty($value)) {
+			return null;
+		}
+
+		if (filter_var($value, FILTER_VALIDATE_URL) || str_starts_with($value, 'http')) {
+			return $value;
+		}
+
+		$cleanPath = preg_replace('/^\/?storage\//', '', $value);
+
+		if (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) {
+			return Storage::disk('public')->url($cleanPath);
+		}
+
+		return Storage::disk('azure')->url($cleanPath);
+	}
 
 	public function t04_transaksis()
 	{

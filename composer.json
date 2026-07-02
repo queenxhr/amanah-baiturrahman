@@ -17,6 +17,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
+        "matthewbdaly/laravel-azure-storage": "^2.0",
         "reliese/laravel": "^1.4"
     },
     "require-dev": {

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Services\Nazhir\NazhirLaporanService;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Storage;
+
 class NazhirLaporanController extends Controller
 {
     protected $service;
@@ -48,8 +50,9 @@ class NazhirLaporanController extends Controller
         ]);
 
         if ($request->hasFile('gambar_laporan')) {
-            $path = $request->file('gambar_laporan')->store('reports', 'public');
-            $data['gambar_laporan'] = '/storage/' . $path;
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $request->file('gambar_laporan')->store('reports', $disk);
+            $data['gambar_laporan'] = $path;
         }
 
         $this->service->createLaporan($data);
@@ -68,8 +71,9 @@ class NazhirLaporanController extends Controller
         ]);
 
         if ($request->hasFile('gambar_laporan')) {
-            $path = $request->file('gambar_laporan')->store('reports', 'public');
-            $data['gambar_laporan'] = '/storage/' . $path;
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $request->file('gambar_laporan')->store('reports', $disk);
+            $data['gambar_laporan'] = $path;
         }
 
         $this->service->updateLaporan($id, $data);

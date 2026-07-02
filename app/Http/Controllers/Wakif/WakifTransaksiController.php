@@ -35,8 +35,9 @@ class WakifTransaksiController extends Controller
         $data['hide_nama'] = $data['hide_nama'] ?? 0;
 
         if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
-            $data['bukti_pembayaran'] = Storage::disk('public')->url($path);
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', $disk);
+            $data['bukti_pembayaran'] = $path;
         }
 
         $transaksi = $this->service->createTransaksiGuest($data);
@@ -61,8 +62,9 @@ class WakifTransaksiController extends Controller
         // nama auto-filled from user account in service
 
         if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
-            $data['bukti_pembayaran'] = Storage::disk('public')->url($path);
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', $disk);
+            $data['bukti_pembayaran'] = $path;
         }
 
         $transaksi = $this->service->createTransaksiUser($data, $request->user()->id_user);
@@ -76,10 +78,10 @@ class WakifTransaksiController extends Controller
         ]);
 
         if ($request->hasFile('bukti_pembayaran')) {
-            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
-            $buktiUrl = Storage::disk('public')->url($path);
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', $disk);
             
-            $transaksi = $this->service->uploadBuktiPembayaran($id, $buktiUrl);
+            $transaksi = $this->service->uploadBuktiPembayaran($id, $path);
             return response()->json(['success' => true, 'message' => 'Bukti pembayaran berhasil diupload', 'data' => $transaksi]);
         }
 

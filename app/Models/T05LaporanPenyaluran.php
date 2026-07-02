@@ -9,6 +9,8 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Class T05LaporanPenyaluran
  * 
@@ -47,6 +49,25 @@ class T05LaporanPenyaluran extends Model
 		'penerima_manfaat',
 		'gambar_laporan'
 	];
+
+	public function getGambarLaporanAttribute($value)
+	{
+		if (empty($value)) {
+			return null;
+		}
+
+		if (filter_var($value, FILTER_VALIDATE_URL) || str_starts_with($value, 'http')) {
+			return $value;
+		}
+
+		$cleanPath = preg_replace('/^\/?storage\//', '', $value);
+
+		if (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) {
+			return Storage::disk('public')->url($cleanPath);
+		}
+
+		return Storage::disk('azure')->url($cleanPath);
+	}
 
 	public function t03_program_wakaf()
 	{

@@ -9,6 +9,8 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Class T04Transaksi
  * 
@@ -98,6 +100,25 @@ class T04Transaksi extends Model
 			return 'WKF-' . str_pad($this->id_transaksi, 6, '0', STR_PAD_LEFT);
 		}
 		return $value;
+	}
+
+	public function getBuktiPembayaranAttribute($value)
+	{
+		if (empty($value)) {
+			return null;
+		}
+
+		if (filter_var($value, FILTER_VALIDATE_URL) || str_starts_with($value, 'http')) {
+			return $value;
+		}
+
+		$cleanPath = preg_replace('/^\/?storage\//', '', $value);
+
+		if (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) {
+			return Storage::disk('public')->url($cleanPath);
+		}
+
+		return Storage::disk('azure')->url($cleanPath);
 	}
 
 	public function t02_user()

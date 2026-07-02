@@ -41,8 +41,12 @@ class NazhirTransaksiTest extends TestCase
 
         $response = $this->getJson('/api/nazhir/transaksi/' . $transaksi->id_transaksi . '/bukti');
 
+        $expectedUrl = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string')))
+            ? \Illuminate\Support\Facades\Storage::disk('public')->url('testbukti.jpg')
+            : \Illuminate\Support\Facades\Storage::disk('azure')->url('testbukti.jpg');
+
         $response->assertStatus(200)
-                 ->assertJsonPath('data.bukti_pembayaran', 'testbukti.jpg');
+                 ->assertJsonPath('data.bukti_pembayaran', $expectedUrl);
     }
 
     public function test_approve_transaksi()

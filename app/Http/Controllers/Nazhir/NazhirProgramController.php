@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Services\Nazhir\NazhirProgramService;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Storage;
+
 class NazhirProgramController extends Controller
 {
     protected $service;
@@ -42,8 +44,9 @@ class NazhirProgramController extends Controller
         $data['status_program'] = 2; // Default to Pending Review (Ditinjau)
         if ($request->hasFile('gambar_thumbnail')) {
             $file = $request->file('gambar_thumbnail');
-            $path = $file->store('programs', 'public');
-            $data['gambar_thumbnail'] = '/storage/' . $path;
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $file->store('programs', $disk);
+            $data['gambar_thumbnail'] = $path;
         }
 
         $this->service->createProgram($data);
@@ -63,8 +66,9 @@ class NazhirProgramController extends Controller
         ]);
         if ($request->hasFile('gambar_thumbnail')) {
             $file = $request->file('gambar_thumbnail');
-            $path = $file->store('programs', 'public');
-            $data['gambar_thumbnail'] = '/storage/' . $path;
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $file->store('programs', $disk);
+            $data['gambar_thumbnail'] = $path;
         }
 
         $this->service->updateProgram($id, $data);
@@ -85,8 +89,9 @@ class NazhirProgramController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $path = $file->store('editor', 'public');
-            $url = '/storage/' . $path;
+            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+            $path = $file->store('editor', $disk);
+            $url = Storage::disk($disk)->url($path);
             return response()->json(['success' => true, 'url' => $url]);
         }
 
