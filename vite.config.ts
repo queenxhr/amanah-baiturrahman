@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [
         laravel({
             input: ['resources/js/app.ts'],
@@ -20,14 +20,8 @@ export default defineConfig({
                 },
             },
         }),
-        wayfinder({
-            formVariants: true,
-        }),
-    ],
-    //  server: {
-    //     host: '192.168.100.163',
-    //     hmr: {
-    //         host: '192.168.100.163',
-    //     },
-    // },
-});
+       mode !== 'production' 
+            ? wayfinder({ formVariants: true }) 
+            : null,
+    ].filter(Boolean),
+}));
