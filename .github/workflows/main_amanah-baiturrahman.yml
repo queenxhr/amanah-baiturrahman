@@ -56,9 +56,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A32E7110A07348FF8A5664A5A81F0C33 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CC2277E76CD543A8B33057467F55824C }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1B68AFD8D34E4A339CCB232977FA1FBB }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_297A1537F6314FE3A16739A074C97312 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F10ECF5E06B490F9E65845020871286 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_07C476A8DE224E19B9185F31693A82B5 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -67,24 +67,4 @@ jobs:
           app-name: 'amanah-baiturrahman'
           slot-name: 'Production'
           package: .
-          
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2' 
-
-      - name: Install Composer Dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.14.0' 
-
-      - name: Install NPM & Build Frontend
-        run: |
-          npm install
-          npm run build 
           
