@@ -13,6 +13,9 @@ Route::get('/register', function () {
 
 Route::inertia('/wakif/login', 'Wakif/Auth/Login')->name('wakif.login');
 Route::inertia('/wakif/register', 'Wakif/Auth/Register')->name('wakif.register');
+Route::get('/wakif/verify-email/{id}', [\App\Http\Controllers\Wakif\WakifAuthController::class, 'verifyEmail'])
+    ->name('wakif.verify-email')
+    ->middleware('signed');
 
 Route::inertia('/nazhir/login', 'Nazhir/Auth/Login')->name('nazhir.login');
 Route::inertia('/nazhir/register', 'Nazhir/Auth/Register')->name('nazhir.register');

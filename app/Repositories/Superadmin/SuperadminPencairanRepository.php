@@ -20,13 +20,21 @@ class SuperadminPencairanRepository implements SuperadminPencairanRepositoryInte
 
     public function findPencairanById($id)
     {
-        return T06PencairanDana::findOrFail($id);
+        return T06PencairanDana::with(['program', 'user'])->findOrFail($id);
     }
 
     public function updatePencairanStatus($id, int $status)
     {
         $pencairan = $this->findPencairanById($id);
         $pencairan->status_pencairan = $status;
+        $pencairan->save();
+        return $pencairan;
+    }
+
+    public function uploadSuratApproval($id, string $suratPath)
+    {
+        $pencairan = $this->findPencairanById($id);
+        $pencairan->surat_approval = $suratPath;
         $pencairan->save();
         return $pencairan;
     }

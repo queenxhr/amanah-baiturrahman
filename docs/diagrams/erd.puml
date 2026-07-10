@@ -1,119 +1,111 @@
 @startuml
-!theme plain
-skinparam monochrome true
-skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam linetype ortho
 skinparam defaultFontName "Arial"
-skinparam packageStyle rectangle
 
-skinparam rectangle {
-    BackgroundColor White
-    BorderColor Black
-}
-skinparam usecase {
-    BackgroundColor White
+' Styling
+skinparam class {
+    BackgroundColor white
+    ArrowColor Black
     BorderColor Black
 }
 
-title Diagram Hubungan Entitas (ERD) - Website Wakaf Baiturrahman
+title Diagram Hubungan Entitas (ERD Physical Model) - Website Wakaf Baiturrahman
 
-' Entitas (Rectangle)
-rectangle "Peran" as Peran
-rectangle "Pengguna" as Pengguna
-rectangle "Program Wakaf" as Program
-rectangle "Transaksi" as Transaksi
-rectangle "Laporan Penyaluran" as Laporan
+' --- ENTITIES ---
 
-' Hubungan (Diamond)
-diamond "Mendapatkan" as Mendapatkan
-diamond "Melakukan" as Melakukan
-diamond "Menerima" as Menerima
-diamond "Dilaporkan" as Dilaporkan
+entity "t01_roles" as roles {
+    * <b>id_role</b> : INT <<PK>> [increment]
+    --
+    * nama_role : VARCHAR(20)
+    created_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+    edited_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+}
 
-' Atribut Peran
-usecase "<u>id_role</u>" as role_id
-usecase "nama_role" as role_nama
-Peran -- role_id
-Peran -- role_nama
+entity "t02_users" as users {
+    * <b>id_user</b> : INT <<PK>> [increment]
+    --
+    * id_role : INT <<FK>> [ref: > t01_roles.id_role]
+    * nama : VARCHAR(100)
+    * email : VARCHAR(100) [unique]
+    * password : VARCHAR(255)
+    * no_hp : VARCHAR(15)
+    jenis_kelamin : CHAR(1) // L/P
+    alamat : TEXT
+    tanggal_lahir : DATE
+    status : VARCHAR(20) [default: 'active']
+    email_verified_at : TIMESTAMP(0) [nullable] // Kolom Baru Verifikasi
+    created_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+    edited_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+}
 
-' Atribut Pengguna
-usecase "<u>id_user</u>" as user_id
-usecase "nama" as user_nama
-usecase "email" as user_email
-usecase "password" as user_pw
-usecase "no_hp" as user_hp
-usecase "jenis_kelamin" as user_jk
-usecase "alamat" as user_alamat
-usecase "tanggal_lahir" as user_tgl
-Pengguna -- user_id
-Pengguna -- user_nama
-Pengguna -- user_email
-Pengguna -- user_pw
-Pengguna -- user_hp
-Pengguna -- user_jk
-Pengguna -- user_alamat
-Pengguna -- user_tgl
+entity "t03_program_wakaf" as program {
+    * <b>id_program</b> : INT <<PK>> [increment]
+    --
+    * nama_program : VARCHAR(150)
+    deskripsi : TEXT
+    * target_dana : NUMERIC(15,2)
+    dana_terkumpul : NUMERIC(15,2) [default: 0]
+    status_program : SMALLINT [default: 2] // 0: Selesai, 1: Aktif, 2: Ditinjau, 3: Ditolak
+    due_date : DATE
+    gambar_thumbnail : VARCHAR(255)
+    created_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+    edited_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+}
 
-' Atribut Program Wakaf
-usecase "<u>id_program</u>" as prog_id
-usecase "nama_program" as prog_nama
-usecase "deskripsi" as prog_desc
-usecase "target_dana" as prog_target
-usecase "dana_terkumpul" as prog_terkumpul
-usecase "status_program" as prog_status
-usecase "due_date" as prog_due
-usecase "gambar_thumbnail" as prog_img
-Program -- prog_id
-Program -- prog_nama
-Program -- prog_desc
-Program -- prog_target
-Program -- prog_terkumpul
-Program -- prog_status
-Program -- prog_due
-Program -- prog_img
+entity "t04_transaksi" as transaksi {
+    * <b>id_transaksi</b> : INT <<PK>> [increment]
+    --
+    id_user : INT <<FK>> [nullable, ref: > t02_users.id_user]
+    * id_program : INT <<FK>> [ref: > t03_program_wakaf.id_program]
+    nama : VARCHAR(255)
+    pesan_doa : VARCHAR(255)
+    no_hp : VARCHAR(255)
+    email : VARCHAR(100) // Kolom Baru Migrasi
+    hide_nama : SMALLINT [default: 0] // 0: Tampilkan, 1: Anonim
+    * nominal : NUMERIC(15,2)
+    bukti_pembayaran : VARCHAR(255)
+    metode_pembayaran : VARCHAR(20) [default: 'QRIS'] // Kolom Baru Migrasi
+    status_pembayaran : SMALLINT [default: 0] // 0: Pending, 1: Approved, 2: Rejected
+    * kode_referensi : VARCHAR(100) [unique]
+    created_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+    edited_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+}
 
-' Atribut Transaksi
-usecase "<u>id_transaksi</u>" as trans_id
-usecase "nominal" as trans_nominal
-usecase "bukti_pembayaran" as trans_bukti
-usecase "status_pembayaran" as trans_status
-usecase "kode_referensi" as trans_ref
-usecase "pesan_doa" as trans_doa
-usecase "no_hp" as trans_hp
-usecase "hide_nama" as trans_hide
-Transaksi -- trans_id
-Transaksi -- trans_nominal
-Transaksi -- trans_bukti
-Transaksi -- trans_status
-Transaksi -- trans_ref
-Transaksi -- trans_doa
-Transaksi -- trans_hp
-Transaksi -- trans_hide
+entity "t05_laporan_penyaluran" as laporan {
+    * <b>id_laporan</b> : INT <<PK>> [increment]
+    --
+    * id_program : INT <<FK>> [ref: > t03_program_wakaf.id_program]
+    * judul_laporan : VARCHAR(150)
+    keterangan : TEXT
+    * dana_disalurkan : NUMERIC(15,2)
+    penerima_manfaat : INTEGER
+    gambar_laporan : VARCHAR(255)
+    created_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+    edited_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+}
 
-' Atribut Laporan Penyaluran
-usecase "<u>id_laporan</u>" as lap_id
-usecase "judul_laporan" as lap_judul
-usecase "keterangan" as lap_ket
-usecase "dana_disalurkan" as lap_dana
-usecase "penerima_manfaat" as lap_penerima
-usecase "gambar_laporan" as lap_img
-Laporan -- lap_id
-Laporan -- lap_judul
-Laporan -- lap_ket
-Laporan -- lap_dana
-Laporan -- lap_penerima
-Laporan -- lap_img
+entity "t06_pencairan_dana" as pencairan {
+    * <b>id_pencairan</b> : INT <<PK>> [increment]
+    --
+    * id_program : INT <<FK>> [ref: > t03_program_wakaf.id_program]
+    * id_user : INT <<FK>> [ref: > t02_users.id_user]
+    * jumlah_dana : NUMERIC(15,2)
+    keterangan : TEXT
+    status_pencairan : SMALLINT [default: 0] // 0: Pending, 1: Approved, 2: Rejected
+    surat_approval : VARCHAR(255) [nullable] // Kolom Baru Bukti Fisik
+    created_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+    edited_at : TIMESTAMP(0) [default: CURRENT_TIMESTAMP]
+}
 
-' Hubungan Entitas dengan Kardinalitas
-Peran "1" -- Mendapatkan
-Mendapatkan -- "N" Pengguna
+' --- RELATIONSHIPS (Crow's Foot Notation) ---
 
-Pengguna "1" -- Melakukan
-Melakukan -- "N" Transaksi
-
-Program "1" -- Menerima
-Menerima -- "N" Transaksi
-
-Program "1" -- Dilaporkan
-Dilaporkan -- "N" Laporan
+roles ||--o{ users : "memiliki"
+users ||--o{ transaksi : "melakukan"
+program ||--o{ transaksi : "menerima"
+program ||--o{ laporan : "mencatat"
+program ||--o{ pencairan : "memiliki"
+users ||--o{ pencairan : "mengajukan"
 
 @enduml

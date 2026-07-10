@@ -23,7 +23,16 @@ class WakifAuthRepository implements WakifAuthRepositoryInterface
             'password' => Hash::make($data['password']),
             'jenis_kelamin' => $data['jenis_kelamin'],
             'tanggal_lahir' => $data['tanggal_lahir'],
-            'id_role' => 2 // assuming 2 is Wakif
+            'id_role' => 2, // assuming 2 is Wakif
+            'status' => 'pending'
+        ]);
+    }
+
+    public function verifyEmail(int $userId)
+    {
+        return T02User::where('id_user', $userId)->update([
+            'email_verified_at' => now(),
+            'status' => 'active'
         ]);
     }
 

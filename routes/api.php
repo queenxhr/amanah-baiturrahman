@@ -134,5 +134,7 @@ Route::prefix('superadmin')->middleware([
         Route::get('/pencairan', [SuperadminPencairanController::class, 'index']);
         Route::put('/pencairan/{id}/approve', [SuperadminPencairanController::class, 'approve']);
         Route::put('/pencairan/{id}/reject', [SuperadminPencairanController::class, 'reject']);
+        Route::get('/pencairan/{id}/download-surat', [SuperadminPencairanController::class, 'downloadSurat']);
+        Route::post('/pencairan/{id}/upload-surat', [SuperadminPencairanController::class, 'uploadSurat']);
     });
 });

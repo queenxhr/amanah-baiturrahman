@@ -49,7 +49,8 @@ class T02User extends Authenticatable
 		'id_role' => 'int',
 		'tanggal_lahir' => 'datetime',
 		'edited_at' => 'datetime',
-		'two_factor_confirmed_at' => 'datetime'
+		'two_factor_confirmed_at' => 'datetime',
+		'email_verified_at' => 'datetime'
 	];
 
 	protected $hidden = [
@@ -69,6 +70,7 @@ class T02User extends Authenticatable
 		'tanggal_lahir',
 		'status',
 		'edited_at',
+		'email_verified_at',
 		'two_factor_secret',
 		'two_factor_recovery_codes',
 		'two_factor_confirmed_at'

@@ -29,11 +29,8 @@ const submit = async () => {
         const response = await axios.post('/api/wakif/signup', form.value);
 
         if (response.status === 201 || response.data.success) {
-            successMsg.value = 'Akun berhasil dibuat! Silakan Masuk.';
+            successMsg.value = response.data.message || 'Pendaftaran berhasil! Silakan cek email Anda untuk memverifikasi akun sebelum masuk.';
             form.value = { nama: '', email: '', no_hp: '', jenis_kelamin: '', tanggal_lahir: '', password: '', password_confirmation: '' };
-            setTimeout(() => {
-                window.location.href = '/wakif/login';
-            }, 1500);
         }
     } catch (error: any) {
         if (error.response?.data?.message) {

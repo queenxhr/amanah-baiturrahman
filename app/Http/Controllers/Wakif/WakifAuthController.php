@@ -85,13 +85,11 @@ class WakifAuthController extends Controller
         ]);
 
         try {
-            $data = $this->service->register($request->all());
-            Auth::login($data['user']);
-            session(['wakif_user_id' => $data['user']->id_user]);
+            // Register - does NOT auto-login, sends email verification instead
+            $this->service->register($request->all());
             return response()->json([
                 'success' => true,
-                'message' => 'Register successful',
-                'data' => $data
+                'message' => 'Pendaftaran berhasil! Silakan cek email Anda untuk memverifikasi akun sebelum masuk.',
             ], 201);
         } catch (Exception $e) {
             $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int) $e->getCode() : 400;
@@ -99,6 +97,27 @@ class WakifAuthController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], $status);
+        }
+    }
+
+    public function verifyEmail(Request $request, $id)
+    {
+        if (!$request->hasValidSignature()) {
+            return redirect('/wakif/login')->with('error', 'Link verifikasi tidak valid atau sudah kedaluwarsa.');
+        }
+
+        $hash = $request->query('hash');
+
+        try {
+            $result = $this->service->verifyEmail((int)$id, $hash);
+
+            if ($result['already_verified']) {
+                return redirect('/wakif/login')->with('info', 'Email Anda sudah terverifikasi sebelumnya. Silakan masuk.');
+            }
+
+            return redirect('/wakif/login')->with('success', 'Email berhasil diverifikasi! Silakan masuk dengan akun Anda.');
+        } catch (Exception $e) {
+            return redirect('/wakif/login')->with('error', $e->getMessage());
         }
     }
 

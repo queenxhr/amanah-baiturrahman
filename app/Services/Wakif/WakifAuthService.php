@@ -3,7 +3,10 @@
 namespace App\Services\Wakif;
 
 use App\RepositoryInterfaces\Wakif\WakifAuthRepositoryInterface;
+use App\Mail\WakifEmailVerificationMail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class WakifAuthService
@@ -25,6 +28,11 @@ class WakifAuthService
 
         if ((int)$user->id_role !== 2) {
             throw new Exception("Akun Anda tidak terdaftar sebagai Wakif.", 403);
+        }
+
+        // Check if email is verified
+        if (empty($user->email_verified_at)) {
+            throw new Exception("Email Anda belum diverifikasi. Silakan cek kotak masuk email dan klik link verifikasi yang telah kami kirimkan.", 403);
         }
 
         if ($user->status === 'blocked') {
@@ -49,12 +57,38 @@ class WakifAuthService
 
         $newUser = $this->repo->createWakif($data);
 
-        $token = $newUser->createToken('auth_token')->plainTextToken;
+        // Send email verification
+        try {
+            Mail::to($newUser->email)->send(new WakifEmailVerificationMail($newUser));
+        } catch (\Exception $mailEx) {
+            Log::error('Gagal mengirim email verifikasi Wakif: ' . $mailEx->getMessage());
+        }
 
         return [
             'user' => $newUser,
-            'token' => $token
         ];
+    }
+
+    public function verifyEmail(int $userId, string $hash)
+    {
+        $user = \App\Models\T02User::find($userId);
+
+        if (!$user) {
+            throw new Exception("Akun tidak ditemukan.", 404);
+        }
+
+        if (!empty($user->email_verified_at)) {
+            return ['already_verified' => true, 'user' => $user];
+        }
+
+        if (sha1($user->email) !== $hash) {
+            throw new Exception("Link verifikasi tidak valid.", 403);
+        }
+
+        $this->repo->verifyEmail($userId);
+        $user->refresh();
+
+        return ['already_verified' => false, 'user' => $user];
     }
 
     public function updatePassword(int $userId, array $data)

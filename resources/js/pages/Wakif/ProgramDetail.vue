@@ -838,9 +838,9 @@ onMounted(async () => {
                     <div v-show="paymentMethod === 'qris'" class="flex flex-col items-center border border-gray-200 rounded-lg p-4 bg-white mb-4">
                         <span class="text-xs font-black text-gray-800 tracking-wider mb-2">QRIS PEMBAYARAN</span>
                         <div class="w-48 h-48 border border-gray-100 flex items-center justify-center p-2 rounded bg-white">
-                            <img src="/qris_payment_mock.png" alt="QRIS Code" class="max-w-full max-h-full object-contain" />
+                            <img src="/QRIS.png" alt="QRIS Code" class="max-w-full max-h-full object-contain" />
                         </div>
-                        <a href="/qris_payment_mock.png" download="QRIS-Amanah-Baiturrahman.png" class="mt-3 px-4 py-1.5 bg-[#1e5842]/10 hover:bg-[#1e5842]/20 text-[#1e5842] rounded-full text-[11px] font-bold transition flex items-center gap-1.5 border border-[#1e5842]/25">
+                        <a href="/QRIS.png" download="QRIS-Amanah-Baiturrahman.png" class="mt-3 px-4 py-1.5 bg-[#1e5842]/10 hover:bg-[#1e5842]/20 text-[#1e5842] rounded-full text-[11px] font-bold transition flex items-center gap-1.5 border border-[#1e5842]/25">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
@@ -952,9 +952,9 @@ onMounted(async () => {
                         </svg>
                     </div>
                     
-                    <h2 class="text-lg font-black text-gray-900 mb-2">Transaksi Berhasil</h2>
+                    <h2 class="text-lg font-black text-gray-900 mb-2">Menunggu Verifikasi</h2>
                     <p class="text-xs text-gray-500 mb-6 max-w-sm">
-                        Alhamdulillah, terima kasih atas niat baik Anda. Harta wakaf Anda telah kami catat dan akan kami kelola dengan penuh amanah.
+                        Alhamdulillah, bukti pembayaran Anda telah kami terima. Tim kami sedang melakukan verifikasi — Anda akan mendapat konfirmasi melalui email setelah diverifikasi.
                     </p>
 
                     <!-- Transaction details card -->

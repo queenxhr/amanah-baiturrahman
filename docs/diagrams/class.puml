@@ -1,82 +1,166 @@
 @startuml
-!theme plain
-skinparam monochrome true
-skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam linetype ortho
 skinparam defaultFontName "Arial"
 skinparam class {
-    BackgroundColor White
-    BorderColor Black
+    BackgroundColor white
     ArrowColor Black
+    BorderColor Black
 }
 
-title Diagram Kelas (Class Diagram) - Website Wakaf Baiturrahman
+' --- INTERFACE CLASS (Placed at top for clean inheritance) ---
 
-class Program {
-    - ID_Program : int
-    - Nama_Program : string
-    - Target_Dana : float
-    - Dana_Terkumpul : float
-    - Status_Program : int
+interface PenggunaAuth <<interface>> {
+    - email: varchar(100)
+    - password: varchar(255)
+    + login()
+    + logout()
+    + lupaPassword()
+}
+
+' --- ACTOR / CONTROLLER CLASSES (Layer 2) ---
+
+class Superadmin {
+    - id_user: int
+    - id_role: int
+    - nama: varchar(100)
+    - email_verified_at: timestamp
+    + kelolaNazhirApprove()
+    + kelolaNazhirReject()
+    + blockUser()
+    + unblockUser()
+    + hapusAkunUser()
+    + verifikasiProgram()
+    + verifikasiPencairanDana()
 }
 
 class Nazhir {
-    - ID_Nazhir : string
-    --
-    + CreateProgram()
-    + UpdateProgram()
-    + DeleteProgram()
-    + ApproveTransaksi()
-    + CreateLaporan()
-    + DeleteLaporan()
+    - id_user: int
+    - id_role: int
+    - nama: varchar(100)
+    - status: varchar(20)
+    - email_verified_at: timestamp
+    + lihatDashboardLaporan()
+    + lihatDashboardEksporCSV()
+    + verifikasiTransaksi()
+    + kelolaDataAkunUser()
+    + kelolaProgramLaporan()
+    + ajukanPencairanDana()
 }
 
-class WakifLogin {
-    - ID_User : string
-    - Nama : string
-    - Email : string
-    - No_HP : string
-    - Jenis_Kelamin : string
-    - Alamat : string
-    - Tanggal_Lahir : string
-    --
-    + UpdateProfile()
-    + UpdatePassword()
-    + CreateTransaksiUser()
-    + GetRiwayatTransaksi()
-}
-
-class WakifGuest {
-    - Nama_Guest : string
-    - No_HP_Guest : string
-    --
-    + CreateTransaksiGuest()
-    + ViewProgram()
-    + ViewLaporan()
-    + Register()
-}
-
-interface Autentikasi <<interface>> {
-    - Email : string
-    - Password : string
-    --
-    + login()
-    + logout()
-    + forgotPassword()
-    + resetPassword()
+class Wakif {
+    - id_user: int
+    - id_role: int
+    - nama: varchar(100)
+    - no_hp: varchar(15)
+    - jenis_kelamin: char(1)
+    - alamat: text
+    - tanggal_lahir: date
+    - status: varchar(20)
+    - email_verified_at: timestamp
+    + signUp()
+    + mengisiFormTransaksiWakaf()
+    + melihatRiwayatTransaksi()
+    + kelolaProfilPengguna()
+    + kelolaInvoice()
 }
 
 class Pengunjung {
-    --
-    + LihatProgram()
-    + Registrasi()
+    + bukaHalamanBeranda()
+    + bukaHalamanProgramWakaf()
+    + melihatDetailProgram()
+    + lihatHalamanTentangKami()
 }
 
-' Relasi
-Program *-- Nazhir
-Program *-- WakifGuest
+' --- ENTITY CLASSES (Layer 3) ---
 
-Nazhir --> Autentikasi
-WakifLogin --> Autentikasi
-WakifGuest --> Autentikasi
+class ProgramWakaf {
+    - id_program: int
+    - nama_program: varchar(150)
+    - deskripsi: text
+    - target_dana: numeric(15,2)
+    - dana_terkumpul: numeric(15,2)
+    - status_program: smallint
+    - due_date: date
+    - gambar_thumbnail: varchar(255)
+}
+
+class Transaksi {
+    - id_transaksi: int
+    - id_user: int
+    - id_program: int
+    - nama: varchar(255)
+    - pesan_doa: varchar(255)
+    - no_hp: varchar(255)
+    - email: varchar(100)
+    - hide_nama: smallint
+    - nominal: numeric(15,2)
+    - bukti_pembayaran: varchar(255)
+    - metode_pembayaran: varchar(20)
+    - status_pembayaran: smallint
+    - kode_referensi: varchar(100)
+}
+
+' --- ENTITY CLASSES (Layer 4) ---
+
+class LaporanPenyaluran {
+    - id_laporan: int
+    - id_program: int
+    - judul_laporan: varchar(150)
+    - keterangan: text
+    - dana_disalurkan: numeric(15,2)
+    - penerima_manfaat: integer
+    - gambar_laporan: varchar(255)
+}
+
+class PencairanDana {
+    - id_pencairan: int
+    - id_program: int
+    - id_user: int
+    - jumlah_dana: numeric(15,2)
+    - keterangan: text
+    - status_pencairan: smallint
+    - surat_approval: varchar(255)
+}
+
+' --- ALIGNMENT HINTS (Hidden lines to organize layer layout) ---
+PenggunaAuth -[hidden]down-> Nazhir
+Superadmin -[hidden]right-> Nazhir
+Nazhir -[hidden]right-> Wakif
+Wakif -[hidden]right-> Pengunjung
+
+Nazhir -[hidden]down-> ProgramWakaf
+Wakif -[hidden]down-> Transaksi
+ProgramWakaf -[hidden]right-> Transaksi
+
+ProgramWakaf -[hidden]down-> LaporanPenyaluran
+Transaksi -[hidden]down-> PencairanDana
+
+' --- RELATIONSHIPS ---
+
+' Interface Realization (Point UP to PenggunaAuth)
+Superadmin -up..|> PenggunaAuth
+Nazhir -up..|> PenggunaAuth
+Wakif -up..|> PenggunaAuth
+
+' Compositions (Point down/sideways)
+ProgramWakaf "1" *-down- "0..*" Transaksi : memiliki
+ProgramWakaf "1" *-down- "0..*" LaporanPenyaluran : mencatat
+ProgramWakaf "1" *-down- "0..*" PencairanDana : memiliki
+
+' Interactions
+Wakif -down-> Transaksi : melakukan
+Pengunjung -down-> Transaksi : mengisi form (guest)
+
+Nazhir -down-> ProgramWakaf : mengelola
+Nazhir -down-> Transaksi : memverifikasi
+Nazhir -right-> Wakif : memantau
+Nazhir -down-> PencairanDana : mengajukan
+
+Superadmin -down-> Nazhir : verifikasi & blokir/hapus
+Superadmin -down-> Wakif : memantau & blokir/hapus
+Superadmin -down-> ProgramWakaf : memverifikasi
+Superadmin -down-> PencairanDana : memverifikasi
 
 @enduml

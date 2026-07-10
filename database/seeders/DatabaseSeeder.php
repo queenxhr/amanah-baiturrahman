@@ -36,7 +36,8 @@ class DatabaseSeeder extends Seeder
                 'email' => 'superadmin@example.com',
                 'password' => bcrypt('password'),
                 'no_hp' => '081234567890',
-                'status' => 'active'
+                'status' => 'active',
+                'email_verified_at' => now(),
             ]);
         }
 

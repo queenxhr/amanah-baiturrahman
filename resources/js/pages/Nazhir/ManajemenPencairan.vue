@@ -216,10 +216,17 @@ return false;
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <button @click="openPreviewModal(p)"
-                                        class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 hover:border-blue-600 font-bold rounded-lg text-[10px] transition-all">
-                                        Pratinjau
-                                    </button>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button @click="openPreviewModal(p)"
+                                            class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 hover:border-blue-600 font-bold rounded-lg text-[10px] transition-all">
+                                            Pratinjau
+                                        </button>
+                                        <!-- Show surat link if approved and surat exists -->
+                                        <a v-if="p.status_pencairan === 1 && p.surat_approval_url" :href="p.surat_approval_url" target="_blank"
+                                            class="px-2.5 py-1.5 bg-green-50 hover:bg-green-600 text-green-700 hover:text-white border border-green-200 hover:border-green-600 font-bold rounded-lg text-[10px] transition-all whitespace-nowrap">
+                                            ↓ Lihat Surat
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -355,9 +362,24 @@ return false;
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <div class="flex flex-col gap-1.5 bg-gray-55 border border-gray-200 rounded-xl p-4">
                             <span class="text-gray-400 font-bold uppercase text-[10px]">Rencana Penggunaan Dana</span>
                             <p class="text-gray-700 whitespace-pre-wrap break-words leading-relaxed text-justify">{{ activePencairan.keterangan || '-' }}</p>
+                        </div>
+
+                        <!-- Approved Letter Display in Nazhir view -->
+                        <div v-if="activePencairan.status_pencairan === 1" class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                            <span class="text-gray-400 font-bold uppercase text-[10px] block mb-2">Surat Persetujuan Resmi</span>
+                            <div v-if="activePencairan.surat_approval_url" class="flex items-center gap-3">
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-green-50 text-green-700 border border-green-200">✓ Tersedia</span>
+                                <a :href="activePencairan.surat_approval_url" target="_blank"
+                                    class="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline">
+                                    Unduh Surat Persetujuan (PDF) →
+                                </a>
+                            </div>
+                            <div v-else>
+                                <span class="text-gray-400 font-italic">Belum ada file surat persetujuan yang diunggah.</span>
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-end pt-4 border-t border-gray-100">

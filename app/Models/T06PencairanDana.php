@@ -21,7 +21,8 @@ class T06PencairanDana extends Model
         'id_user',
         'jumlah_dana',
         'keterangan',
-        'status_pencairan'
+        'status_pencairan',
+        'surat_approval'
     ];
 
     public function program()

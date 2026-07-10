@@ -136,11 +136,11 @@
         </div>
         <div class="content">
             <p class="welcome-text">Assalamualaikum Warahmatullahi Wabarakatuh,</p>
-            <p>Selamat! Pendaftaran akun Nazhir Anda pada platform **Amanah Baiturrahman** telah ditinjau dan disetujui oleh Superadmin. Sekarang Anda dapat masuk dan mulai mengelola program serta laporan penyaluran dana wakaf.</p>
+            <p>Selamat! Pendaftaran akun Nazhir Anda pada platform <strong>Amanah Baiturrahman</strong> telah ditinjau dan <strong>disetujui</strong> oleh Superadmin. Anda kini dapat masuk dan mulai mengelola program serta laporan penyaluran dana wakaf.</p>
             
             <div class="success-box">
-                <h3>Akun Aktif</h3>
-                <p>Status pendaftaran Anda saat ini telah ditandai sebagai <strong>AKTIF</strong>. Anda sudah dapat mengakses panel dashboard Nazhir menggunakan email dan password yang Anda daftarkan sebelumnya.</p>
+                <h3>✓ Akun Anda Kini Aktif</h3>
+                <p>Status pendaftaran Anda telah ditandai sebagai <strong>AKTIF</strong>. Gunakan email dan password yang Anda daftarkan sebelumnya untuk masuk ke panel Nazhir.</p>
             </div>
 
             <div class="details-card">
@@ -150,20 +150,29 @@
                     <div style="clear: both;"></div>
                 </div>
                 <div class="info-row" style="display: block; text-align: left;">
-                    <div class="label" style="float: left;">Email Terdaftar:</div>
+                    <div class="label" style="float: left;">Email Login:</div>
                     <div class="value" style="float: right;">{{ $user->email }}</div>
                     <div style="clear: both;"></div>
                 </div>
-                <div class="info-row" style="display: block; text-align: left; border-bottom: none;">
+                <div class="info-row" style="display: block; text-align: left;">
                     <div class="label" style="float: left;">Nomor Handphone:</div>
                     <div class="value" style="float: right;">{{ $user->no_hp }}</div>
+                    <div style="clear: both;"></div>
+                </div>
+                <div class="info-row" style="display: block; text-align: left; border-bottom: none;">
+                    <div class="label" style="float: left;">Password:</div>
+                    <div class="value" style="float: right; color: #6b7280; font-style: italic;">Password yang Anda daftarkan</div>
                     <div style="clear: both;"></div>
                 </div>
             </div>
 
             <div class="btn-container">
-                <a href="{{ url('/nazhir/login') }}" class="btn-login">Masuk ke Panel Nazhir</a>
+                <a href="{{ url('/nazhir/login') }}" class="btn-login">Masuk ke Panel Nazhir →</a>
             </div>
+
+            <p style="font-size: 13px; color: #6b7280; text-align: center; margin-top: 10px;">
+                Klik tombol di atas atau kunjungi: <a href="{{ url('/nazhir/login') }}" style="color: #143E2C; font-weight: bold;">{{ url('/nazhir/login') }}</a>
+            </p>
 
             <p style="font-size: 13px; color: #6b7280; font-style: italic; text-align: center; margin-top: 30px;">
                 Jika Anda mengalami kendala saat masuk atau memiliki pertanyaan lebih lanjut, silakan hubungi tim kami.
