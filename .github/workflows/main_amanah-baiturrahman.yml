@@ -53,20 +53,20 @@ jobs:
         with:
           name: php-app
       
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_297A1537F6314FE3A16739A074C97312 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F10ECF5E06B490F9E65845020871286 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_07C476A8DE224E19B9185F31693A82B5 }}
+      # - name: Login to Azure
+      #   uses: azure/login@v2
+      #   with:
+      #     client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_297A1537F6314FE3A16739A074C97312 }}
+      #     tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F10ECF5E06B490F9E65845020871286 }}
+      #     subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_07C476A8DE224E19B9185F31693A82B5 }}
 
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
-        with:
-          app-name: 'amanah-baiturrahman'
-          slot-name: 'Production'
-          package: .
+      # - name: 'Deploy to Azure Web App'
+      #   uses: azure/webapps-deploy@v3
+      #   id: deploy-to-webapp
+      #   with:
+      #     app-name: 'amanah-baiturrahman'
+      #     slot-name: 'Production'
+      #     package: .
           
       - uses: actions/checkout@v4
 
