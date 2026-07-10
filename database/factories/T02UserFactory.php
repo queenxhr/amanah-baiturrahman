@@ -23,6 +23,8 @@ class T02UserFactory extends Factory
             'jenis_kelamin' => $this->faker->randomElement(['L', 'P']),
             'alamat' => $this->faker->address(),
             'tanggal_lahir' => $this->faker->date(),
+            'status' => 'active',
+            'email_verified_at' => now(),
             'created_at' => now(),
             'edited_at' => now(),
         ];

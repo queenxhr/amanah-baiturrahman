@@ -85,11 +85,11 @@ class WakifAuthController extends Controller
         ]);
 
         try {
-            // Register - does NOT auto-login, sends email verification instead
-            $this->service->register($request->all());
+            $result = $this->service->register($request->all());
             return response()->json([
                 'success' => true,
                 'message' => 'Pendaftaran berhasil! Silakan cek email Anda untuk memverifikasi akun sebelum masuk.',
+                'data' => $result
             ], 201);
         } catch (Exception $e) {
             $status = (is_numeric($e->getCode()) && $e->getCode() >= 100 && $e->getCode() < 600) ? (int) $e->getCode() : 400;
