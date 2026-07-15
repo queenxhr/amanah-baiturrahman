@@ -80,6 +80,7 @@ class WakifDashboardRepository implements WakifDashboardRepositoryInterface
 
         return T03ProgramWakaf::select('id_program', 'nama_program', 'deskripsi', 'target_dana', 'dana_terkumpul', 'due_date', 'status_program', 'gambar_thumbnail')
             ->where('status_program', 1)
+            ->orderBy('id_program', 'desc')
             ->get();
     }
 

@@ -9,4 +9,5 @@ interface WakifTransaksiRepositoryInterface
     public function getRiwayatTransaksi($userId);
     public function getTransaksiById($id);
     public function updateBuktiPembayaran(int $id, string $url);
+    public function cancelTransaksi(int $id);
 }

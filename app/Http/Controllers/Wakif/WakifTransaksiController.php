@@ -24,11 +24,13 @@ class WakifTransaksiController extends Controller
             'no_hp'            => 'required|string|max:20',
             'email'            => 'required|email|max:100',
             'id_program'       => 'required|integer|exists:t03_program_wakaf,id_program',
-            'nominal'          => 'required|numeric|min:10000',
+            'nominal'          => 'required|numeric|min:10000|max:9999999999999',
             'pesan_doa'        => 'nullable|string',
             'hide_nama'        => 'nullable|integer|in:0,1',
             'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
             'metode_pembayaran'=> 'nullable|string|in:QRIS,BCA,qris,bca'
+        ], [
+            'nominal.max'      => 'Nominal wakaf tidak boleh lebih dari 13 digit.',
         ]);
 
         $data = $request->except('bukti_pembayaran');
@@ -50,11 +52,13 @@ class WakifTransaksiController extends Controller
         $request->validate([
             'email'            => 'required|email|max:100',
             'id_program'       => 'required|integer|exists:t03_program_wakaf,id_program',
-            'nominal'          => 'required|numeric|min:10000',
+            'nominal'          => 'required|numeric|min:10000|max:9999999999999',
             'pesan_doa'        => 'nullable|string',
             'hide_nama'        => 'nullable|integer|in:0,1',
             'bukti_pembayaran' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
             'metode_pembayaran'=> 'nullable|string|in:QRIS,BCA,qris,bca'
+        ], [
+            'nominal.max'      => 'Nominal wakaf tidak boleh lebih dari 13 digit.',
         ]);
 
         $data = $request->except('bukti_pembayaran');
@@ -77,12 +81,16 @@ class WakifTransaksiController extends Controller
             'bukti_pembayaran' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120'
         ]);
 
-        if ($request->hasFile('bukti_pembayaran')) {
-            $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
-            $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', $disk);
-            
-            $transaksi = $this->service->uploadBuktiPembayaran($id, $path);
-            return response()->json(['success' => true, 'message' => 'Bukti pembayaran berhasil diupload', 'data' => $transaksi]);
+        try {
+            if ($request->hasFile('bukti_pembayaran')) {
+                $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+                $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', $disk);
+                
+                $transaksi = $this->service->uploadBuktiPembayaran($id, $path);
+                return response()->json(['success' => true, 'message' => 'Bukti pembayaran berhasil diupload', 'data' => $transaksi]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
 
         return response()->json(['success' => false, 'message' => 'File bukti pembayaran tidak ditemukan'], 400);
@@ -104,5 +112,18 @@ class WakifTransaksiController extends Controller
     {
         $data = $this->service->getTransaksiById($id);
         return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    public function cancelTransaksi($id)
+    {
+        try {
+            $transaksi = $this->service->cancelTransaksi((int)$id);
+            if ($transaksi) {
+                return response()->json(['success' => true, 'message' => 'Transaksi berhasil dibatalkan', 'data' => $transaksi]);
+            }
+            return response()->json(['success' => false, 'message' => 'Transaksi tidak dapat dibatalkan atau tidak ditemukan'], 400);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 }

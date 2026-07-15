@@ -23,6 +23,10 @@ class WakifUserController extends Controller
 
     public function updateProfile(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower($request->input('email'))]);
+        }
+
         $request->validate([
             'nama' => 'sometimes|string|max:100',
             'email' => 'sometimes|email|unique:t02_users,email,' . $request->user()->id_user . ',id_user',

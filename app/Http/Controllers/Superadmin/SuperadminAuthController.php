@@ -13,13 +13,17 @@ class SuperadminAuthController extends Controller
 {
     public function login(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower($request->input('email'))]);
+        }
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
         try {
-            $user = T02User::where('email', $request->email)->first();
+            $user = T02User::whereRaw('LOWER(email) = ?', [strtolower($request->email)])->first();
 
             if (!$user || !Hash::check($request->password, $user->password)) {
                 throw new Exception("Kata sandi salah. Silakan coba lagi", 401);

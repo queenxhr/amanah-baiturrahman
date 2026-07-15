@@ -11,7 +11,7 @@ class WakifAuthRepository implements WakifAuthRepositoryInterface
     public function findByEmail(string $email)
     {
         // assume id_role for wakif could be 2 or null, but let's just find by email for now
-        return T02User::where('email', $email)->first();
+        return T02User::whereRaw('LOWER(email) = ?', [strtolower($email)])->first();
     }
 
     public function createWakif(array $data)

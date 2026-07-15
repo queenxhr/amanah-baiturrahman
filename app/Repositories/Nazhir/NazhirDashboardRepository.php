@@ -12,6 +12,8 @@ class NazhirDashboardRepository implements NazhirDashboardRepositoryInterface
 {
     public function getCounters(array $filters)
     {
+        T04Transaksi::sweepExpiredTransactions();
+
         $programQuery = T03ProgramWakaf::query();
         $transaksiQuery = T04Transaksi::query();
         $laporanQuery = T05LaporanPenyaluran::query();
@@ -69,6 +71,8 @@ class NazhirDashboardRepository implements NazhirDashboardRepositoryInterface
 
     public function getPenyebaranProgram()
     {
+        T04Transaksi::sweepExpiredTransactions();
+
         $totalTransaksi = T04Transaksi::count();
         if ($totalTransaksi == 0) return [];
 
@@ -90,6 +94,8 @@ class NazhirDashboardRepository implements NazhirDashboardRepositoryInterface
 
     public function getTrendWakafPerTahun($tahun)
     {
+        T04Transaksi::sweepExpiredTransactions();
+
         $driver = DB::connection()->getDriverName();
         $monthQuery = 'EXTRACT(MONTH FROM created_at)';
         

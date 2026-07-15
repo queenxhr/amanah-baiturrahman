@@ -19,6 +19,10 @@ class NazhirAuthController extends Controller
 
     public function login(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower($request->input('email'))]);
+        }
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
@@ -44,6 +48,10 @@ class NazhirAuthController extends Controller
 
     public function register(Request $request)
     {
+        if ($request->has('email')) {
+            $request->merge(['email' => strtolower($request->input('email'))]);
+        }
+
         $request->validate([
             'nama' => 'required|string|max:100',
             'email' => [

@@ -73,4 +73,9 @@ class WakifTransaksiService
     {
         return $this->repo->getTransaksiById($id);
     }
+
+    public function cancelTransaksi(int $id)
+    {
+        return $this->repo->cancelTransaksi($id);
+    }
 }

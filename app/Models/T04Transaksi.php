@@ -87,10 +87,16 @@ class T04Transaksi extends Model
 		if ($this->id_program) {
 			$sum = static::where('id_program', $this->id_program)
 				->where('status_pembayaran', 1)
-				->sum('nominal');
+				->sum('nominal') ?? 0;
 
-			T03ProgramWakaf::where('id_program', $this->id_program)
-				->update(['dana_terkumpul' => $sum]);
+			$program = T03ProgramWakaf::find($this->id_program);
+			if ($program) {
+				$program->dana_terkumpul = $sum;
+				if ($sum >= $program->target_dana) {
+					$program->status_program = 0; // Selesai
+				}
+				$program->save();
+			}
 		}
 	}
 
@@ -119,6 +125,14 @@ class T04Transaksi extends Model
 		}
 
 		return Storage::disk('azure')->url($cleanPath);
+	}
+
+	public static function sweepExpiredTransactions()
+	{
+		static::where('status_pembayaran', 0)
+			->whereNull('bukti_pembayaran')
+			->where('created_at', '<', now()->subMinutes(15))
+			->update(['status_pembayaran' => 2]);
 	}
 
 	public function t02_user()

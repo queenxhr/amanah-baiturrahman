@@ -142,7 +142,13 @@
                 </div>
                 <div class="info-row" style="display: block; text-align: left;">
                     <div class="label" style="float: left;">Tanggal Transaksi:</div>
-                    <div class="value" style="float: right;">{{ date('d F Y H:i', strtotime($transaksi->created_at ?? now())) }}</div>
+                    <div class="value" style="float: right;">
+                        @if(!empty($transaksi->created_at))
+                            {{ \Carbon\Carbon::parse($transaksi->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y H:i') }} WIB
+                        @else
+                            {{ \Carbon\Carbon::parse(now())->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y H:i') }} WIB
+                        @endif
+                    </div>
                     <div style="clear: both;"></div>
                 </div>
                 <div class="info-row" style="display: block; text-align: left; border-bottom: none; margin-top: 15px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
@@ -154,7 +160,11 @@
 
             <div class="instruction-box">
                 <h3>Instruksi Pembayaran</h3>
-                <p>Silakan melakukan pembayaran menggunakan <strong>QRIS Pembayaran</strong> yang tampil di aplikasi/website atau transfer ke nomor rekening lembaga. Pastikan nominal transfer <strong>sesuai dengan rincian di atas</strong>.</p>
+                @if(strtolower($transaksi->metode_pembayaran ?? '') === 'bca')
+                    <p>Silakan melakukan pembayaran dengan transfer ke <strong>rekening Bank BCA Yayasan Amanah Baiturrahman (No. Rekening: 12345678)</strong>. Pastikan nominal transfer <strong>sesuai dengan rincian di atas</strong>.</p>
+                @else
+                    <p>Silakan melakukan pembayaran menggunakan <strong>QRIS Pembayaran</strong> yang tampil di aplikasi/website. Pastikan nominal transfer <strong>sesuai dengan rincian di atas</strong>.</p>
+                @endif
                 <p style="margin-top: 10px;">Setelah melakukan pembayaran, jangan lupa untuk mengunggah bukti transfer/pembayaran Anda pada halaman transaksi agar kami dapat memproses verifikasi secepatnya.</p>
             </div>
 

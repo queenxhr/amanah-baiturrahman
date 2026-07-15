@@ -39,14 +39,7 @@ axios.interceptors.response.use(
 
         if (error.response) {
             if (error.response.status === 422) {
-                const errors = error.response.data.errors;
-
-                if (errors && Object.keys(errors).length > 0) {
-                    const firstKey = Object.keys(errors)[0];
-                    message = errors[firstKey][0];
-                } else {
-                    message = error.response.data.message || 'Data yang dimasukkan tidak valid.';
-                }
+                return Promise.reject(error);
             } else if (error.response.data && error.response.data.message) {
                 message = error.response.data.message;
             } else {

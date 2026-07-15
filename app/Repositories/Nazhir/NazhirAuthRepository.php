@@ -11,7 +11,7 @@ class NazhirAuthRepository implements NazhirAuthRepositoryInterface
 {
     public function findByEmail(string $email)
     {
-        return T02User::where('email', $email)->first(); // We can restrict to id_role = 1 if defined
+        return T02User::whereRaw('LOWER(email) = ?', [strtolower($email)])->first(); // We can restrict to id_role = 1 if defined
     }
 
     public function createNazhir(array $data)

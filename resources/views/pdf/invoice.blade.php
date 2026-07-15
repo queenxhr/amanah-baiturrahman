@@ -191,7 +191,7 @@
                 <td class="meta-col" style="text-align: right;">
                     <div class="meta-label">Rincian Pembayaran</div>
                     <div class="meta-value-text">Tanggal: <strong>{{ date('d F Y H:i', strtotime($transaction->created_at ?? now())) }}</strong></div>
-                    <div class="meta-value-text">Metode: <strong>QRIS / Transfer Manual</strong></div>
+                    <div class="meta-value-text">Metode: <strong>{{ strtoupper($transaction->metode_pembayaran ?? 'QRIS') }}</strong></div>
                 </td>
             </tr>
         </table>
@@ -228,7 +228,13 @@
             <tr>
                 <td style="width: 60%; vertical-align: top;">
                     <div class="meta-label" style="margin-bottom: 5px;">Status Pembayaran</div>
-                    <span class="status-badge">Berhasil / Lunas</span>
+                    @if($transaction->status_pembayaran == 1)
+                        <span class="status-badge">Berhasil / Lunas</span>
+                    @elseif($transaction->status_pembayaran == 2)
+                        <span class="status-badge" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">Ditolak / Gagal</span>
+                    @else
+                        <span class="status-badge" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;">Menunggu</span>
+                    @endif
                 </td>
                 <td style="width: 40%; vertical-align: top; text-align: right;">
                     <div style="display: inline-block; text-align: left;">

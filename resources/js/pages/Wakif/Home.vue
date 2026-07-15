@@ -19,7 +19,7 @@ const searchQuery = ref('');
 
 const filteredPrograms = computed(() => {
     if (!searchQuery.value) {
-return programs.value;
+        return programs.value.slice(0, 4);
 }
 
     return programs.value.filter((p: any) => 
@@ -64,7 +64,7 @@ onMounted(async () => {
 
         if (response.data && response.data.data) {
               // Map backend format to card format
-              programs.value = response.data.data.slice(0, 4).map((p: any) => ({
+              programs.value = response.data.data.map((p: any) => ({
                   id: p.id_program,
                   nama_program: p.nama_program,
                   deskripsi: p.deskripsi,

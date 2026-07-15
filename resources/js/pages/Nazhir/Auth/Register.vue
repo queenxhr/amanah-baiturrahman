@@ -18,11 +18,13 @@ const errorMsg = ref('');
 const successMsg = ref('');
 const showPassword = ref(false);
 const showPasswordConfirmation = ref(false);
+const errors = ref<Record<string, string[]>>({});
 
 const submit = async () => {
     processing.value = true;
     errorMsg.value = '';
     successMsg.value = '';
+    errors.value = {};
     
     try {
         const response = await axios.post('/api/nazhir/signup', form.value);
@@ -35,7 +37,9 @@ const submit = async () => {
             }, 3000);
         }
     } catch (error: any) {
-        if (error.response?.data?.message) {
+        if (error.response?.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else if (error.response?.data?.message) {
             errorMsg.value = error.response.data.message;
         } else {
             errorMsg.value = 'Gagal melakukan pendaftaran. Silakan periksa data Anda.';
@@ -76,6 +80,9 @@ const submit = async () => {
                             class="appearance-none block w-full px-4 py-3 border border-gray-400 rounded-full text-[13px] placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"
                             placeholder="Masukkan nama lengkap Anda" />
                     </div>
+                    <span v-if="errors.nama" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                        {{ errors.nama[0] }}
+                    </span>
                 </div>
 
                 <div>
@@ -85,6 +92,9 @@ const submit = async () => {
                             class="appearance-none block w-full px-4 py-3 border border-gray-400 rounded-full text-[13px] placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"
                             placeholder="Masukkan email Anda" />
                     </div>
+                    <span v-if="errors.email" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                        {{ errors.email[0] }}
+                    </span>
                 </div>
 
                 <div>
@@ -94,6 +104,9 @@ const submit = async () => {
                             class="appearance-none block w-full px-4 py-3 border border-gray-400 rounded-full text-[13px] placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary"
                             placeholder="Contoh: 628123456789" />
                     </div>
+                    <span v-if="errors.no_hp" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                        {{ errors.no_hp[0] }}
+                    </span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -107,6 +120,9 @@ const submit = async () => {
                                 <option value="P">Perempuan</option>
                             </select>
                         </div>
+                        <span v-if="errors.jenis_kelamin" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                            {{ errors.jenis_kelamin[0] }}
+                        </span>
                     </div>
 
                     <div>
@@ -115,6 +131,9 @@ const submit = async () => {
                             <input id="tanggal_lahir" name="tanggal_lahir" type="date" required v-model="form.tanggal_lahir"
                                 class="appearance-none block w-full px-4 py-2.5 border border-gray-400 rounded-full text-[13px] text-gray-750 focus:outline-none focus:ring-primary focus:border-primary cursor-pointer font-semibold" />
                         </div>
+                        <span v-if="errors.tanggal_lahir" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                            {{ errors.tanggal_lahir[0] }}
+                        </span>
                     </div>
                 </div>
 
@@ -134,6 +153,9 @@ const submit = async () => {
                             </svg>
                         </div>
                     </div>
+                    <span v-if="errors.password && !errors.password[0].toLowerCase().includes('konfirmasi') && !errors.password[0].toLowerCase().includes('confirm') && !errors.password[0].toLowerCase().includes('cocok')" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                        {{ errors.password[0] }}
+                    </span>
                 </div>
 
                 <div>
@@ -152,6 +174,9 @@ const submit = async () => {
                             </svg>
                         </div>
                     </div>
+                    <span v-if="errors.password && (errors.password[0].toLowerCase().includes('konfirmasi') || errors.password[0].toLowerCase().includes('confirm') || errors.password[0].toLowerCase().includes('cocok'))" class="text-[11px] text-red-600 font-semibold mt-1 block pl-4">
+                        {{ errors.password[0] }}
+                    </span>
                 </div>
 
                 <div>

@@ -9,6 +9,8 @@ class NazhirTransaksiRepository implements NazhirTransaksiRepositoryInterface
 {
     public function getListTransaksi(array $filters)
     {
+        T04Transaksi::sweepExpiredTransactions();
+
         $sort = (!empty($filters['sort']) && in_array(strtolower($filters['sort']), ['asc', 'desc'])) ? strtolower($filters['sort']) : 'desc';
 
         $query = T04Transaksi::with('t03_program_wakaf:id_program,nama_program')
@@ -63,6 +65,8 @@ class NazhirTransaksiRepository implements NazhirTransaksiRepositoryInterface
 
     public function getAllTransaksiForExport(array $filters)
     {
+        T04Transaksi::sweepExpiredTransactions();
+
         $sort = (!empty($filters['sort']) && in_array(strtolower($filters['sort']), ['asc', 'desc'])) ? strtolower($filters['sort']) : 'desc';
 
         $query = T04Transaksi::with('t03_program_wakaf:id_program,nama_program')

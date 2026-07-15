@@ -30,6 +30,7 @@ Route::prefix('wakif')->middleware([
     // Transaksi guest
     Route::post('/transaksi/guest', [WakifTransaksiController::class, 'createTransaksiGuest']);
     Route::patch('/transaksi/{id}/bukti', [WakifTransaksiController::class, 'uploadBuktiPembayaran']);
+    Route::patch('/transaksi/{id}/cancel', [WakifTransaksiController::class, 'cancelTransaksi']);
 
     Route::middleware([\App\Http\Middleware\CheckWakif::class])->group(function () {
         Route::put('/ubah-password', [WakifAuthController::class, 'updatePassword']);

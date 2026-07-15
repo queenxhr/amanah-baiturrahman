@@ -101,6 +101,9 @@ clearInterval(countdownInterval);
         if (seconds <= 0) {
             clearInterval(countdownInterval);
             qrisTimeLeft.value = 'Expired';
+            modalOpen.value = false;
+            modalStep.value = 1;
+            showError('Batas waktu pembayaran telah habis (15 menit). Transaksi Anda dibatalkan/kedaluwarsa.', 'Waktu Habis');
 
             return;
         }
@@ -181,6 +184,9 @@ const proceedToQris = async () => {
 
     if (!finalNominal || finalNominal < 10000) {
         nominalError.value = 'Nominal wakaf minimal Rp10.000';
+        hasError = true;
+    } else if (String(finalNominal).length > 13) {
+        nominalError.value = 'Nominal tidak boleh lebih dari 13 digit';
         hasError = true;
     }
 
@@ -358,8 +364,18 @@ clearInterval(countdownInterval);
 };
 
 const closeModalAndRefresh = async () => {
+    if (modalStep.value === 2 && createdTransaction.value) {
+        try {
+            const txId = createdTransaction.value.id_transaksi;
+            await axios.patch(`/api/wakif/transaksi/${txId}/cancel`);
+        } catch (e) {
+            console.error('Failed to auto-cancel transaction on close:', e);
+        }
+    }
+
     modalOpen.value = false;
     modalStep.value = 1;
+    createdTransaction.value = null;
     paymentFile.value = null;
     paymentFileName.value = '';
     // Clear form
@@ -426,7 +442,7 @@ onMounted(async () => {
     // Check if ?wakaf=true query param is present
     const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.get('wakaf') === 'true') {
+    if (urlParams.get('wakaf') === 'true' && program.value && program.value.status_program !== 0 && program.value.dana_terkumpul < program.value.target_dana) {
         modalOpen.value = true;
     }
 });
@@ -491,9 +507,13 @@ onMounted(async () => {
                             </div>
                         </div>
                     </div>
-
-                    <button @click="modalOpen = true" class="w-full bg-[#1e5842] hover:bg-[#143E2C] text-white font-bold py-3.5 px-4 rounded text-sm transition-colors shadow">
-                        Wakaf Sekarang
+ 
+                    <button 
+                        @click="modalOpen = true" 
+                        :disabled="program && (program.status_program === 0 || program.dana_terkumpul >= program.target_dana)"
+                        class="w-full bg-[#1e5842] hover:bg-[#143E2C] text-white font-bold py-3.5 px-4 rounded text-sm transition-colors shadow disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none"
+                    >
+                        {{ program && (program.status_program === 0 || program.dana_terkumpul >= program.target_dana) ? 'Program Telah Selesai / Ditutup' : 'Wakaf Sekarang' }}
                     </button>
                 </div>
                 
@@ -921,7 +941,7 @@ onMounted(async () => {
                             <p class="text-[11px] text-gray-600 text-center font-medium">
                                 <span class="text-primary font-bold">Klik untuk cari</span> or drag/drop bukti pembayaran
                             </p>
-                            <p class="text-[9px] text-gray-400 mt-1">Maks. 2MB (JPG, JPEG, PNG, PDF)</p>
+                            <p class="text-[9px] text-gray-400 mt-1">Maks. 2MB (JPG, JPEG, PNG)</p>
                             
                             <!-- Display file name if chosen -->
                             <div v-if="paymentFileName" class="mt-3 bg-[#b1cf49]/15 border border-[#b1cf49] rounded px-3 py-1 text-[11px] text-gray-800 font-semibold flex items-center gap-1 max-w-full">
