@@ -15,6 +15,10 @@ class SuperadminPencairanRepository implements SuperadminPencairanRepositoryInte
             $query->where('status_pencairan', (int)$filters['status']);
         }
 
+        if (!empty($filters['all'])) {
+            return $query->orderBy('created_at', 'desc')->get();
+        }
+
         $limit = $filters['limit'] ?? 10;
         return $query->orderBy('created_at', 'desc')->paginate($limit);
     }

@@ -22,9 +22,39 @@ class SuperadminPencairanController extends Controller
             $filters = [
                 'status' => $request->query('status'),
                 'limit'  => $request->query('limit', 10),
+                'all'    => $request->query('all'),
             ];
 
             $pencairanList = $this->service->getListPencairan($filters);
+
+            if ($request->query('all')) {
+                $pencairans = $pencairanList->map(function($p) {
+                    $suratUrl = null;
+                    if (!empty($p->surat_approval)) {
+                        $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+                        $suratUrl = \Illuminate\Support\Facades\Storage::disk($disk)->url($p->surat_approval);
+                    }
+                    return [
+                        'id_pencairan' => $p->id_pencairan,
+                        'id_program' => $p->id_program,
+                        'nama_program' => $p->program ? $p->program->nama_program : 'Unknown',
+                        'id_user' => $p->id_user,
+                        'nama_nazhir' => $p->user ? $p->user->nama : 'Unknown',
+                        'jumlah_dana' => $p->jumlah_dana,
+                        'keterangan' => $p->keterangan,
+                        'status_pencairan' => $p->status_pencairan,
+                        'surat_approval' => $p->surat_approval,
+                        'surat_approval_url' => $suratUrl,
+                        'created_at' => $p->created_at ? $p->created_at->format('Y-m-d H:i:s') : null,
+                        'updated_at' => $p->updated_at ? $p->updated_at->format('Y-m-d H:i:s') : null
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $pencairans
+                ]);
+            }
 
             $pencairanList->getCollection()->transform(function($p) {
                 $suratUrl = null;

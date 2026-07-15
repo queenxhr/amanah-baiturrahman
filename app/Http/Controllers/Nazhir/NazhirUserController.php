@@ -28,9 +28,33 @@ class NazhirUserController extends Controller
             });
         }
 
-        $limit = $request->query('limit', 10);
         $query->orderBy('created_at', $sort);
 
+        if ($request->query('all')) {
+            $users = $query->get()->map(function ($user) {
+                $totalWakaf = DB::table('t04_transaksi')
+                    ->where('id_user', $user->id_user)
+                    ->where('status_pembayaran', 1)
+                    ->sum('nominal') ?? 0;
+
+                return [
+                    'id_user' => $user->id_user,
+                    'nama' => $user->nama,
+                    'email' => $user->email,
+                    'no_hp' => $user->no_hp,
+                    'jenis_kelamin' => $user->jenis_kelamin,
+                    'alamat' => $user->alamat,
+                    'tanggal_lahir' => $user->tanggal_lahir ? $user->tanggal_lahir->format('Y-m-d') : null,
+                    'created_at' => $user->created_at,
+                    'role' => 'Wakif',
+                    'total_wakaf' => $totalWakaf
+                ];
+            });
+
+            return response()->json(['success' => true, 'data' => $users]);
+        }
+
+        $limit = $request->query('limit', 10);
         $paginator = $query->paginate($limit);
 
         $paginator->getCollection()->transform(function ($user) {

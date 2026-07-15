@@ -24,9 +24,30 @@ class SuperadminUserController extends Controller
                 'role'   => $request->query('role'),
                 'status' => $request->query('status'),
                 'limit'  => $request->query('limit', 10),
+                'all'    => $request->query('all'),
             ];
 
             $usersList = $this->service->getListUsers($filters);
+
+            if ($request->query('all')) {
+                $users = $usersList->map(function($user) {
+                    return [
+                        'id_user' => $user->id_user,
+                        'nama' => $user->nama,
+                        'email' => $user->email,
+                        'no_hp' => $user->no_hp,
+                        'status' => $user->status,
+                        'id_role' => $user->id_role,
+                        'role_name' => $user->t01_role ? $user->t01_role->nama_role : 'Unknown',
+                        'created_at' => $user->created_at
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $users
+                ]);
+            }
 
             $usersList->getCollection()->transform(function($user) {
                 return [

@@ -23,9 +23,31 @@ class SuperadminProgramController extends Controller
                 'search' => $request->query('search'),
                 'status' => $request->query('status'),
                 'limit'  => $request->query('limit', 10),
+                'all'    => $request->query('all'),
             ];
 
             $programList = $this->service->getListPrograms($filters);
+
+            if ($request->query('all')) {
+                $programs = $programList->map(function($prog) {
+                    return [
+                        'id_program' => $prog->id_program,
+                        'nama_program' => $prog->nama_program,
+                        'deskripsi' => $prog->deskripsi,
+                        'target_dana' => $prog->target_dana,
+                        'dana_terkumpul' => $prog->dana_terkumpul ?? 0,
+                        'status_program' => $prog->status_program,
+                        'due_date' => $prog->due_date ? $prog->due_date->format('Y-m-d') : null,
+                        'gambar_thumbnail' => $prog->gambar_thumbnail,
+                        'created_at' => $prog->created_at
+                    ];
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $programs
+                ]);
+            }
 
             $programList->getCollection()->transform(function($prog) {
                 return [

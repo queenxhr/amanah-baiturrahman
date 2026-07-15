@@ -32,7 +32,7 @@ const fetchUsers = async () => {
     loadingUsers.value = true;
 
     try {
-        const response = await axios.get('/api/superadmin/users', { headers: getHeaders() });
+        const response = await axios.get('/api/superadmin/users?all=true', { headers: getHeaders() });
 
         if (response.data.success) {
             users.value = response.data.data;
@@ -48,7 +48,7 @@ const fetchPrograms = async () => {
     loadingPrograms.value = true;
 
     try {
-        const response = await axios.get('/api/superadmin/programs', { headers: getHeaders() });
+        const response = await axios.get('/api/superadmin/programs?all=true', { headers: getHeaders() });
 
         if (response.data.success) {
             programs.value = response.data.data;
@@ -64,7 +64,7 @@ const fetchPencairans = async () => {
     loadingPencairans.value = true;
 
     try {
-        const response = await axios.get('/api/superadmin/pencairan', { headers: getHeaders() });
+        const response = await axios.get('/api/superadmin/pencairan?all=true', { headers: getHeaders() });
 
         if (response.data.success) {
             pencairans.value = response.data.data;
