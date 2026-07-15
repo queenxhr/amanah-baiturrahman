@@ -19,7 +19,8 @@ class SuperadminProgramRepository implements SuperadminProgramRepositoryInterfac
             $query->where('status_program', (int)$filters['status']);
         }
 
-        return $query->orderBy('created_at', 'desc')->get();
+        $limit = $filters['limit'] ?? 10;
+        return $query->orderBy('created_at', 'desc')->paginate($limit);
     }
 
     public function findProgramById($id)

@@ -11,6 +11,36 @@ use Exception;
 
 class NazhirPencairanController extends Controller
 {
+    public function getAvailableFunds(Request $request)
+    {
+        $request->validate([
+            'id_program' => 'required|integer'
+        ]);
+
+        try {
+            $program = T03ProgramWakaf::findOrFail($request->id_program);
+            
+            $totalApprovedPencairan = T06PencairanDana::where('id_program', $program->id_program)
+                ->where('status_pencairan', 1)
+                ->sum('jumlah_dana');
+
+            $availableFunds = $program->dana_terkumpul - $totalApprovedPencairan;
+            if ($availableFunds < 0) {
+                $availableFunds = 0;
+            }
+
+            return response()->json([
+                'success' => true,
+                'available_funds' => $availableFunds
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
     public function index(Request $request)
     {
         try {
@@ -23,33 +53,35 @@ class NazhirPencairanController extends Controller
                 return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
             }
 
-            $pencairan = T06PencairanDana::with(['program', 'user'])
+            $limit = $request->query('limit', 10);
+            $paginator = T06PencairanDana::with(['program', 'user'])
                 ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function($p) {
-                    $suratUrl = null;
-                    if (!empty($p->surat_approval)) {
-                        $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
-                        $suratUrl = \Illuminate\Support\Facades\Storage::disk($disk)->url($p->surat_approval);
-                    }
-                    return [
-                        'id_pencairan' => $p->id_pencairan,
-                        'id_program' => $p->id_program,
-                        'nama_program' => $p->program ? $p->program->nama_program : 'Unknown',
-                        'nama_nazhir' => $p->user ? $p->user->nama : 'Unknown',
-                        'jumlah_dana' => $p->jumlah_dana,
-                        'keterangan' => $p->keterangan,
-                        'status_pencairan' => $p->status_pencairan,
-                        'surat_approval' => $p->surat_approval,
-                        'surat_approval_url' => $suratUrl,
-                        'created_at' => $p->created_at ? $p->created_at->format('Y-m-d H:i:s') : null,
-                        'updated_at' => $p->updated_at ? $p->updated_at->format('Y-m-d H:i:s') : null
-                    ];
-                });
+                ->paginate($limit);
+
+            $paginator->getCollection()->transform(function($p) {
+                $suratUrl = null;
+                if (!empty($p->surat_approval)) {
+                    $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
+                    $suratUrl = \Illuminate\Support\Facades\Storage::disk($disk)->url($p->surat_approval);
+                }
+                return [
+                    'id_pencairan' => $p->id_pencairan,
+                    'id_program' => $p->id_program,
+                    'nama_program' => $p->program ? $p->program->nama_program : 'Unknown',
+                    'nama_nazhir' => $p->user ? $p->user->nama : 'Unknown',
+                    'jumlah_dana' => $p->jumlah_dana,
+                    'keterangan' => $p->keterangan,
+                    'status_pencairan' => $p->status_pencairan,
+                    'surat_approval' => $p->surat_approval,
+                    'surat_approval_url' => $suratUrl,
+                    'created_at' => $p->created_at ? $p->created_at->format('Y-m-d H:i:s') : null,
+                    'updated_at' => $p->updated_at ? $p->updated_at->format('Y-m-d H:i:s') : null
+                ];
+            });
 
             return response()->json([
                 'success' => true,
-                'data' => $pencairan
+                'data' => $paginator
             ]);
         } catch (Exception $e) {
             return response()->json([

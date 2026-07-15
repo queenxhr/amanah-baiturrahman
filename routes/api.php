@@ -103,6 +103,7 @@ Route::prefix('nazhir')->middleware([
         Route::delete('/laporan/{id}', [NazhirLaporanController::class, 'deleteLaporan']);
 
         // Pencairan Dana
+        Route::get('/pencairan/available-funds', [NazhirPencairanController::class, 'getAvailableFunds']);
         Route::get('/pencairan', [NazhirPencairanController::class, 'index']);
         Route::post('/pencairan', [NazhirPencairanController::class, 'store']);
     });

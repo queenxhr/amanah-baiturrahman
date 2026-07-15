@@ -6,7 +6,10 @@ import NazhirLayout from '@/layouts/NazhirLayout.vue';
 
 const search = ref('');
 const sortOrder = ref('asc');
+const limit = ref(10);
+const page = ref(1);
 const users = ref<any[]>([]);
+const pagination = ref<any>({});
 const isLoading = ref(false);
 
 const formatRupiah = (num: number) => {
@@ -17,7 +20,7 @@ const fetchUsers = async () => {
     isLoading.value = true;
 
     try {
-        let url = `/api/nazhir/users?sort=${sortOrder.value}`;
+        let url = `/api/nazhir/users?sort=${sortOrder.value}&limit=${limit.value}&page=${page.value}`;
 
         if (search.value) {
             url += `&search=${encodeURIComponent(search.value)}`;
@@ -26,12 +29,33 @@ const fetchUsers = async () => {
         const res = await axios.get(url);
 
         if (res.data && res.data.data) {
-            users.value = res.data.data;
+            users.value = res.data.data.data || [];
+            pagination.value = {
+                current_page: res.data.data.current_page,
+                last_page: res.data.data.last_page,
+                total: res.data.data.total,
+                from: res.data.data.from,
+                to: res.data.data.to
+            };
         }
     } catch (e) {
         console.error('Failed to fetch users:', e);
     } finally {
         isLoading.value = false;
+    }
+};
+
+const handlePrevPage = () => {
+    if (page.value > 1) {
+        page.value--;
+        fetchUsers();
+    }
+};
+
+const handleNextPage = () => {
+    if (page.value < pagination.value.last_page) {
+        page.value++;
+        fetchUsers();
     }
 };
 
@@ -41,6 +65,13 @@ onMounted(() => {
 
 // Watch sort order immediately
 watch(sortOrder, () => {
+    page.value = 1;
+    fetchUsers();
+});
+
+// Watch limit
+watch(limit, () => {
+    page.value = 1;
     fetchUsers();
 });
 
@@ -48,10 +79,11 @@ watch(sortOrder, () => {
 let timeout: any = null;
 watch(search, () => {
     if (timeout) {
-clearTimeout(timeout);
-}
+        clearTimeout(timeout);
+    }
 
     timeout = setTimeout(() => {
+        page.value = 1;
         fetchUsers();
     }, 300);
 });
@@ -88,14 +120,27 @@ clearTimeout(timeout);
         </div>
 
         <div class="flex items-center gap-2 self-stretch sm:self-auto">
-          <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Urutkan Akun:</span>
-          <select 
-            v-model="sortOrder"
-            class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#143E2C] cursor-pointer mr-1"
-          >
-            <option value="asc">Terlama Bergabung (Asc)</option>
-            <option value="desc">Terbaru Bergabung (Desc)</option>
-          </select>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Urutkan Akun:</span>
+            <select 
+              v-model="sortOrder"
+              class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#143E2C] cursor-pointer"
+            >
+              <option value="asc">Terlama Bergabung (Asc)</option>
+              <option value="desc">Terbaru Bergabung (Desc)</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2 ml-4">
+            <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Limit:</span>
+            <select 
+              v-model="limit"
+              class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#143E2C] cursor-pointer"
+            >
+              <option :value="10">10 Data</option>
+              <option :value="25">25 Data</option>
+              <option :value="50">50 Data</option>
+            </select>
+          </div>
         </div>
       </section>
 
@@ -126,7 +171,7 @@ clearTimeout(timeout);
               <tr v-for="u in users" :key="u.id_user" class="hover:bg-gray-50/50 transition">
                 <td class="px-6 py-4 font-mono text-gray-500 font-bold">#{{ u.id_user }}</td>
                 <td class="px-6 py-4 text-gray-900 font-bold">{{ u.nama }}</td>
-                <td class="px-6 py-4 font-normal text-gray-600">
+                <td class="px-6 py-4 font-normal text-gray-650">
                   <div class="font-bold text-gray-800">{{ u.email }}</div>
                   <div class="text-[10px] text-gray-400 mt-0.5">{{ u.no_hp || '-' }}</div>
                 </td>
@@ -146,6 +191,31 @@ clearTimeout(timeout);
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination Bar -->
+        <div class="bg-gray-50 border-t border-gray-150 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-gray-500">
+          <span>
+            Menampilkan {{ pagination.from || 0 }} - {{ pagination.to || 0 }} dari {{ pagination.total || 0 }} data
+          </span>
+          
+          <div class="flex items-center gap-2">
+            <button 
+              @click="handlePrevPage" 
+              :disabled="page === 1"
+              class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+            >
+              &larr;
+            </button>
+            <span class="px-2">Halaman {{ page }} dari {{ pagination.last_page || 1 }}</span>
+            <button 
+              @click="handleNextPage" 
+              :disabled="page >= pagination.last_page"
+              class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+            >
+              &rarr;
+            </button>
+          </div>
         </div>
       </section>
 

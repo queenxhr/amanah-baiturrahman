@@ -21,11 +21,12 @@ class SuperadminPencairanController extends Controller
         try {
             $filters = [
                 'status' => $request->query('status'),
+                'limit'  => $request->query('limit', 10),
             ];
 
             $pencairanList = $this->service->getListPencairan($filters);
 
-            $pencairans = $pencairanList->map(function($p) {
+            $pencairanList->getCollection()->transform(function($p) {
                 $suratUrl = null;
                 if (!empty($p->surat_approval)) {
                     $disk = (empty(config('filesystems.disks.azure.key')) && empty(config('filesystems.disks.azure.connection_string'))) ? 'public' : 'azure';
@@ -49,7 +50,7 @@ class SuperadminPencairanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $pencairans
+                'data' => $pencairanList
             ]);
         } catch (Exception $e) {
             return response()->json([

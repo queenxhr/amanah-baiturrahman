@@ -9,6 +9,9 @@ const users = ref<any[]>([]);
 const search = ref('');
 const role = ref('');
 const status = ref('');
+const limit = ref(10);
+const page = ref(1);
+const pagination = ref<any>({});
 const loading = ref(true);
 const processingId = ref<number | null>(null);
 
@@ -16,29 +19,58 @@ const fetchUsers = async () => {
     loading.value = true;
 
     try {
-        const params: any = {};
+        const params: any = {
+            limit: limit.value,
+            page: page.value
+        };
 
         if (search.value) {
-params.search = search.value;
-}
+            params.search = search.value;
+        }
 
         if (role.value) {
-params.role = role.value;
-}
+            params.role = role.value;
+        }
 
         if (status.value) {
-params.status = status.value;
-}
+            params.status = status.value;
+        }
 
         const response = await axios.get('/api/superadmin/users', { params });
 
         if (response.data.success) {
-            users.value = response.data.data;
+            users.value = response.data.data.data || [];
+            pagination.value = {
+                current_page: response.data.data.current_page,
+                last_page: response.data.data.last_page,
+                total: response.data.data.total,
+                from: response.data.data.from,
+                to: response.data.data.to
+            };
         }
     } catch (e) {
         console.error(e);
     } finally {
         loading.value = false;
+    }
+};
+
+const onFilterChange = () => {
+    page.value = 1;
+    fetchUsers();
+};
+
+const handlePrevPage = () => {
+    if (page.value > 1) {
+        page.value--;
+        fetchUsers();
+    }
+};
+
+const handleNextPage = () => {
+    if (page.value < pagination.value.last_page) {
+        page.value++;
+        fetchUsers();
     }
 };
 
@@ -174,15 +206,15 @@ return;
             </div>
 
             <!-- Filters -->
-            <div class="bg-white border border-gray-150 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-4 gap-4 shadow-sm">
+            <div class="bg-white border border-gray-150 rounded-2xl p-5 grid grid-cols-1 sm:grid-cols-5 gap-4 shadow-sm">
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Cari Pengguna</label>
-                    <input type="text" v-model="search" @input="fetchUsers" placeholder="Nama, email, no handphone..."
+                    <input type="text" v-model="search" @input="onFilterChange" placeholder="Nama, email..."
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]" />
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Filter Peran</label>
-                    <select v-model="role" @change="fetchUsers"
+                    <select v-model="role" @change="onFilterChange"
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]">
                         <option value="">Semua Peran</option>
                         <option value="1">Nazhir</option>
@@ -191,7 +223,7 @@ return;
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Filter Status</label>
-                    <select v-model="status" @change="fetchUsers"
+                    <select v-model="status" @change="onFilterChange"
                         class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]">
                         <option value="">Semua Status</option>
                         <option value="pending">Menunggu Persetujuan</option>
@@ -200,8 +232,17 @@ return;
                         <option value="rejected">Ditolak</option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Limit</label>
+                    <select v-model="limit" @change="onFilterChange"
+                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]">
+                        <option :value="10">10 Data</option>
+                        <option :value="25">25 Data</option>
+                        <option :value="50">50 Data</option>
+                    </select>
+                </div>
                 <div class="flex items-end justify-end">
-                    <button @click="fetchUsers" class="px-4 py-2.5 bg-[#143E2C] hover:bg-[#1e5842] text-white rounded-xl text-xs font-bold transition-all w-full sm:w-auto">
+                    <button @click="onFilterChange" class="px-4 py-2.5 bg-[#143E2C] hover:bg-[#1e5842] text-white rounded-xl text-xs font-bold transition-all w-full sm:w-auto">
                         Refresh Data
                     </button>
                 </div>
@@ -284,16 +325,41 @@ return;
 
                                     <!-- Hapus Akun -->
                                     <button @click="deleteUser(user.id_user)"
-                                        :disabled="processingId !== null"
-                                        class="px-2.5 py-1.5 bg-gray-100 hover:bg-red-700 text-gray-700 hover:text-white border border-gray-300 hover:border-red-700 disabled:opacity-50 font-bold rounded-lg text-[10px] transition-all">
-                                        Hapus
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                         :disabled="processingId !== null"
+                                         class="px-2.5 py-1.5 bg-gray-100 hover:bg-red-700 text-gray-700 hover:text-white border border-gray-300 hover:border-red-700 disabled:opacity-50 font-bold rounded-lg text-[10px] transition-all">
+                                         Hapus
+                                     </button>
+                                 </td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </div>
+
+                 <!-- Pagination Bar -->
+                 <div class="bg-gray-50 border-t border-gray-150 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-gray-500">
+                     <span>
+                         Menampilkan {{ pagination.from || 0 }} - {{ pagination.to || 0 }} dari {{ pagination.total || 0 }} data
+                     </span>
+                     
+                     <div class="flex items-center gap-2">
+                         <button 
+                             @click="handlePrevPage" 
+                             :disabled="page === 1"
+                             class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+                         >
+                             &larr;
+                         </button>
+                         <span class="px-2">Halaman {{ page }} dari {{ pagination.last_page || 1 }}</span>
+                         <button 
+                             @click="handleNextPage" 
+                             :disabled="page >= pagination.last_page"
+                             class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+                         >
+                             &rarr;
+                         </button>
+                     </div>
+                 </div>
+             </div>
         </div>
     </SuperadminLayout>
 </template>

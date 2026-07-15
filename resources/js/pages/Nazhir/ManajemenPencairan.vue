@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showAlert, showSuccess, showError } from '@/lib/alert';
 
@@ -9,6 +9,10 @@ const pencairans = ref<any[]>([]);
 const programs = ref<any[]>([]);
 const loading = ref(true);
 const submitProcessing = ref(false);
+
+const limit = ref(10);
+const page = ref(1);
+const pagination = ref<any>({});
 
 const showModal = ref(false);
 const showPreview = ref(false);
@@ -30,10 +34,17 @@ const availableFunds = ref(0);
 
 const fetchPencairans = async () => {
     try {
-        const response = await axios.get('/api/nazhir/pencairan');
+        const response = await axios.get(`/api/nazhir/pencairan?limit=${limit.value}&page=${page.value}`);
 
         if (response.data.success) {
-            pencairans.value = response.data.data;
+            pencairans.value = response.data.data.data || [];
+            pagination.value = {
+                current_page: response.data.data.current_page,
+                last_page: response.data.data.last_page,
+                total: response.data.data.total,
+                from: response.data.data.from,
+                to: response.data.data.to
+            };
         }
     } catch (e) {
         console.error(e);
@@ -53,10 +64,30 @@ const fetchPrograms = async () => {
     }
 };
 
+const handlePrevPage = () => {
+    if (page.value > 1) {
+        page.value--;
+        fetchPencairans();
+    }
+};
+
+const handleNextPage = () => {
+    if (page.value < pagination.value.last_page) {
+        page.value++;
+        fetchPencairans();
+    }
+};
+
 onMounted(async () => {
     loading.value = true;
     await Promise.all([fetchPencairans(), fetchPrograms()]);
     loading.value = false;
+});
+
+// Watch limit
+watch(limit, () => {
+    page.value = 1;
+    fetchPencairans();
 });
 
 const onProgramSelect = async () => {
@@ -64,26 +95,22 @@ const onProgramSelect = async () => {
     availableFunds.value = 0;
     
     if (!form.value.id_program) {
-return;
-}
+        return;
+    }
     
     const prog = programs.value.find(p => p.id_program === parseInt(form.value.id_program));
 
     if (prog) {
         selectedProgram.value = prog;
         
-        // Calculate already approved funds for this program
+        // Calculate already approved funds for this program via database API
         try {
-            // Get all approved amount
-            const approved = pencairans.value
-                .filter(p => p.id_program === prog.id_program && p.status_pencairan === 1)
-                .reduce((acc, curr) => acc + parseFloat(curr.jumlah_dana), 0);
-            
-            availableFunds.value = parseFloat(prog.dana_terkumpul) - approved;
-
-            if (availableFunds.value < 0) {
-availableFunds.value = 0;
-}
+            const res = await axios.get(`/api/nazhir/pencairan/available-funds?id_program=${prog.id_program}`);
+            if (res.data && res.data.success) {
+                availableFunds.value = res.data.available_funds;
+            } else {
+                availableFunds.value = parseFloat(prog.dana_terkumpul);
+            }
         } catch {
             availableFunds.value = parseFloat(prog.dana_terkumpul);
         }
@@ -164,9 +191,19 @@ return false;
                         Ajukan pencairan dana dari program wakaf Anda untuk keperluan penyaluran.
                     </p>
                 </div>
-                <button @click="openRequestModal" class="px-4 py-3 bg-[#143E2C] hover:bg-emerald-950 text-white rounded-xl text-xs font-bold transition-all shadow-md self-start">
-                    Ajukan Pencairan Baru
-                </button>
+                <div class="flex items-center gap-4 self-stretch sm:self-auto justify-between sm:justify-start">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-500 whitespace-nowrap">Limit:</span>
+                        <select v-model="limit" class="bg-gray-50 border border-gray-250 rounded-xl px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#143E2C] cursor-pointer shadow-xs">
+                            <option :value="10">10 Data</option>
+                            <option :value="25">25 Data</option>
+                            <option :value="50">50 Data</option>
+                        </select>
+                    </div>
+                    <button @click="openRequestModal" class="px-4 py-2.5 bg-[#143E2C] hover:bg-[#1e5842] text-white rounded-xl text-xs font-bold transition-all shadow-md">
+                        Ajukan Pencairan Baru
+                    </button>
+                </div>
             </div>
 
             <!-- Request History Table -->
@@ -196,7 +233,7 @@ return false;
                             <tr v-for="p in pencairans" :key="p.id_pencairan" class="hover:bg-gray-50/50">
                                 <td class="px-6 py-4 font-bold text-gray-800 max-w-xs truncate">{{ p.nama_program }}</td>
                                 <td class="px-6 py-4 text-emerald-800 font-bold">{{ formatCurrency(p.jumlah_dana) }}</td>
-                                <td class="px-6 py-4 text-gray-500 max-w-xs truncate" :title="p.keterangan">{{ p.keterangan || '-' }}</td>
+                                <td class="px-6 py-4 text-gray-550 max-w-xs truncate" :title="p.keterangan">{{ p.keterangan || '-' }}</td>
                                 <td class="px-6 py-4 text-gray-500">{{ p.created_at }}</td>
                                 <td class="px-6 py-4 text-gray-550">
                                     {{ p.status_pencairan !== 0 && p.updated_at ? p.updated_at : '-' }}
@@ -231,6 +268,31 @@ return false;
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination Bar -->
+                <div class="bg-gray-50 border-t border-gray-150 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-gray-500">
+                    <span>
+                        Menampilkan {{ pagination.from || 0 }} - {{ pagination.to || 0 }} dari {{ pagination.total || 0 }} data
+                    </span>
+                    
+                    <div class="flex items-center gap-2">
+                        <button 
+                            @click="handlePrevPage" 
+                            :disabled="page === 1"
+                            class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+                        >
+                            &larr;
+                        </button>
+                        <span class="px-2">Halaman {{ page }} dari {{ pagination.last_page || 1 }}</span>
+                        <button 
+                            @click="handleNextPage" 
+                            :disabled="page >= pagination.last_page"
+                            class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+                        >
+                            &rarr;
+                        </button>
+                    </div>
                 </div>
             </div>
 

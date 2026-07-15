@@ -23,11 +23,12 @@ class SuperadminUserController extends Controller
                 'search' => $request->query('search'),
                 'role'   => $request->query('role'),
                 'status' => $request->query('status'),
+                'limit'  => $request->query('limit', 10),
             ];
 
             $usersList = $this->service->getListUsers($filters);
 
-            $users = $usersList->map(function($user) {
+            $usersList->getCollection()->transform(function($user) {
                 return [
                     'id_user' => $user->id_user,
                     'nama' => $user->nama,
@@ -42,7 +43,7 @@ class SuperadminUserController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $users
+                'data' => $usersList
             ]);
         } catch (Exception $e) {
             return response()->json([

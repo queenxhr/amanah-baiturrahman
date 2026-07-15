@@ -28,9 +28,12 @@ class NazhirUserController extends Controller
             });
         }
 
+        $limit = $request->query('limit', 10);
         $query->orderBy('created_at', $sort);
 
-        $users = $query->get()->map(function ($user) {
+        $paginator = $query->paginate($limit);
+
+        $paginator->getCollection()->transform(function ($user) {
             $totalWakaf = DB::table('t04_transaksi')
                 ->where('id_user', $user->id_user)
                 ->where('status_pembayaran', 1)
@@ -50,6 +53,6 @@ class NazhirUserController extends Controller
             ];
         });
 
-        return response()->json(['success' => true, 'data' => $users]);
+        return response()->json(['success' => true, 'data' => $paginator]);
     }
 }

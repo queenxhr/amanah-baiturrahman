@@ -28,7 +28,8 @@ class SuperadminUserRepository implements SuperadminUserRepositoryInterface
             $query->where('status', $filters['status']);
         }
 
-        return $query->orderBy('created_at', 'desc')->get();
+        $limit = $filters['limit'] ?? 10;
+        return $query->orderBy('created_at', 'desc')->paginate($limit);
     }
 
     public function findUserById($id)

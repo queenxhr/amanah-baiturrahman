@@ -22,11 +22,12 @@ class SuperadminProgramController extends Controller
             $filters = [
                 'search' => $request->query('search'),
                 'status' => $request->query('status'),
+                'limit'  => $request->query('limit', 10),
             ];
 
             $programList = $this->service->getListPrograms($filters);
 
-            $programs = $programList->map(function($prog) {
+            $programList->getCollection()->transform(function($prog) {
                 return [
                     'id_program' => $prog->id_program,
                     'nama_program' => $prog->nama_program,
@@ -42,7 +43,7 @@ class SuperadminProgramController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $programs
+                'data' => $programList
             ]);
         } catch (Exception $e) {
             return response()->json([

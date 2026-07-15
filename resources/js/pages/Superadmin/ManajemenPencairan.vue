@@ -7,6 +7,9 @@ import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
 const pencairans = ref<any[]>([]);
 const status = ref('');
+const limit = ref(10);
+const page = ref(1);
+const pagination = ref<any>({});
 const loading = ref(true);
 const processingId = ref<number | null>(null);
 
@@ -38,21 +41,50 @@ const fetchPencairans = async () => {
     loading.value = true;
 
     try {
-        const params: any = {};
+        const params: any = {
+            limit: limit.value,
+            page: page.value
+        };
 
         if (status.value !== '') {
-params.status = status.value;
-}
+            params.status = status.value;
+        }
 
         const response = await axios.get('/api/superadmin/pencairan', { params });
 
         if (response.data.success) {
-            pencairans.value = response.data.data;
+            pencairans.value = response.data.data.data || [];
+            pagination.value = {
+                current_page: response.data.data.current_page,
+                last_page: response.data.data.last_page,
+                total: response.data.data.total,
+                from: response.data.data.from,
+                to: response.data.data.to
+            };
         }
     } catch (e) {
         console.error(e);
     } finally {
         loading.value = false;
+    }
+};
+
+const onFilterChange = () => {
+    page.value = 1;
+    fetchPencairans();
+};
+
+const handlePrevPage = () => {
+    if (page.value > 1) {
+        page.value--;
+        fetchPencairans();
+    }
+};
+
+const handleNextPage = () => {
+    if (page.value < pagination.value.last_page) {
+        page.value++;
+        fetchPencairans();
     }
 };
 
@@ -197,18 +229,29 @@ const formatCurrency = (val: number) => {
             </div>
 
             <!-- Filters -->
-            <div class="bg-white border border-gray-150 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                <div class="w-full sm:w-1/3">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status Pengajuan</label>
-                    <select v-model="status" @change="fetchPencairans"
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]">
-                        <option value="">Semua Status</option>
-                        <option value="0">Menunggu Persetujuan (Pending)</option>
-                        <option value="1">Disetujui (Approved)</option>
-                        <option value="2">Ditolak (Rejected)</option>
-                    </select>
+            <div class="bg-white border border-gray-150 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-4 justify-between shadow-sm">
+                <div class="flex flex-col sm:flex-row gap-4 items-center w-full sm:w-auto">
+                    <div class="w-full sm:w-64">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status Pengajuan</label>
+                        <select v-model="status" @change="onFilterChange"
+                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]">
+                            <option value="">Semua Status</option>
+                            <option value="0">Menunggu Persetujuan (Pending)</option>
+                            <option value="1">Disetujui (Approved)</option>
+                            <option value="2">Ditolak (Rejected)</option>
+                        </select>
+                    </div>
+                    <div class="w-full sm:w-40">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Limit</label>
+                        <select v-model="limit" @change="onFilterChange"
+                            class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-[#143E2C] focus:border-[#143E2C]">
+                            <option :value="10">10 Data</option>
+                            <option :value="25">25 Data</option>
+                            <option :value="50">50 Data</option>
+                        </select>
+                    </div>
                 </div>
-                <button @click="fetchPencairans" class="px-4 py-2.5 bg-[#143E2C] hover:bg-[#1e5842] text-white rounded-xl text-xs font-bold transition-all w-full sm:w-auto self-end">
+                <button @click="onFilterChange" class="px-4 py-2.5 bg-[#143E2C] hover:bg-[#1e5842] text-white rounded-xl text-xs font-bold transition-all w-full sm:w-auto self-end">
                     Refresh Data
                 </button>
             </div>
@@ -318,6 +361,31 @@ const formatCurrency = (val: number) => {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination Bar -->
+                <div class="bg-gray-50 border-t border-gray-150 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold text-gray-500">
+                    <span>
+                        Menampilkan {{ pagination.from || 0 }} - {{ pagination.to || 0 }} dari {{ pagination.total || 0 }} data
+                    </span>
+                    
+                    <div class="flex items-center gap-2">
+                        <button 
+                            @click="handlePrevPage" 
+                            :disabled="page === 1"
+                            class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+                        >
+                            &larr;
+                        </button>
+                        <span class="px-2">Halaman {{ page }} dari {{ pagination.last_page || 1 }}</span>
+                        <button 
+                            @click="handleNextPage" 
+                            :disabled="page >= pagination.last_page"
+                            class="px-3 py-1.5 rounded-lg border border-gray-250 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white font-black"
+                        >
+                            &rarr;
+                        </button>
+                    </div>
                 </div>
             </div>
             
