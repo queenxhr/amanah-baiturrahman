@@ -11,7 +11,7 @@ class NazhirProgramRepository implements NazhirProgramRepositoryInterface
 {
     public function getListProgram(array $filters = [])
     {
-        $query = T03ProgramWakaf::with('t05_laporan_penyalurans:id_laporan,id_program')->select(
+        $query = T03ProgramWakaf::with('t05_laporan_penyalurans:id_laporan,id_program,judul_laporan')->select(
             'id_program',
             'nama_program',
             'deskripsi',

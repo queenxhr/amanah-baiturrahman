@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import NazhirLayout from '@/layouts/NazhirLayout.vue';
 import { showConfirm, showSuccess, showError } from '@/lib/alert';
 
@@ -12,6 +12,23 @@ const page = ref(1);
 const programs = ref<any[]>([]);
 const pagination = ref<any>({});
 const isLoading = ref(false);
+
+const activeDropdown = ref<number | null>(null);
+
+const toggleDropdown = (id: number) => {
+    if (activeDropdown.value === id) {
+        activeDropdown.value = null;
+    } else {
+        activeDropdown.value = id;
+    }
+};
+
+const handleDropdownClickOutside = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.dropdown-trigger') && !target.closest('.dropdown-menu')) {
+        activeDropdown.value = null;
+    }
+};
 
 const selectedProgram = ref<any>(null);
 const showPreviewModal = ref(false);
@@ -100,6 +117,11 @@ const handleNextPage = () => {
 
 onMounted(() => {
     fetchPrograms();
+    window.addEventListener('click', handleDropdownClickOutside);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('click', handleDropdownClickOutside);
 });
 
 let timeout: any = null;
@@ -270,32 +292,86 @@ watch(sort, () => {
                       </svg>
                     </button>
                     
-                    <!-- Laporan Button -->
-                    <template v-if="p.t05_laporan_penyalurans && p.t05_laporan_penyalurans.length > 0">
-                      <div class="flex items-center gap-1.5">
-                        <Link 
-                          :href="`/laporan/${p.t05_laporan_penyalurans[0].id_laporan}/edit`"
-                          class="px-2.5 py-1 text-[10px] font-black text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-300 transition duration-150 uppercase animate-all"
-                        >
-                          Edit Laporan
-                        </Link>
+                    <!-- Laporan Button & Dropdown (Option B) -->
+                    <div class="relative inline-block text-left">
+                      <!-- Case: Has 1 or more reports -->
+                      <template v-if="p.t05_laporan_penyalurans && p.t05_laporan_penyalurans.length > 0">
                         <button 
-                          @click="handleDeleteLaporan(p.t05_laporan_penyalurans[0].id_laporan)"
-                          class="px-2.5 py-1 text-[10px] font-black text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition duration-150 uppercase cursor-pointer"
-                          title="Hapus Laporan"
+                          @click="toggleDropdown(p.id_program)"
+                          class="dropdown-trigger px-2.5 py-1 text-[10px] font-black text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-300 transition duration-150 uppercase flex items-center gap-1 cursor-pointer select-none whitespace-nowrap"
+                          :title="`Kelola ${p.t05_laporan_penyalurans.length} Laporan Penyaluran`"
                         >
-                          Hapus
+                          <span>Laporan ({{ p.t05_laporan_penyalurans.length }})</span>
+                          <svg class="w-2.5 h-2.5 transform transition-transform duration-200" :class="{ 'rotate-180': activeDropdown === p.id_program }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                          </svg>
                         </button>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <Link 
-                        :href="`/laporan/tambah/${p.id_program}`"
-                        class="px-2.5 py-1 text-[10px] font-black text-blue-750 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-300 transition duration-150 uppercase"
-                      >
-                        Tulis Laporan
-                      </Link>
-                    </template>
+                        
+                        <!-- Dropdown Menu List -->
+                        <transition
+                          enter-active-class="transition ease-out duration-100"
+                          enter-from-class="transform opacity-0 scale-95"
+                          enter-to-class="transform opacity-100 scale-100"
+                          leave-active-class="transition ease-in duration-75"
+                          leave-from-class="transform opacity-100 scale-100"
+                          leave-to-class="transform opacity-0 scale-95"
+                        >
+                          <div 
+                            v-if="activeDropdown === p.id_program" 
+                            class="dropdown-menu absolute right-0 mt-1.5 w-64 rounded-xl shadow-lg bg-white border border-gray-200 ring-1 ring-black ring-opacity-5 z-30 overflow-hidden divide-y divide-gray-100 text-left"
+                          >
+                            <div class="px-3 py-2 bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                              Pilih Laporan Penyaluran
+                            </div>
+                            
+                            <div class="max-h-48 overflow-y-auto divide-y divide-gray-50">
+                              <div 
+                                v-for="laporan in p.t05_laporan_penyalurans" 
+                                :key="laporan.id_laporan" 
+                                class="flex items-center justify-between px-3 py-2 hover:bg-gray-50 gap-3 transition"
+                              >
+                                <Link 
+                                  :href="`/laporan/${laporan.id_laporan}/edit`"
+                                  class="text-xs font-semibold text-gray-700 hover:text-[#143E2C] truncate flex-1 block py-0.5"
+                                  :title="`Edit: ${laporan.judul_laporan}`"
+                                >
+                                  {{ laporan.judul_laporan || `Laporan #${laporan.id_laporan}` }}
+                                </Link>
+                                
+                                <button 
+                                  @click="handleDeleteLaporan(laporan.id_laporan)"
+                                  class="p-1 text-gray-400 hover:bg-red-50 hover:text-red-650 rounded-md transition cursor-pointer flex-shrink-0"
+                                  title="Hapus Laporan"
+                                >
+                                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                            
+                            <div class="p-2 bg-gray-50">
+                              <Link 
+                                :href="`/laporan/tambah/${p.id_program}`"
+                                class="w-full text-center block px-3 py-1.5 text-[10px] font-black text-white bg-[#143E2C] hover:bg-[#1a4f38] rounded-lg transition uppercase shadow-xs hover:shadow-sm whitespace-nowrap"
+                              >
+                                + Tulis Laporan Baru
+                              </Link>
+                            </div>
+                          </div>
+                        </transition>
+                      </template>
+                      
+                      <!-- Case: Has no reports -->
+                      <template v-else>
+                        <Link 
+                          :href="`/laporan/tambah/${p.id_program}`"
+                          class="px-2.5 py-1 text-[10px] font-black text-blue-750 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-300 transition duration-150 uppercase whitespace-nowrap inline-block"
+                        >
+                          Tulis Laporan
+                        </Link>
+                      </template>
+                    </div>
 
                     <!-- Edit Program -->
                     <Link 

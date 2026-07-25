@@ -801,3 +801,334 @@ Menambahkan berita penyaluran dana wakaf yang terkumpul pada suatu program.
     "message": "Laporan berhasil dihapus"
   }
   ```
+
+---
+
+### F. Manajemen Pencairan Dana
+
+#### 1. Cek Sisa Dana Program Siap Cair
+- **Method & URL**: `GET` `/api/nazhir/pencairan/available-funds`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "available_funds": 7500000
+  }
+  ```
+
+#### 2. Histori Usulan Pencairan Dana
+- **Method & URL**: `GET` `/api/nazhir/pencairan`
+- **Auth Required**: Yes
+- **Parameter Query (Opsional)**:
+  - `limit` (integer, default `10`)
+  - `page` (integer)
+  - `all` (boolean, `true` untuk tanpa paginasi)
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id_pencairan": 1,
+        "id_program": 1,
+        "nama_program": "Wakaf Sumur Bor Ponpes",
+        "nama_nazhir": "Nazhir Baiturrahman",
+        "jumlah_dana": 5000000,
+        "keterangan": "Pencairan dana tahap pertama...",
+        "status_pencairan": 0,
+        "surat_approval": null,
+        "surat_approval_url": null,
+        "created_at": "2026-07-16 10:00:00",
+        "updated_at": "2026-07-16 10:00:00"
+      }
+    ]
+  }
+  ```
+  *(Catatan status_pencairan: `0` = Pending, `1` = Approved, `2` = Rejected)*
+
+#### 3. Membuat Usulan Pencairan Dana
+- **Method & URL**: `POST` `/api/nazhir/pencairan`
+- **Auth Required**: Yes
+- **Request Body (JSON)**:
+  ```json
+  {
+    "id_program": 1,
+    "jumlah_dana": 5000000,
+    "keterangan": "Pencairan dana tahap pertama..."
+  }
+  ```
+- **Response Sukses (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pengajuan pencairan dana berhasil dikirim.",
+    "data": {
+      "id_pencairan": 1,
+      "id_program": 1,
+      "id_user": 1,
+      "jumlah_dana": 5000000,
+      "keterangan": "Pencairan dana tahap pertama...",
+      "status_pencairan": 0,
+      "updated_at": "2026-07-16 10:00:00",
+      "created_at": "2026-07-16 10:00:00"
+    }
+  }
+  ```
+
+---
+
+## 3. KELOMPOK ENDPOINT: SUPERADMIN (ADMINISTRATIVE)
+Seluruh endpoint Superadmin memiliki prefix `/api/superadmin`.
+
+### A. Autentikasi
+
+#### 1. Masuk Sesi Akun Superadmin
+- **Method & URL**: `POST` `/api/superadmin/login`
+- **Auth Required**: No
+- **Request Body (JSON)**:
+  ```json
+  {
+    "email": "superadmin@example.com",
+    "password": "password"
+  }
+  ```
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Login successful",
+    "data": {
+      "user": {
+        "id_user": 2,
+        "nama": "Superadmin Amanah",
+        "email": "superadmin@example.com",
+        "id_role": 3
+      },
+      "token": "4|super_token_abc..."
+    }
+  }
+  ```
+
+#### 2. Keluar Sesi Akun Superadmin
+- **Method & URL**: `POST` `/api/superadmin/logout`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Logout successful"
+  }
+  ```
+
+---
+
+### B. Manajemen Pengguna
+
+#### 1. Mengambil Data Seluruh Pengguna
+- **Method & URL**: `GET` `/api/superadmin/users`
+- **Auth Required**: Yes
+- **Parameter Query (Opsional)**:
+  - `search` (string)
+  - `role` (integer)
+  - `status` (string, e.g. `"active"`, `"blocked"`, `"pending"`)
+  - `limit` (integer, default `10`)
+  - `all` (boolean)
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id_user": 1,
+        "nama": "Nazhir Amanah",
+        "email": "nazhir@example.com",
+        "no_hp": "081234567890",
+        "status": "active",
+        "id_role": 1,
+        "role_name": "Nazhir",
+        "created_at": "2026-06-01 10:00:00"
+      }
+    ]
+  }
+  ```
+
+#### 2. Menyetujui Pendaftaran Akun Nazhir Baru
+- **Method & URL**: `PUT` `/api/superadmin/users/{id}/approve`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pendaftaran akun Nazhir berhasil disetujui."
+  }
+  ```
+
+#### 3. Menolak Pendaftaran Akun Nazhir Baru
+- **Method & URL**: `PUT` `/api/superadmin/users/{id}/reject`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pendaftaran akun Nazhir berhasil ditolak."
+  }
+  ```
+
+#### 4. Memblokir Status Login Pengguna
+- **Method & URL**: `PUT` `/api/superadmin/users/{id}/block`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Akun berhasil diblokir."
+  }
+  ```
+
+#### 5. Memulihkan Status Login Pengguna (Buka Blokir)
+- **Method & URL**: `PUT` `/api/superadmin/users/{id}/unblock`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Blokir akun berhasil dibuka."
+  }
+  ```
+
+#### 6. Menghapus Data Akun dari Database
+- **Method & URL**: `DELETE` `/api/superadmin/users/{id}`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Akun berhasil dihapus."
+  }
+  ```
+
+---
+
+### C. Manajemen Program Wakaf
+
+#### 1. Mengambil Pengajuan Program Nazhir
+- **Method & URL**: `GET` `/api/superadmin/programs`
+- **Auth Required**: Yes
+- **Parameter Query (Opsional)**:
+  - `search` (string)
+  - `status` (integer, e.g. `0` = Pending, `1` = Approved, `2` = Rejected)
+  - `limit` (integer)
+  - `all` (boolean)
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id_program": 1,
+        "nama_program": "Wakaf Sumur Bor Ponpes",
+        "deskripsi": "...",
+        "target_dana": 25000000,
+        "dana_terkumpul": 0,
+        "status_program": 1,
+        "due_date": "2026-12-31",
+        "gambar_thumbnail": null,
+        "created_at": "2026-06-01 10:00:00"
+      }
+    ]
+  }
+  ```
+
+#### 2. Menyetujui Publikasi Program Wakaf Baru
+- **Method & URL**: `PUT` `/api/superadmin/programs/{id}/approve`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Program wakaf berhasil disetujui dan diterbitkan."
+  }
+  ```
+
+#### 3. Menolak Usulan Program Wakaf Baru
+- **Method & URL**: `PUT` `/api/superadmin/programs/{id}/reject`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Program wakaf berhasil ditolak."
+  }
+  ```
+
+---
+
+### D. Manajemen Verifikasi Pencairan Dana
+
+#### 1. Menampilkan Semua Usulan Pencairan
+- **Method & URL**: `GET` `/api/superadmin/pencairan`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id_pencairan": 1,
+        "id_program": 1,
+        "nama_program": "Wakaf Sumur Bor Ponpes",
+        "id_user": 1,
+        "nama_nazhir": "Nazhir",
+        "jumlah_dana": 5000000,
+        "keterangan": "Pencairan dana",
+        "status_pencairan": 0,
+        "surat_approval": null,
+        "surat_approval_url": null,
+        "created_at": "2026-07-16 10:00:00",
+        "updated_at": "2026-07-16 10:00:00"
+      }
+    ]
+  }
+  ```
+
+#### 2. Menyetujui Permohonan Pencairan Dana
+- **Method & URL**: `PUT` `/api/superadmin/pencairan/{id}/approve`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pengajuan pencairan dana berhasil disetujui."
+  }
+  ```
+
+#### 3. Menolak Permohonan Pencairan Dana
+- **Method & URL**: `PUT` `/api/superadmin/pencairan/{id}/reject`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pengajuan pencairan dana telah ditolak."
+  }
+  ```
+
+#### 4. Mengambil Dokumen Persetujuan Pencairan (Download)
+- **Method & URL**: `GET` `/api/superadmin/pencairan/{id}/download-surat`
+- **Auth Required**: Yes
+- **Response Sukses (200 OK)**: File download stream (PDF/JPG/PNG)
+
+#### 5. Mengunggah Surat Persetujuan Fisik (Upload)
+- **Method & URL**: `POST` `/api/superadmin/pencairan/{id}/upload-surat`
+- **Auth Required**: Yes
+- **Request Body (Multipart/Form-Data)**:
+  - `surat_approval` (file PDF/JPG/PNG, max 10MB)
+- **Response Sukses (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Surat persetujuan berhasil diupload."
+  }
+  ```
+
