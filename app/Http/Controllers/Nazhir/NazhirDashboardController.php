@@ -28,16 +28,20 @@ class NazhirDashboardController extends Controller
         return response()->json(['success' => true, 'data' => $data]);
     }
 
-    public function getPenyebaranProgram()
+    public function getPenyebaranProgram(Request $request)
     {
-        $data = $this->service->getPenyebaranProgram();
+        $bulan = $request->query('bulan');
+        $tahun = $request->query('tahun');
+        $data = $this->service->getPenyebaranProgram($bulan, $tahun);
         return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function getTrendWakafPerTahun(Request $request)
     {
         $tahun = $request->query('tahun', date('Y'));
-        $data = $this->service->getTrendWakafPerTahun($tahun);
+        $bulan = $request->query('bulan');
+        $programId = $request->query('program');
+        $data = $this->service->getTrendWakafPerTahun($tahun, $bulan, $programId);
         return response()->json(['success' => true, 'data' => $data]);
     }
 }

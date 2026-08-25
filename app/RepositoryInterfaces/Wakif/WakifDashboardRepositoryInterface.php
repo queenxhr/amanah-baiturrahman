@@ -13,5 +13,5 @@ interface WakifDashboardRepositoryInterface
     public function getDonaturByProgram($idProgram, array $filters);
     public function getBeritaLaporan($idProgram = null);
     public function getPenyebaranProgram($bulan = null, $tahun = null);
-    public function getTrendWakafPerTahun($tahun);
+    public function getTrendWakafPerTahun($tahun, $bulan = null);
 }

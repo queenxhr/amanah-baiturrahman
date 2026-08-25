@@ -287,6 +287,10 @@ Mengambil data ringkasan total program, dana terkumpul, donatur, dan penerima ma
 
 #### 9. Persentase Penyebaran Wakaf Terhadap Program
 - **Method & URL**: `GET` `/api/wakif/penyebaran-program`
+- **Auth Required**: No
+- **Parameter Query (Opsional)**:
+  - `bulan` (integer, e.g. `5` untuk Mei)
+  - `tahun` (integer, e.g. `2026`)
 - **Response Sukses (200 OK)**:
   ```json
   {
@@ -304,11 +308,13 @@ Mengambil data ringkasan total program, dana terkumpul, donatur, dan penerima ma
   }
   ```
 
-#### 10. Grafik Trend Pengumpulan Wakaf Tahunan
+#### 10. Grafik Trend Pengumpulan Wakaf (Bulanan / Harian)
 - **Method & URL**: `GET` `/api/wakif/trend-wakaf`
-- **Parameter Query (Wajib)**:
-  - `tahun` (integer, e.g. `2026`)
-- **Response Sukses (200 OK)**:
+- **Auth Required**: No
+- **Parameter Query (Opsional)**:
+  - `tahun` (integer, e.g. `2026` - default: tahun saat ini)
+  - `bulan` (integer 1-12, e.g. `5` untuk Mei)
+- **Response Sukses Mode Tahunan (tanpa parameter `bulan`)**:
   ```json
   {
     "success": true,
@@ -316,6 +322,17 @@ Mengambil data ringkasan total program, dana terkumpul, donatur, dan penerima ma
       { "bulan": 1, "wakaf_terkumpul": 15000000 },
       { "bulan": 2, "wakaf_terkumpul": 22000000 },
       { "bulan": 6, "wakaf_terkumpul": 45000000 }
+    ]
+  }
+  ```
+- **Response Sukses Mode Bulanan (dengan parameter `bulan=5`)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      { "tanggal": 1, "wakaf_terkumpul": 500000 },
+      { "tanggal": 15, "wakaf_terkumpul": 1250000 },
+      { "tanggal": 28, "wakaf_terkumpul": 750000 }
     ]
   }
   ```
@@ -522,27 +539,43 @@ Mengambil daftar akun ber-role Wakif (id_role: 2) untuk tabel Manajemen User.
 #### 3. Persentase Distribusi Wakaf
 - **Method & URL**: `GET` `/api/nazhir/penyebaran-program`
 - **Auth Required**: Yes
-- **Response Sukses (200 OK)**:
-  ```json
-  {
-    "success": true,
-    "data": [
-      { "nama_program": "Wakaf Sumur Bor Ponpes", "persen": 45 }
-    ]
-  }
-  ```
-
-#### 4. Trend Wakaf Tahunan Nazhir
-- **Method & URL**: `GET` `/api/nazhir/trend-wakaf`
-- **Auth Required**: Yes
-- **Parameter Query (Wajib)**:
+- **Parameter Query (Opsional)**:
+  - `bulan` (integer 1-12, e.g. `5`)
   - `tahun` (integer, e.g. `2026`)
 - **Response Sukses (200 OK)**:
   ```json
   {
     "success": true,
     "data": [
+      { "nama_program": "Wakaf Sumur Bor Ponpes", "persen": 45 },
+      { "nama_program": "Wakaf Al-Quran Santri Yatim", "persen": 55 }
+    ]
+  }
+  ```
+
+#### 4. Trend Wakaf (Bulanan / Harian) Nazhir
+- **Method & URL**: `GET` `/api/nazhir/trend-wakaf`
+- **Auth Required**: Yes
+- **Parameter Query (Opsional)**:
+  - `tahun` (integer, e.g. `2026` - default: tahun saat ini)
+  - `bulan` (integer 1-12, e.g. `5`)
+  - `program` (integer ID Program)
+- **Response Sukses Mode Tahunan (tanpa parameter `bulan`)**:
+  ```json
+  {
+    "success": true,
+    "data": [
       { "bulan": 6, "wakaf_terkumpul": 45000000 }
+    ]
+  }
+  ```
+- **Response Sukses Mode Bulanan (dengan parameter `bulan=5`)**:
+  ```json
+  {
+    "success": true,
+    "data": [
+      { "tanggal": 1, "wakaf_terkumpul": 500000 },
+      { "tanggal": 15, "wakaf_terkumpul": 1250000 }
     ]
   }
   ```

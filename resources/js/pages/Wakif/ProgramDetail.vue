@@ -138,7 +138,15 @@ const handleFileDrop = (e: DragEvent) => {
     }
 };
 
+const todayDate = computed(() => new Date().toLocaleDateString('en-CA'));
+
 const applyDateFilter = () => {
+    if (tempStartDate.value && tempStartDate.value > todayDate.value) {
+        tempStartDate.value = todayDate.value;
+    }
+    if (tempEndDate.value && tempEndDate.value > todayDate.value) {
+        tempEndDate.value = todayDate.value;
+    }
     startDate.value = tempStartDate.value;
     endDate.value = tempEndDate.value;
     showDatePicker.value = false;
@@ -603,11 +611,11 @@ onMounted(async () => {
                                   <div class="space-y-3">
                                       <div>
                                           <label class="block text-[10px] text-gray-500 font-bold mb-1">Mulai</label>
-                                          <input type="date" v-model="tempStartDate" class="w-full border border-gray-300 rounded p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary" />
+                                          <input type="date" v-model="tempStartDate" :max="tempEndDate && tempEndDate < todayDate ? tempEndDate : todayDate" class="w-full border border-gray-300 rounded p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary" />
                                       </div>
                                       <div>
                                           <label class="block text-[10px] text-gray-500 font-bold mb-1">Sampai</label>
-                                          <input type="date" v-model="tempEndDate" class="w-full border border-gray-300 rounded p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary" />
+                                          <input type="date" v-model="tempEndDate" :min="tempStartDate || undefined" :max="todayDate" class="w-full border border-gray-300 rounded p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary" />
                                       </div>
                                       <div class="flex gap-2 justify-end pt-2">
                                           <button type="button" @click="showDatePicker = false" class="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 font-semibold text-gray-600">Batal</button>
@@ -675,8 +683,8 @@ onMounted(async () => {
                                         <div class="text-[11px] text-gray-600 leading-relaxed font-sans text-justify mb-2 rich-text-content" v-html="news.keterangan"></div>
                                        
                                        <!-- Image presentation for the report -->
-                                       <div class="my-3 max-w-md">
-                                           <img :src="news.gambar_laporan || '/dashboard_foto.png'" alt="Laporan Penyaluran" class="w-full h-44 object-cover rounded shadow-sm">
+                                       <div v-if="news.gambar_laporan" class="my-3 max-w-md">
+                                           <img :src="news.gambar_laporan" alt="Laporan Penyaluran" class="w-full h-44 object-cover rounded shadow-sm">
                                        </div>
                                        
                                        <div class="flex gap-4 text-[10px] text-gray-500 font-sans mt-2">

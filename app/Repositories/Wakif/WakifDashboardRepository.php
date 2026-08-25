@@ -202,24 +202,47 @@ class WakifDashboardRepository implements WakifDashboardRepositoryInterface
         return $result;
     }
 
-    public function getTrendWakafPerTahun($tahun)
+    public function getTrendWakafPerTahun($tahun, $bulan = null)
     {
         $driver = DB::connection()->getDriverName();
-        $monthQuery = 'EXTRACT(MONTH FROM created_at)';
         
-        if ($driver === 'sqlite') {
-            $monthQuery = "cast(strftime('%m', created_at) as integer)";
-        } elseif ($driver === 'mysql') {
-            $monthQuery = "MONTH(created_at)";
-        }
+        if ($bulan) {
+            $dayQuery = 'EXTRACT(DAY FROM created_at)';
+            
+            if ($driver === 'sqlite') {
+                $dayQuery = "cast(strftime('%d', created_at) as integer)";
+            } elseif ($driver === 'mysql') {
+                $dayQuery = "DAY(created_at)";
+            }
 
-        return T04Transaksi::select(
-            DB::raw("$monthQuery as bulan"),
-            DB::raw('SUM(nominal) as wakaf_terkumpul')
-        )
-            ->whereYear('created_at', $tahun)
-            ->groupBy(DB::raw($monthQuery))
-            ->orderBy('bulan')
-            ->get();
+            return T04Transaksi::select(
+                DB::raw("$dayQuery as tanggal"),
+                DB::raw('SUM(nominal) as wakaf_terkumpul')
+            )
+                ->where('status_pembayaran', 1)
+                ->whereYear('created_at', $tahun)
+                ->whereMonth('created_at', $bulan)
+                ->groupBy(DB::raw($dayQuery))
+                ->orderBy('tanggal')
+                ->get();
+        } else {
+            $monthQuery = 'EXTRACT(MONTH FROM created_at)';
+            
+            if ($driver === 'sqlite') {
+                $monthQuery = "cast(strftime('%m', created_at) as integer)";
+            } elseif ($driver === 'mysql') {
+                $monthQuery = "MONTH(created_at)";
+            }
+
+            return T04Transaksi::select(
+                DB::raw("$monthQuery as bulan"),
+                DB::raw('SUM(nominal) as wakaf_terkumpul')
+            )
+                ->where('status_pembayaran', 1)
+                ->whereYear('created_at', $tahun)
+                ->groupBy(DB::raw($monthQuery))
+                ->orderBy('bulan')
+                ->get();
+        }
     }
 }

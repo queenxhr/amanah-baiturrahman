@@ -109,7 +109,11 @@ const fetchTrend = async () => {
     isLoadingTrend.value = true;
 
     try {
-        const res = await axios.get(`/api/wakif/trend-wakaf?tahun=${selectedYear.value}`);
+        let url = `/api/wakif/trend-wakaf?tahun=${selectedYear.value}`;
+        if (selectedMonth.value) {
+            url += `&bulan=${selectedMonth.value}`;
+        }
+        const res = await axios.get(url);
 
         if (res.data && res.data.data) {
             trendData.value = res.data.data;
@@ -134,30 +138,51 @@ watch([selectedMonth, selectedYear], () => {
 });
 
 // Chart computed properties
-// Map trendData to full 12 months array
-const fullYearTrend = computed(() => {
-    const trendMap = new Map();
-    trendData.value.forEach(item => {
-        trendMap.set(Number(item.bulan), Number(item.wakaf_terkumpul));
-    });
-
+const chartTrendData = computed(() => {
     const result = [];
-
-    for (let m = 1; m <= 12; m++) {
-        result.push({
-            bulan: m,
-            label: getMonthName(m),
-            val: trendMap.has(m) ? trendMap.get(m) : 0
+    if (!selectedMonth.value) {
+        // Full year (12 months)
+        const trendMap = new Map();
+        trendData.value.forEach(item => {
+            trendMap.set(Number(item.bulan), Number(item.wakaf_terkumpul));
         });
-    }
 
+        for (let m = 1; m <= 12; m++) {
+            result.push({
+                key: m,
+                label: getMonthName(m),
+                val: trendMap.has(m) ? trendMap.get(m) : 0,
+                fullLabel: `${getMonthName(m)} ${selectedYear.value}`
+            });
+        }
+    } else {
+        // Selected month (days of month)
+        const monthNum = Number(selectedMonth.value);
+        const yearNum = Number(selectedYear.value);
+        const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+
+        const trendMap = new Map();
+        trendData.value.forEach(item => {
+            const dayKey = Number(item.tanggal || item.tgl || item.bulan);
+            trendMap.set(dayKey, Number(item.wakaf_terkumpul));
+        });
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            result.push({
+                key: d,
+                label: `${d}`,
+                val: trendMap.has(d) ? trendMap.get(d) : 0,
+                fullLabel: `Tgl ${d} ${getMonthName(monthNum)} ${yearNum}`
+            });
+        }
+    }
     return result;
 });
 
 // Max value to scale SVG height
 const maxTrendValue = computed(() => {
-    const vals = fullYearTrend.value.map(item => item.val);
-    const max = Math.max(...vals);
+    const vals = chartTrendData.value.map(item => item.val);
+    const max = Math.max(...vals, 0);
 
     return max === 0 ? 100000 : max * 1.1; // padding 10%
 });
@@ -170,19 +195,24 @@ const paddingY = 30;
 
 // Coordinate mapping
 const points = computed(() => {
-    return fullYearTrend.value.map((item, idx) => {
-        const x = paddingX + (idx / 11) * (chartWidth - paddingX * 2);
+    const len = chartTrendData.value.length;
+    if (len === 0) return [];
+
+    const divisor = len > 1 ? len - 1 : 1;
+
+    return chartTrendData.value.map((item, idx) => {
+        const x = paddingX + (idx / divisor) * (chartWidth - paddingX * 2);
         const y = chartHeight - paddingY - (item.val / maxTrendValue.value) * (chartHeight - paddingY * 2);
 
-        return { x, y, val: item.val, label: item.label };
+        return { x, y, val: item.val, label: item.label, fullLabel: item.fullLabel };
     });
 });
 
 // Area path string (goes down to bottom line for gradient fill)
 const areaPath = computed(() => {
     if (points.value.length === 0) {
-return '';
-}
+        return '';
+    }
 
     let p = `M ${points.value[0].x} ${points.value[0].y}`;
 
@@ -200,8 +230,8 @@ return '';
 // Line path string (only outlines the points)
 const linePath = computed(() => {
     if (points.value.length === 0) {
-return '';
-}
+        return '';
+    }
 
     let p = `M ${points.value[0].x} ${points.value[0].y}`;
 
@@ -288,8 +318,8 @@ return '';
                 <div class="lg:col-span-2 bg-white border border-gray-150 rounded-2xl p-6 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <div>
-                            <h3 class="text-sm font-black text-gray-900">Trend Wakaf Per Bulan</h3>
-                            <p class="text-[10px] text-gray-400 font-semibold">Total dana masuk untuk tahun {{ selectedYear }}</p>
+                            <h3 class="text-sm font-black text-gray-900">{{ selectedMonth ? 'Trend Wakaf Per Tanggal' : 'Trend Wakaf Per Bulan' }}</h3>
+                            <p class="text-[10px] text-gray-400 font-semibold">{{ selectedMonth ? `Total dana masuk bulan ${monthsList.find(m => m.value == selectedMonth)?.label || ''} ${selectedYear}` : `Total dana masuk untuk tahun ${selectedYear}` }}</p>
                         </div>
                         <div class="flex items-center gap-1">
                             <span class="w-2.5 h-2.5 rounded-full bg-primary inline-block"></span>
@@ -357,16 +387,24 @@ return '';
 
                             <!-- Tooltip drawn in SVG -->
                             <g v-if="activeTooltipIndex !== null">
-                                <rect :x="points[activeTooltipIndex].x - 65" 
-                                      :y="points[activeTooltipIndex].y - 45" 
-                                      width="130" 
-                                      height="32" 
+                                <rect :x="Math.max(10, Math.min(chartWidth - 145, points[activeTooltipIndex].x - 67.5))" 
+                                      :y="Math.max(10, points[activeTooltipIndex].y - 48)" 
+                                      width="135" 
+                                      height="38" 
                                       rx="6" 
                                       fill="#1e293b" 
                                       shadow="0 4px 6px -1px rgb(0 0 0 / 0.1)" />
                                 
-                                <text :x="points[activeTooltipIndex].x" 
-                                      :y="points[activeTooltipIndex].y - 25" 
+                                <text :x="Math.max(77.5, Math.min(chartWidth - 77.5, points[activeTooltipIndex].x))" 
+                                      :y="Math.max(24, points[activeTooltipIndex].y - 32)" 
+                                      text-anchor="middle" 
+                                      fill="#94a3b8" 
+                                      class="text-[8.5px] font-bold">
+                                    {{ points[activeTooltipIndex].fullLabel }}
+                                </text>
+
+                                <text :x="Math.max(77.5, Math.min(chartWidth - 77.5, points[activeTooltipIndex].x))" 
+                                      :y="Math.max(39, points[activeTooltipIndex].y - 17)" 
                                       text-anchor="middle" 
                                       fill="#ffffff" 
                                       class="text-[9.5px] font-black">

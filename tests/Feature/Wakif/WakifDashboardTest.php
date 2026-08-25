@@ -118,8 +118,24 @@ class WakifDashboardTest extends TestCase
 
     public function test_get_trend_wakaf_per_tahun()
     {
-        T04TransaksiFactory::new()->create(['created_at' => now()->subMonths(1)]);
+        T04TransaksiFactory::new()->create(['status_pembayaran' => 1, 'created_at' => now()->subMonths(1)]);
         $response = $this->getJson('/api/wakif/trend-wakaf?tahun=' . now()->year);
         $response->assertStatus(200);
+    }
+
+    public function test_get_trend_wakaf_per_bulan_dengan_filter_bulan()
+    {
+        T04TransaksiFactory::new()->create([
+            'status_pembayaran' => 1,
+            'created_at' => now()->startOfMonth()
+        ]);
+        $response = $this->getJson('/api/wakif/trend-wakaf?tahun=' . now()->year . '&bulan=' . now()->month);
+        $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => [
+                         '*' => ['tanggal', 'wakaf_terkumpul']
+                     ]
+                 ]);
     }
 }

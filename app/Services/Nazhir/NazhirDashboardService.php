@@ -18,13 +18,13 @@ class NazhirDashboardService
         return $this->repo->getCounters($filters);
     }
 
-    public function getPenyebaranProgram()
+    public function getPenyebaranProgram($bulan = null, $tahun = null)
     {
-        return $this->repo->getPenyebaranProgram();
+        return $this->repo->getPenyebaranProgram($bulan, $tahun);
     }
 
-    public function getTrendWakafPerTahun($tahun)
+    public function getTrendWakafPerTahun($tahun, $bulan = null, $programId = null)
     {
-        return $this->repo->getTrendWakafPerTahun($tahun);
+        return $this->repo->getTrendWakafPerTahun($tahun, $bulan, $programId);
     }
 }

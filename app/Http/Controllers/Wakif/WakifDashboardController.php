@@ -99,7 +99,8 @@ class WakifDashboardController extends Controller
     public function getTrendWakafPerTahun(Request $request)
     {
         $tahun = $request->query('tahun', date('Y'));
-        $data = $this->service->getTrendWakafPerTahun($tahun);
+        $bulan = $request->query('bulan');
+        $data = $this->service->getTrendWakafPerTahun($tahun, $bulan);
         return response()->json(['success' => true, 'data' => $data]);
     }
 }

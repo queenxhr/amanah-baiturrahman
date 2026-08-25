@@ -65,8 +65,8 @@ class WakifDashboardService
         return $this->repo->getPenyebaranProgram($bulan, $tahun);
     }
 
-    public function getTrendWakafPerTahun($tahun)
+    public function getTrendWakafPerTahun($tahun, $bulan = null)
     {
-        return $this->repo->getTrendWakafPerTahun($tahun);
+        return $this->repo->getTrendWakafPerTahun($tahun, $bulan);
     }
 }

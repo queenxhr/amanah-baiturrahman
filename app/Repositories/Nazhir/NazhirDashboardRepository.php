@@ -69,49 +69,97 @@ class NazhirDashboardRepository implements NazhirDashboardRepositoryInterface
         ];
     }
 
-    public function getPenyebaranProgram()
+    public function getPenyebaranProgram($bulan = null, $tahun = null)
     {
         T04Transaksi::sweepExpiredTransactions();
 
-        $totalTransaksi = T04Transaksi::count();
+        $totalQuery = T04Transaksi::where('status_pembayaran', 1);
+        if ($tahun) {
+            $totalQuery->whereYear('created_at', $tahun);
+        }
+        if ($bulan) {
+            $totalQuery->whereMonth('created_at', $bulan);
+        }
+        $totalTransaksi = $totalQuery->count();
         if ($totalTransaksi == 0) return [];
 
-        $programs = T04Transaksi::select('id_program', DB::raw('count(*) as count'))
-            ->groupBy('id_program')
-            ->get();
+        $txQuery = T04Transaksi::select('id_program', DB::raw('count(*) as count'))
+            ->where('status_pembayaran', 1);
+        if ($tahun) {
+            $txQuery->whereYear('created_at', $tahun);
+        }
+        if ($bulan) {
+            $txQuery->whereMonth('created_at', $bulan);
+        }
+        $programs = $txQuery->groupBy('id_program')->get();
 
         $result = [];
         foreach ($programs as $prog) {
             $nama = T03ProgramWakaf::where('id_program', $prog->id_program)->value('nama_program');
-            $persenan = ($prog->count / $totalTransaksi) * 100;
-            $result[] = [
-                'nama_program' => $nama,
-                'persen' => round($persenan, 2)
-            ];
+            if ($nama) {
+                $persenan = ($prog->count / $totalTransaksi) * 100;
+                $result[] = [
+                    'nama_program' => $nama,
+                    'persen' => round($persenan, 2)
+                ];
+            }
         }
         return $result;
     }
 
-    public function getTrendWakafPerTahun($tahun)
+    public function getTrendWakafPerTahun($tahun, $bulan = null, $programId = null)
     {
         T04Transaksi::sweepExpiredTransactions();
 
         $driver = DB::connection()->getDriverName();
-        $monthQuery = 'EXTRACT(MONTH FROM created_at)';
-        
-        if ($driver === 'sqlite') {
-            $monthQuery = "cast(strftime('%m', created_at) as integer)";
-        } elseif ($driver === 'mysql') {
-            $monthQuery = "MONTH(created_at)";
-        }
 
-        return T04Transaksi::select(
-            DB::raw("$monthQuery as bulan"),
-            DB::raw('SUM(nominal) as wakaf_terkumpul')
-        )
-            ->whereYear('created_at', $tahun)
-            ->groupBy(DB::raw($monthQuery))
-            ->orderBy('bulan')
-            ->get();
+        if ($bulan) {
+            $dayQuery = 'EXTRACT(DAY FROM created_at)';
+            
+            if ($driver === 'sqlite') {
+                $dayQuery = "cast(strftime('%d', created_at) as integer)";
+            } elseif ($driver === 'mysql') {
+                $dayQuery = "DAY(created_at)";
+            }
+
+            $query = T04Transaksi::select(
+                DB::raw("$dayQuery as tanggal"),
+                DB::raw('SUM(nominal) as wakaf_terkumpul')
+            )
+                ->where('status_pembayaran', 1)
+                ->whereYear('created_at', $tahun)
+                ->whereMonth('created_at', $bulan);
+
+            if ($programId) {
+                $query->where('id_program', $programId);
+            }
+
+            return $query->groupBy(DB::raw($dayQuery))
+                ->orderBy('tanggal')
+                ->get();
+        } else {
+            $monthQuery = 'EXTRACT(MONTH FROM created_at)';
+            
+            if ($driver === 'sqlite') {
+                $monthQuery = "cast(strftime('%m', created_at) as integer)";
+            } elseif ($driver === 'mysql') {
+                $monthQuery = "MONTH(created_at)";
+            }
+
+            $query = T04Transaksi::select(
+                DB::raw("$monthQuery as bulan"),
+                DB::raw('SUM(nominal) as wakaf_terkumpul')
+            )
+                ->where('status_pembayaran', 1)
+                ->whereYear('created_at', $tahun);
+
+            if ($programId) {
+                $query->where('id_program', $programId);
+            }
+
+            return $query->groupBy(DB::raw($monthQuery))
+                ->orderBy('bulan')
+                ->get();
+        }
     }
 }
